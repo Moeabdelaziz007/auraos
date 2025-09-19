@@ -62,14 +62,15 @@ export class ErrorHandler {
     }
 
     if (error instanceof Error) {
+      const { name, message, stack, ...rest } = error;
       return {
         code: 'GENERIC_ERROR',
-        message: error.message,
-        stack: error.stack,
+        message: message,
+        stack: stack,
         timestamp: new Date(),
         details: {
-          name: error.name,
-          cause: (error as any).cause
+          name: name,
+          ...rest
         }
       };
     }
@@ -208,7 +209,7 @@ export const ERROR_MESSAGES: Record<string, string> = {
   
   [ERROR_CODES.API_ERROR]: 'An error occurred while processing your request.',
   [ERROR_CODES.NOT_FOUND]: 'The requested resource was not found.',
-  [ERROR_CODES.SERVER_ERROR]: 'Server error. Please try again later.',
+  [ERROR_CODES.SERVER_ERROR]:. Please try again later.',
   [ERROR_CODES.RATE_LIMITED]: 'Too many requests. Please wait a moment.',
   
   [ERROR_CODES.BUSINESS_ERROR]: 'Unable to complete the requested action.',
