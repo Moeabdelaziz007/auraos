@@ -13,6 +13,7 @@ import AIAgents from "@/pages/ai-agents";
 import TelegramPage from "@/pages/telegram";
 import SmartLearningPage from "@/pages/smart-learning";
 import AdvancedAIToolsPage from "@/pages/advanced-ai-tools";
+import LearningDashboard from "@/pages/learning-dashboard";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -26,6 +27,7 @@ function Router() {
         <Route path="/telegram" component={TelegramPage} />
         <Route path="/smart-learning" component={SmartLearningPage} />
         <Route path="/advanced-ai-tools" component={AdvancedAIToolsPage} />
+        <Route path="/learning" component={LearningDashboard} />
         <Route component={NotFound} />
       </Switch>
     </ProtectedRoute>

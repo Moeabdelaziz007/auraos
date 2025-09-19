@@ -16,6 +16,7 @@ import { getIntelligentWorkflowOrchestrator } from "./intelligent-workflow.js";
 import { initializeMultiModalAI, getMultiModalAIEngine } from "./multi-modal-ai.js";
 import { initializeRealTimeAIStreaming, getRealTimeAIStreaming } from "./real-time-streaming.js";
 import { initializeAIModelManagement, getAIModelManagementSystem } from "./ai-model-management.js";
+import { initializeLearningSystem, getLearningSystem } from "./learning-automation.js";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
@@ -85,6 +86,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     console.error('❌ Failed to initialize AI Model Management System:', error);
   }
 
+  // Initialize Learning Automation System
+  try {
+    const learningSystem = initializeLearningSystem();
+    console.log('📚 Learning Automation System initialized successfully');
+  } catch (error) {
+    console.error('❌ Failed to initialize Learning Automation System:', error);
+  }
+
   // WebSocket server for real-time updates
   const wss = new WebSocketServer({ 
     server: httpServer, 
@@ -151,6 +160,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   }, 30000); // Every 30 seconds
 
+  // Learning System Integration with WebSocket
+  const learningSystem = getLearningSystem();
+  
+  // Listen for learning events and broadcast them
+  learningSystem.on('levelUp', (data) => {
+    broadcast({
+      type: 'levelUp',
+      ...data,
+      timestamp: Date.now()
+    });
+  });
+
+  learningSystem.on('badgeUnlocked', (data) => {
+    broadcast({
+      type: 'badgeUnlocked',
+      ...data,
+      timestamp: Date.now()
+    });
+  });
+
+  learningSystem.on('achievementUnlocked', (data) => {
+    broadcast({
+      type: 'achievementUnlocked',
+      ...data,
+      timestamp: Date.now()
+    });
+  });
+
   // User routes
   app.get('/api/users/current', async (req, res) => {
     try {
@@ -172,6 +209,66 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(stats);
     } catch (error) {
       res.status(500).json({ message: 'Failed to get user stats' });
+    }
+  });
+
+  // Learning System API Routes
+  app.get('/api/learning/progress/:userId', async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const progress = learningSystem.getUserProgress(userId);
+      res.json(progress);
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to get learning progress' });
+    }
+  });
+
+  app.get('/api/learning/activities/:userId', async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const limit = parseInt(req.query.limit as string) || 50;
+      const activities = learningSystem.getUserActivities(userId, limit);
+      res.json(activities);
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to get learning activities' });
+    }
+  });
+
+  app.get('/api/learning/recommendations/:userId', async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const recommendations = learningSystem.getUserRecommendations(userId);
+      res.json(recommendations);
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to get learning recommendations' });
+    }
+  });
+
+  app.post('/api/learning/activity', async (req, res) => {
+    try {
+      const activity = await learningSystem.recordActivity(req.body);
+      res.json(activity);
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to record learning activity' });
+    }
+  });
+
+  app.get('/api/learning/leaderboard', async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 10;
+      const leaderboard = learningSystem.getLeaderboard(limit);
+      res.json(leaderboard);
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to get leaderboard' });
+    }
+  });
+
+  app.get('/api/learning/challenges', async (req, res) => {
+    try {
+      const challenges = learningSystem.getActiveChallenges();
+      res.json(challenges);
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to get challenges' });
     }
   });
 
