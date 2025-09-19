@@ -12,6 +12,8 @@ const navigation = [
   { name: 'Social Feed', href: '/social-feed', icon: 'fas fa-users', hasNotification: true },
   { name: 'Workflows', href: '/workflows', icon: 'fas fa-project-diagram' },
   { name: 'AI Agents', href: '/ai-agents', icon: 'fas fa-robot' },
+  { name: 'MCP Tools', href: '/mcp-tools', icon: 'fas fa-puzzle-piece', hasNotification: true },
+  { name: 'Prompt Library', href: '/prompt-library', icon: 'fas fa-book', hasNotification: true },
   { name: 'Learning', href: '/learning', icon: 'fas fa-graduation-cap', hasNotification: true },
   { name: 'Smart Learning', href: '/smart-learning', icon: 'fas fa-brain' },
   { name: 'AI Tools', href: '/advanced-ai-tools', icon: 'fas fa-tools' },

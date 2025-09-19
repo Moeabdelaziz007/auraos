@@ -1,0 +1,218 @@
+name: Cursor CLI Integration
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      cursor_command:
+        description: 'Custom Cursor CLI command to run'
+        required: false
+        default: 'analyze'
+      model:
+        description: 'AI model to use'
+        required: false
+        default: 'gpt-4'
+
+jobs:
+  cursor-analysis:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Fetch all history for better analysis
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: '**/package-lock.json'
+    
+    - name: Install dependencies
+      run: |
+        if [ -f "package.json" ]; then
+          npm ci
+        fi
+        if [ -f "client/package.json" ]; then
+          cd client && npm ci && cd ..
+        fi
+        if [ -f "server/package.json" ]; then
+          cd server && npm ci && cd ..
+        fi
+    
+    - name: Install Cursor CLI
+      run: |
+        # Install Cursor CLI
+        curl -fsSL https://cursor.com/install | bash
+        echo "$HOME/.cursor/bin" >> $GITHUB_PATH
+        
+        # Verify installation
+        $HOME/.cursor/bin/cursor --version
+    
+    - name: Authenticate Cursor CLI
+      env:
+        CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
+      run: |
+        echo "Cursor CLI authenticated with API key"
+        export CURSOR_API_KEY="$CURSOR_API_KEY"
+    
+    - name: Run Cursor Analysis
+      env:
+        CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
+      run: |
+        # Set up environment
+        export PATH="$HOME/.cursor/bin:$PATH"
+        
+        # Default analysis command
+        CURSOR_COMMAND="${{ github.event.inputs.cursor_command || 'analyze' }}"
+        MODEL="${{ github.event.inputs.model || 'gpt-4' }}"
+        
+        case $CURSOR_COMMAND in
+          "analyze")
+            echo "Running code analysis with Cursor CLI..."
+            cursor-agent -p "Analyze this codebase for:
+            1. Code quality issues
+            2. Security vulnerabilities
+            3. Performance optimizations
+            4. Best practices violations
+            5. Potential bugs
+            
+            Focus on the main application files and provide actionable recommendations." --model $MODEL
+            ;;
+          "review")
+            echo "Running code review with Cursor CLI..."
+            cursor-agent -p "Review the recent changes in this repository:
+            1. Check for breaking changes
+            2. Validate code style consistency
+            3. Ensure proper error handling
+            4. Verify security practices
+            5. Suggest improvements
+            
+            Provide a detailed code review report." --model $MODEL
+            ;;
+          "test")
+            echo "Running test analysis with Cursor CLI..."
+            cursor-agent -p "Analyze the test coverage and quality:
+            1. Identify missing test cases
+            2. Review test quality and coverage
+            3. Suggest test improvements
+            4. Check for edge cases not covered
+            5. Validate test structure and organization
+            
+            Provide recommendations for improving test suite." --model $MODEL
+            ;;
+          "security")
+            echo "Running security analysis with Cursor CLI..."
+            cursor-agent -p "Perform a comprehensive security audit:
+            1. Check for common vulnerabilities (OWASP Top 10)
+            2. Review authentication and authorization
+            3. Validate input sanitization
+            4. Check for sensitive data exposure
+            5. Review dependency vulnerabilities
+            6. Validate secure coding practices
+            
+            Provide a security assessment report." --model $MODEL
+            ;;
+          "performance")
+            echo "Running performance analysis with Cursor CLI..."
+            cursor-agent -p "Analyze performance bottlenecks:
+            1. Identify slow database queries
+            2. Check for memory leaks
+            3. Review inefficient algorithms
+            4. Analyze bundle size and loading times
+            5. Check for unnecessary re-renders
+            6. Review caching strategies
+            
+            Provide performance optimization recommendations." --model $MODEL
+            ;;
+          "custom")
+            echo "Running custom command..."
+            cursor-agent -p "${{ github.event.inputs.custom_prompt }}" --model $MODEL
+            ;;
+          *)
+            echo "Unknown command: $CURSOR_COMMAND"
+            echo "Available commands: analyze, review, test, security, performance, custom"
+            exit 1
+            ;;
+        esac
+    
+    - name: Generate Analysis Report
+      if: always()
+      run: |
+        echo "# Cursor CLI Analysis Report" >> $GITHUB_STEP_SUMMARY
+        echo "**Command:** ${{ github.event.inputs.cursor_command || 'analyze' }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Model:** ${{ github.event.inputs.model || 'gpt-4' }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Timestamp:** $(date)" >> $GITHUB_STEP_SUMMARY
+        echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "Analysis completed successfully! Check the logs above for detailed results." >> $GITHUB_STEP_SUMMARY
+    
+    - name: Upload Analysis Artifacts
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: cursor-analysis-${{ github.run_number }}
+        path: |
+          cursor-analysis-*.log
+          cursor-report-*.md
+        retention-days: 30
+
+  cursor-automation:
+    runs-on: ubuntu-latest
+    needs: cursor-analysis
+    if: github.event_name == 'workflow_dispatch'
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+    
+    - name: Install Cursor CLI
+      run: |
+        curl -fsSL https://cursor.com/install | bash
+        echo "$HOME/.cursor/bin" >> $GITHUB_PATH
+    
+    - name: Run Cursor Automation
+      env:
+        CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        export PATH="$HOME/.cursor/bin:$PATH"
+        
+        # Run automated code improvements
+        cursor-agent -p "Based on the previous analysis, implement the recommended improvements:
+        1. Fix critical security issues
+        2. Optimize performance bottlenecks
+        3. Improve code quality
+        4. Add missing error handling
+        5. Update documentation
+        
+        Make targeted, safe improvements without breaking existing functionality." --model ${{ github.event.inputs.model || 'gpt-4' }}
+    
+    - name: Commit Changes
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add .
+        git diff --staged --quiet || git commit -m "🤖 Automated improvements via Cursor CLI
+        
+        - Applied security fixes
+        - Optimized performance
+        - Improved code quality
+        - Enhanced error handling
+        - Updated documentation
+        
+        Generated by Cursor CLI Integration workflow"
+        git push

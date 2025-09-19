@@ -13,7 +13,10 @@
     "deploy": "npm run build && firebase deploy",
     "deploy:hosting": "npm run build && firebase deploy --only hosting",
     "preview": "npm run build && firebase serve",
-    "mcp-server": "tsx server/mcp-server.ts"
+    "mcp-server": "tsx server/mcp-server.ts",
+    "test:cursor-cli": "node test-cursor-cli-mcp.cjs",
+    "test:mcp-tools": "node test-mcp-tools.cjs",
+    "test:comprehensive": "node test-comprehensive-mcp-tools.cjs"
   },
   "dependencies": {
     "@firebase/auth": "^1.11.0",

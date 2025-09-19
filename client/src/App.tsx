@@ -1,4 +1,5 @@
 import { Switch, Route } from "wouter";
+import { Suspense, lazy } from "react";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -10,36 +11,51 @@ import { ErrorBoundary } from "@/components/ui/error-boundary";
 import { KeyboardShortcuts, COMMON_SHORTCUTS } from "@/components/ui/keyboard-navigation";
 import { useRouterTracking } from "@/components/analytics/page-tracker";
 import { withPageTracking } from "@/components/analytics/page-tracker";
-import Dashboard from "@/pages/dashboard";
-import SocialFeed from "@/pages/social-feed";
-import Workflows from "@/pages/workflows";
-import AIAgents from "@/pages/ai-agents";
-import TelegramPage from "@/pages/telegram";
-import SmartLearningPage from "@/pages/smart-learning";
-import AdvancedAIToolsPage from "@/pages/advanced-ai-tools";
-import LearningDashboard from "@/pages/learning-dashboard";
-import NotFound from "@/pages/not-found";
-import DebugView from "@/pages/DebugView";
-import Workspace from "@/pages/Workspace";
+
+// Lazy load pages for better performance
+const Dashboard = lazy(() => import("@/pages/dashboard"));
+const SocialFeed = lazy(() => import("@/pages/social-feed"));
+const Workflows = lazy(() => import("@/pages/workflows"));
+const AIAgents = lazy(() => import("@/pages/ai-agents"));
+const MCPToolsPage = lazy(() => import("@/pages/mcp-tools"));
+const PromptLibraryPage = lazy(() => import("@/pages/prompt-library"));
+const TelegramPage = lazy(() => import("@/pages/telegram"));
+const SmartLearningPage = lazy(() => import("@/pages/smart-learning"));
+const AdvancedAIToolsPage = lazy(() => import("@/pages/advanced-ai-tools"));
+const LearningDashboard = lazy(() => import("@/pages/learning-dashboard"));
+const NotFound = lazy(() => import("@/pages/not-found"));
+const DebugView = lazy(() => import("@/pages/DebugView"));
+const Workspace = lazy(() => import("@/pages/Workspace"));
+
+// Loading component
+const PageLoader = () => (
+  <div className="flex items-center justify-center h-screen">
+    <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+  </div>
+);
 
 function Router() {
   useRouterTracking(); // Track router navigation
   
   return (
     <ProtectedRoute>
-      <Switch>
-        <Route path="/" component={withPageTracking(Dashboard, 'Dashboard')} />
-        <Route path="/social-feed" component={withPageTracking(SocialFeed, 'Social Feed')} />
-        <Route path="/workflows" component={withPageTracking(Workflows, 'Workflows')} />
-        <Route path="/ai-agents" component={withPageTracking(AIAgents, 'AI Agents')} />
-        <Route path="/telegram" component={withPageTracking(TelegramPage, 'Telegram')} />
-        <Route path="/smart-learning" component={withPageTracking(SmartLearningPage, 'Smart Learning')} />
-        <Route path="/advanced-ai-tools" component={withPageTracking(AdvancedAIToolsPage, 'Advanced AI Tools')} />
-        <Route path="/learning" component={withPageTracking(LearningDashboard, 'Learning Dashboard')} />
-        <Route path="/debug" component={withPageTracking(DebugView, 'Debug View')} />
-        <Route path="/workspace" component={withPageTracking(Workspace, 'Workspace')} />
-        <Route component={withPageTracking(NotFound, 'Not Found')} />
-      </Switch>
+      <Suspense fallback={<PageLoader />}>
+        <Switch>
+          <Route path="/" component={withPageTracking(Dashboard, 'Dashboard')} />
+          <Route path="/social-feed" component={withPageTracking(SocialFeed, 'Social Feed')} />
+          <Route path="/workflows" component={withPageTracking(Workflows, 'Workflows')} />
+          <Route path="/ai-agents" component={withPageTracking(AIAgents, 'AI Agents')} />
+          <Route path="/mcp-tools" component={withPageTracking(MCPToolsPage, 'MCP Tools')} />
+          <Route path="/prompt-library" component={withPageTracking(PromptLibraryPage, 'Prompt Library')} />
+          <Route path="/telegram" component={withPageTracking(TelegramPage, 'Telegram')} />
+          <Route path="/smart-learning" component={withPageTracking(SmartLearningPage, 'Smart Learning')} />
+          <Route path="/advanced-ai-tools" component={withPageTracking(AdvancedAIToolsPage, 'Advanced AI Tools')} />
+          <Route path="/learning" component={withPageTracking(LearningDashboard, 'Learning Dashboard')} />
+          <Route path="/debug" component={withPageTracking(DebugView, 'Debug View')} />
+          <Route path="/workspace" component={withPageTracking(Workspace, 'Workspace')} />
+          <Route component={withPageTracking(NotFound, 'Not Found')} />
+        </Switch>
+      </Suspense>
     </ProtectedRoute>
   );
 }

@@ -1,169 +1,290 @@
-import { useQuery } from "@tanstack/react-query";
-import Sidebar from "@/components/layout/sidebar";
-import Header from "@/components/layout/header";
-import AgentTemplateCard from "@/components/agents/agent-template-card";
-import ChatWidget from "@/components/chat/chat-widget";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { AgentTemplate, UserAgent } from "@shared/schema";
+import { Bot, Zap, Brain, Settings, Play, CheckCircle, XCircle, Loader2, Workflow, Plug } from "lucide-react";
+import AIAgentsApp from "@/apps/ai-agents/ai-agents-app";
+import PluginManagerApp from "@/apps/ai-agents/plugin-manager-app";
+import WorkflowBuilderApp from "@/apps/ai-agents/workflow-builder-app";
 
-export default function AIAgents() {
-  const { data: templates, isLoading: templatesLoading } = useQuery<AgentTemplate[]>({
-    queryKey: ['/api/agent-templates'],
-  });
-
-  const { data: userAgents, isLoading: agentsLoading } = useQuery<UserAgent[]>({
-    queryKey: ['/api/user-agents'],
-    queryFn: () => fetch('/api/user-agents?userId=user-1').then(res => res.json()),
-  });
+export default function AIAgentsPage() {
+  const [activeTab, setActiveTab] = useState('agents');
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
-      <Sidebar />
-      
+    <div className="flex h-screen overflow-hidden bg-background carbon-texture">
       <div className="flex-1 flex flex-col overflow-hidden">
-        <Header 
-          title="AI Agents" 
-          subtitle="Create and manage your intelligent automation agents" 
-        />
-        
-        <main className="flex-1 overflow-auto">
+        <div className="p-6 border-b border-border/50">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold neon-text">AI Agents & Plugins</h1>
+              <p className="text-muted-foreground mt-2">
+                Powerful AI agents with MCP plugin capabilities for complex task automation
+              </p>
+            </div>
+            <Badge variant="outline" className="text-sm">
+              Advanced AI System
+            </Badge>
+          </div>
+        </div>
+
+        <div className="flex-1 overflow-auto cyber-scrollbar">
           <div className="p-6 max-w-7xl mx-auto">
-            <Tabs defaultValue="templates" className="space-y-6">
-              <TabsList>
-                <TabsTrigger value="templates" data-testid="tab-templates">Templates</TabsTrigger>
-                <TabsTrigger value="my-agents" data-testid="tab-my-agents">My Agents</TabsTrigger>
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+              <TabsList className="grid w-full grid-cols-4">
+                <TabsTrigger value="agents">AI Agents</TabsTrigger>
+                <TabsTrigger value="plugins">Plugin Manager</TabsTrigger>
+                <TabsTrigger value="workflows">Workflow Builder</TabsTrigger>
+                <TabsTrigger value="overview">Overview</TabsTrigger>
               </TabsList>
 
-              <TabsContent value="templates" className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="text-2xl font-bold text-foreground">Agent Templates</h2>
-                    <p className="text-muted-foreground">Choose from pre-built templates or create your own</p>
-                  </div>
-                  <Button data-testid="button-create-custom-agent">
-                    <i className="fas fa-plus mr-2"></i>
-                    Create Custom Agent
-                  </Button>
-                </div>
-
-                {templatesLoading ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {Array.from({ length: 6 }).map((_, i) => (
-                      <Card key={i} className="p-6">
-                        <div className="animate-pulse space-y-4">
-                          <div className="w-8 h-8 bg-muted rounded-lg"></div>
-                          <div className="h-4 bg-muted rounded w-3/4"></div>
-                          <div className="h-3 bg-muted rounded w-full"></div>
-                          <div className="h-3 bg-muted rounded w-1/2"></div>
-                        </div>
-                      </Card>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {templates?.map((template) => (
-                      <AgentTemplateCard 
-                        key={template.id} 
-                        template={template}
-                        showActions 
-                      />
-                    ))}
-                  </div>
-                )}
+              <TabsContent value="agents" className="space-y-6">
+                <AIAgentsApp />
               </TabsContent>
 
-              <TabsContent value="my-agents" className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="text-2xl font-bold text-foreground">My AI Agents</h2>
-                    <p className="text-muted-foreground">Manage your active automation agents</p>
-                  </div>
+              <TabsContent value="plugins" className="space-y-6">
+                <PluginManagerApp />
+              </TabsContent>
+
+              <TabsContent value="workflows" className="space-y-6">
+                <WorkflowBuilderApp />
+              </TabsContent>
+
+              <TabsContent value="overview" className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <Card className="glass-card">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Bot className="w-5 h-5 text-primary" />
+                        AI Agents
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Intelligent agents that can use multiple MCP tools as plugins to handle complex tasks
+                      </p>
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span>Available Agents:</span>
+                          <span className="font-medium">6</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span>Active Agents:</span>
+                          <span className="font-medium text-green-500">6</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span>Total Capabilities:</span>
+                          <span className="font-medium">25+</span>
+                        </div>
+                      </div>
+                      <Button 
+                        className="w-full mt-4" 
+                        onClick={() => setActiveTab('agents')}
+                      >
+                        Manage Agents
+                      </Button>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="glass-card">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Plug className="w-5 h-5 text-primary" />
+                        MCP Plugins
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Manage and configure MCP tools that agents can use as plugins
+                      </p>
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span>Available Plugins:</span>
+                          <span className="font-medium">16</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span>Active Plugins:</span>
+                          <span className="font-medium text-green-500">15</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span>Categories:</span>
+                          <span className="font-medium">8</span>
+                        </div>
+                      </div>
+                      <Button 
+                        className="w-full mt-4" 
+                        onClick={() => setActiveTab('plugins')}
+                      >
+                        Manage Plugins
+                      </Button>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="glass-card">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Workflow className="w-5 h-5 text-primary" />
+                        Workflows
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Create complex automated workflows using agents and plugins
+                      </p>
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span>Workflows Created:</span>
+                          <span className="font-medium">0</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span>Active Workflows:</span>
+                          <span className="font-medium text-green-500">0</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span>Executions:</span>
+                          <span className="font-medium">0</span>
+                        </div>
+                      </div>
+                      <Button 
+                        className="w-full mt-4" 
+                        onClick={() => setActiveTab('workflows')}
+                      >
+                        Build Workflows
+                      </Button>
+                    </CardContent>
+                  </Card>
                 </div>
 
-                {agentsLoading ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {Array.from({ length: 3 }).map((_, i) => (
-                      <Card key={i} className="p-6">
-                        <div className="animate-pulse space-y-4">
-                          <div className="h-4 bg-muted rounded w-3/4"></div>
-                          <div className="h-3 bg-muted rounded w-full"></div>
-                          <div className="h-8 bg-muted rounded w-1/3 mt-4"></div>
-                        </div>
-                      </Card>
-                    ))}
-                  </div>
-                ) : userAgents?.length ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {userAgents.map((agent) => (
-                      <Card key={agent.id} className="p-6" data-testid={`agent-card-${agent.id}`}>
-                        <div className="space-y-4">
-                          <div className="flex items-start justify-between">
-                            <h3 className="font-semibold text-foreground">{agent.name}</h3>
-                            <div className={`w-3 h-3 rounded-full ${agent.isActive ? 'bg-green-500' : 'bg-gray-400'}`} 
-                                 data-testid={`status-${agent.id}`}></div>
-                          </div>
-                          
-                          <div className="text-sm text-muted-foreground space-y-2">
-                            <div className="flex justify-between">
-                              <span>Status:</span>
-                              <span className={agent.isActive ? 'text-green-600' : 'text-gray-500'}>
-                                {agent.isActive ? 'Active' : 'Inactive'}
-                              </span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span>Runs:</span>
-                              <span data-testid={`run-count-${agent.id}`}>{agent.runCount}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span>Last Run:</span>
-                              <span data-testid={`last-run-${agent.id}`}>
-                                {agent.lastRun ? new Date(agent.lastRun).toLocaleDateString() : 'Never'}
-                              </span>
-                            </div>
-                          </div>
-                          
-                          <div className="flex gap-2">
-                            <Button 
-                              size="sm" 
-                              variant={agent.isActive ? "secondary" : "default"}
-                              data-testid={`button-toggle-${agent.id}`}
-                            >
-                              <i className={`fas ${agent.isActive ? 'fa-pause' : 'fa-play'} mr-1`}></i>
-                              {agent.isActive ? 'Pause' : 'Start'}
-                            </Button>
-                            <Button size="sm" variant="outline" data-testid={`button-edit-${agent.id}`}>
-                              <i className="fas fa-edit mr-1"></i>
-                              Edit
-                            </Button>
-                          </div>
-                        </div>
-                      </Card>
-                    ))}
-                  </div>
-                ) : (
-                  <Card className="p-12 text-center">
-                    <div className="space-y-4">
-                      <i className="fas fa-robot text-4xl text-muted-foreground"></i>
-                      <div>
-                        <h3 className="text-lg font-semibold text-foreground">No agents created yet</h3>
-                        <p className="text-muted-foreground">Create your first AI agent from a template or build a custom one</p>
+                <Card className="glass-card">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Brain className="w-5 h-5 text-primary" />
+                      System Overview
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                      <div className="text-center p-4 rounded-lg bg-primary/10">
+                        <div className="text-2xl font-bold text-primary">100%</div>
+                        <div className="text-sm text-muted-foreground">System Uptime</div>
                       </div>
-                      <Button data-testid="button-get-started">
-                        <i className="fas fa-plus mr-2"></i>
-                        Get Started
-                      </Button>
+                      <div className="text-center p-4 rounded-lg bg-accent/10">
+                        <div className="text-2xl font-bold text-accent">2.1s</div>
+                        <div className="text-sm text-muted-foreground">Avg Response</div>
+                      </div>
+                      <div className="text-center p-4 rounded-lg bg-green-500/10">
+                        <div className="text-2xl font-bold text-green-500">1,247</div>
+                        <div className="text-sm text-muted-foreground">Tasks Completed</div>
+                      </div>
+                      <div className="text-center p-4 rounded-lg bg-blue-500/10">
+                        <div className="text-2xl font-bold text-blue-500">24/7</div>
+                        <div className="text-sm text-muted-foreground">Availability</div>
+                      </div>
                     </div>
+                  </CardContent>
+                </Card>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <Card className="glass-card">
+                    <CardHeader>
+                      <CardTitle>Agent Types</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-3 p-2 rounded bg-blue-500/10">
+                          <span className="text-lg">🔍</span>
+                          <div>
+                            <div className="font-medium">Research Agent</div>
+                            <div className="text-sm text-muted-foreground">Web research & analysis</div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3 p-2 rounded bg-green-500/10">
+                          <span className="text-lg">💻</span>
+                          <div>
+                            <div className="font-medium">Development Agent</div>
+                            <div className="text-sm text-muted-foreground">Code analysis & debugging</div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3 p-2 rounded bg-purple-500/10">
+                          <span className="text-lg">📝</span>
+                          <div>
+                            <div className="font-medium">Content Agent</div>
+                            <div className="text-sm text-muted-foreground">Content creation & optimization</div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3 p-2 rounded bg-orange-500/10">
+                          <span className="text-lg">📊</span>
+                          <div>
+                            <div className="font-medium">Analytics Agent</div>
+                            <div className="text-sm text-muted-foreground">Data analysis & visualization</div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3 p-2 rounded bg-red-500/10">
+                          <span className="text-lg">⚙️</span>
+                          <div>
+                            <div className="font-medium">Automation Agent</div>
+                            <div className="text-sm text-muted-foreground">Workflow automation</div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3 p-2 rounded bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+                          <span className="text-lg">🚀</span>
+                          <div>
+                            <div className="font-medium">Super Agent</div>
+                            <div className="text-sm opacity-90">All capabilities combined</div>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
                   </Card>
-                )}
+
+                  <Card className="glass-card">
+                    <CardHeader>
+                      <CardTitle>Plugin Categories</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between p-2 rounded bg-muted/50">
+                          <span className="font-medium">Development</span>
+                          <Badge variant="outline">5 plugins</Badge>
+                        </div>
+                        <div className="flex items-center justify-between p-2 rounded bg-muted/50">
+                          <span className="font-medium">Web</span>
+                          <Badge variant="outline">3 plugins</Badge>
+                        </div>
+                        <div className="flex items-center justify-between p-2 rounded bg-muted/50">
+                          <span className="font-medium">Analytics</span>
+                          <Badge variant="outline">2 plugins</Badge>
+                        </div>
+                        <div className="flex items-center justify-between p-2 rounded bg-muted/50">
+                          <span className="font-medium">AI</span>
+                          <Badge variant="outline">2 plugins</Badge>
+                        </div>
+                        <div className="flex items-center justify-between p-2 rounded bg-muted/50">
+                          <span className="font-medium">System</span>
+                          <Badge variant="outline">3 plugins</Badge>
+                        </div>
+                        <div className="flex items-center justify-between p-2 rounded bg-muted/50">
+                          <span className="font-medium">Text</span>
+                          <Badge variant="outline">1 plugin</Badge>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
               </TabsContent>
             </Tabs>
           </div>
-        </main>
+        </div>
       </div>
 
-      <ChatWidget />
+      <Alert className="fixed bottom-4 right-4 w-96">
+        <Brain className="h-4 w-4" />
+        <AlertDescription>
+          AI Agents with Plugins provide powerful task automation by combining multiple MCP tools. 
+          Each agent has specialized capabilities and can orchestrate complex workflows using their plugin ecosystem.
+        </AlertDescription>
+      </Alert>
     </div>
   );
 }

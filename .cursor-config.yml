@@ -1,0 +1,124 @@
+# Cursor CLI Configuration for AuraOS Project
+cursor:
+  # Default model for analysis
+  default_model: "gpt-4"
+  
+  # Project-specific settings
+  project:
+    name: "AuraOS"
+    type: "full-stack"
+    languages: ["typescript", "javascript", "python", "css", "html"]
+    
+  # Analysis configurations
+  analysis:
+    # Code quality checks
+    code_quality:
+      enabled: true
+      strict_mode: true
+      check_complexity: true
+      check_duplication: true
+      
+    # Security analysis
+    security:
+      enabled: true
+      check_owasp: true
+      check_dependencies: true
+      check_secrets: true
+      
+    # Performance analysis
+    performance:
+      enabled: true
+      check_bundle_size: true
+      check_loading_times: true
+      check_memory_usage: true
+      
+    # Documentation
+    documentation:
+      enabled: true
+      generate_readme: true
+      update_api_docs: true
+      
+  # Custom prompts for different scenarios
+  prompts:
+    code_review: |
+      Review this code for:
+      1. Code quality and best practices
+      2. Security vulnerabilities
+      3. Performance issues
+      4. Maintainability concerns
+      5. Test coverage gaps
+      
+      Provide specific, actionable feedback.
+      
+    security_audit: |
+      Perform a comprehensive security audit:
+      1. Authentication and authorization flaws
+      2. Input validation issues
+      3. Data exposure risks
+      4. Dependency vulnerabilities
+      5. Secure coding violations
+      
+      Prioritize critical and high-severity issues.
+      
+    performance_optimization: |
+      Analyze and optimize performance:
+      1. Database query efficiency
+      2. Memory usage patterns
+      3. Bundle size optimization
+      4. Loading time improvements
+      5. Caching strategies
+      
+      Focus on measurable performance gains.
+      
+    documentation_generation: |
+      Generate comprehensive documentation:
+      1. API endpoint documentation
+      2. Component usage examples
+      3. Setup and installation guides
+      4. Troubleshooting guides
+      5. Architecture diagrams
+      
+      Make documentation clear and actionable.
+      
+  # File patterns to include/exclude
+  include_patterns:
+    - "src/**/*.{ts,tsx,js,jsx}"
+    - "client/**/*.{ts,tsx,js,jsx,css,html}"
+    - "server/**/*.{ts,js,py}"
+    - "shared/**/*.{ts,js}"
+    - "*.md"
+    - "*.json"
+    - "*.yml"
+    - "*.yaml"
+    
+  exclude_patterns:
+    - "node_modules/**"
+    - "dist/**"
+    - "build/**"
+    - ".git/**"
+    - "*.log"
+    - "coverage/**"
+    - ".next/**"
+    - ".nuxt/**"
+    
+  # Output configurations
+  output:
+    format: "markdown"
+    include_timestamps: true
+    include_file_references: true
+    generate_summary: true
+    
+  # Integration settings
+  integrations:
+    github:
+      enabled: true
+      create_issues: true
+      create_pr_comments: true
+      
+    slack:
+      enabled: false
+      webhook_url: ""
+      
+    email:
+      enabled: false
+      recipients: []
