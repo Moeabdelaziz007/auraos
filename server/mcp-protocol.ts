@@ -257,6 +257,27 @@ export class MCPProtocol extends EventEmitter {
   private initializeCoreTools() {
     // Core MCP tools
     const coreTools: MCPTool[] = [
+       {
+        name: 'cursor_cli',
+        description: 'Execute commands to LLMs via Cursor CLI',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            command: { type: 'string', description: 'The command to execute in the Cursor CLI' },
+             model: { type: 'string', description: 'The LLM model to use (e.g., gpt-4, claude-2)' },
+          },
+          required: ['command', 'model'],
+        },
+        execute: async (params) => {
+            // In a real implementation, you would have a CLI execution environment.
+            // For now, we will simulate the output.
+            console.log(`Executing Cursor CLI command: ${params.command} on model ${params.model}`);
+            return {
+                success: true,
+                output: `Simulated output for command: ${params.command}`,
+            };
+        },
+      },
       {
         name: 'web_search_tool',
         description: 'Search the web for real-time information',

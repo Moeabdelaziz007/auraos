@@ -14,6 +14,7 @@ import TelegramPage from "@/pages/telegram";
 import SmartLearningPage from "@/pages/smart-learning";
 import AdvancedAIToolsPage from "@/pages/advanced-ai-tools";
 import NotFound from "@/pages/not-found";
+import DebugView from "@/pages/DebugView";
 
 function Router() {
   return (
@@ -26,6 +27,7 @@ function Router() {
         <Route path="/telegram" component={TelegramPage} />
         <Route path="/smart-learning" component={SmartLearningPage} />
         <Route path="/advanced-ai-tools" component={AdvancedAIToolsPage} />
+        <Route path="/debug" component={DebugView} />
         <Route component={NotFound} />
       </Switch>
     </ProtectedRoute>

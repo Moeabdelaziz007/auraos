@@ -4,6 +4,7 @@ import { registerRoutes } from "./routes";
 import { initializeRealTimeAIStreaming } from "./real-time-streaming";
 import { setupVite, serveStatic, log } from "./vite";
 import { autopilotAgent } from "./autopilot-agent";
+import { getSelfImprovingAISystem } from "./self-improving-ai";
 
 const app = express();
 const server = createServer(app);
@@ -45,6 +46,15 @@ app.use((req, res, next) => {
   await registerRoutes(app);
   initializeRealTimeAIStreaming(server);
   autopilotAgent.start();
+
+  const selfImprovingSystem = getSelfImprovingAISystem();
+  selfImprovingSystem.start();
+
+  // Run a self-improvement cycle shortly after startup
+  setTimeout(() => {
+    selfImprovingSystem.runImprovementCycle();
+  }, 10000);
+
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;

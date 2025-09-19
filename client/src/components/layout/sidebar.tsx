@@ -17,6 +17,7 @@ const navigation = [
   { name: 'Telegram', href: '/telegram', icon: 'fab fa-telegram' },
   { name: 'Analytics', href: '/analytics', icon: 'fas fa-chart-bar' },
   { name: 'Settings', href: '/settings', icon: 'fas fa-cog' },
+  { name: 'Debug', href: '/debug', icon: 'fas fa-bug' },
 ];
 
 export default function Sidebar() {
