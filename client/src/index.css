@@ -38,7 +38,7 @@
   --font-sans: 'Inter', system-ui, sans-serif;
   --font-serif: Georgia, serif;
   --font-mono: 'JetBrains Mono', monospace;
-  --radius: 0.75rem;
+  --radius: 1.25rem;
   --shadow-2xs: 0px 1px 2px 0px hsl(0, 0%, 0%, 0.05);
   --shadow-xs: 0px 1px 2px 0px hsl(0, 0%, 0%, 0.05);
   --shadow-sm: 0px 1px 2px 0px hsl(0, 0%, 0%, 0.05), 0px 1px 3px 0px hsl(0, 0%, 0%, 0.10);
@@ -49,6 +49,16 @@
   --shadow-2xl: 0px 25px 50px -12px hsl(0, 0%, 0%, 0.25);
   --tracking-normal: 0em;
   --spacing: 0.25rem;
+  
+  /* iOS Glass & Bubble design tokens */
+  --glass: 240 10% 95%;
+  --glass-border: 240 5% 85%;
+  --bubble-glow: 262 83% 58%;
+  --ios-blue: 211 100% 50%;
+  --ios-purple: 280 100% 70%;
+  --ios-green: 142 76% 36%;
+  --ios-orange: 28 100% 74%;
+  --ios-red: 5 78% 57%;
 }
 
 .dark {
@@ -87,7 +97,12 @@
   --font-sans: 'Inter', system-ui, sans-serif;
   --font-serif: Georgia, serif;
   --font-mono: 'JetBrains Mono', monospace;
-  --radius: 0.75rem;
+  --radius: 1.25rem;
+  
+  /* Dark mode iOS Glass & Bubble tokens */
+  --glass: 222 47% 8%;
+  --glass-border: 222 47% 25%;
+  --bubble-glow: 262 83% 58%;
 }
 
 @layer base {

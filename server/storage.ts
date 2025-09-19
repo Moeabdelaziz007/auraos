@@ -80,9 +80,9 @@ export class MemStorage implements IStorage {
       username: "sarah_chen",
       email: "sarah@aiflow.com",
       password: "hashed_password",
-      displayName: "Sarah Chen",
-      avatar: "https://pixabay.com/get/g011ff5f5c9bd65a7bc140f57f12d8cfdf70bb92b9dd19ca90dce3197ce111976f37bb58b61f09efdc75e86cdc7ecbb61d7c6632c241ef7517650a98d2e8a979e_1280.jpg",
-      bio: "AI enthusiast building the future of social automation",
+      identityName: "Sarah Chen",
+      identityIcon: "https://pixabay.com/get/g011ff5f5c9bd65a7bc140f57f12d8cfdf70bb92b9dd19ca90dce3197ce111976f37bb58b61f09efdc75e86cdc7ecbb61d7c6632c241ef7517650a98d2e8a979e_1280.jpg",
+      identityType: "personal",
       verified: true,
       createdAt: new Date()
     };
@@ -219,8 +219,8 @@ export class MemStorage implements IStorage {
     const user: User = { 
       ...insertUser, 
       id, 
-      avatar: insertUser.avatar || null,
-      bio: insertUser.bio || null,
+      identityIcon: insertUser.identityIcon || null,
+      identityType: insertUser.identityType || "personal",
       verified: false,
       createdAt: new Date()
     };

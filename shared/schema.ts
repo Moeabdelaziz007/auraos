@@ -8,9 +8,9 @@ export const users = pgTable("users", {
   username: text("username").notNull().unique(),
   email: text("email").notNull().unique(),
   password: text("password").notNull(),
-  displayName: text("display_name").notNull(),
-  avatar: text("avatar"),
-  bio: text("bio"),
+  identityName: text("identity_name").notNull(),
+  identityIcon: text("identity_icon"),
+  identityType: text("identity_type").default("personal").notNull(), // personal, business, organization
   verified: boolean("verified").default(false).notNull(),
   createdAt: timestamp("created_at").defaultNow(),
 });
@@ -111,7 +111,8 @@ export const insertChatMessageSchema = createInsertSchema(chatMessages).omit({
 });
 
 // Types
-export type User = typeof users.$inferSelect;
+export type DigitalIdentity = typeof users.$inferSelect;
+export type User = DigitalIdentity; // Keep for backward compatibility
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type Post = typeof posts.$inferSelect;
 export type InsertPost = z.infer<typeof insertPostSchema>;

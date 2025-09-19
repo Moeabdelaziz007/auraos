@@ -1,13 +1,9 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
-import OpenAI from "openai";
+import { generateContent, generatePostContent, chatWithAssistant, analyzeWorkflow } from "./gemini.js";
 import { storage } from "./storage";
 import { insertPostSchema, insertWorkflowSchema, insertUserAgentSchema, insertChatMessageSchema } from "@shared/schema";
-
-const openai = new OpenAI({ 
-  apiKey: process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY_ENV_VAR || "default_key"
-});
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);

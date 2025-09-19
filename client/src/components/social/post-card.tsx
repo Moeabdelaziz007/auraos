@@ -40,16 +40,16 @@ export default function PostCard({ post }: PostCardProps) {
       <CardContent className="p-6">
         <div className="flex items-start gap-4">
           <Avatar className="w-12 h-12">
-            <AvatarImage src={post.author.avatar || undefined} alt={post.author.displayName} />
+            <AvatarImage src={post.author.identityIcon || undefined} alt={post.author.identityName} />
             <AvatarFallback>
-              {post.author.displayName.split(' ').map(n => n[0]).join('')}
+              {post.author.identityName.split(' ').map(n => n[0]).join('')}
             </AvatarFallback>
           </Avatar>
           
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
               <h3 className="font-semibold text-foreground" data-testid={`text-author-${post.id}`}>
-                {post.author.displayName}
+                {post.author.identityName}
               </h3>
               <span className="text-sm text-muted-foreground">@{post.author.username}</span>
               <div className="w-1 h-1 bg-muted-foreground rounded-full"></div>

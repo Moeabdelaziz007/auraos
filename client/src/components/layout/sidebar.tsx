@@ -72,14 +72,14 @@ export default function Sidebar() {
       <div className="p-4">
         <div className="flex items-center gap-3">
           <Avatar className="w-10 h-10">
-            <AvatarImage src={user?.avatar || undefined} alt={user?.displayName} />
+            <AvatarImage src={user?.identityIcon || undefined} alt={user?.identityName} />
             <AvatarFallback>
-              {user?.displayName?.split(' ').map(n => n[0]).join('') || 'SC'}
+              {user?.identityName?.split(' ').map(n => n[0]).join('') || 'SC'}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-foreground truncate" data-testid="text-user-name">
-              {user?.displayName || 'Sarah Chen'}
+              {user?.identityName || 'Sarah Chen'}
             </p>
             <p className="text-xs text-muted-foreground truncate" data-testid="text-user-email">
               {user?.email || 'sarah@aiflow.com'}
