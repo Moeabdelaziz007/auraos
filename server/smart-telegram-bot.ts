@@ -2,6 +2,7 @@ import { Telegraf, Context } from 'telegraf';
 import { getSmartLearningAI } from './smart-learning-ai.js';
 import { getAdvancedAIToolsManager } from './advanced-ai-tools.js';
 import { getAdvancedAIAgentSystem } from './advanced-ai-agents.js';
+import { getMCPProtocol } from './mcp-protocol.js';
 
 export interface TelegramUserContext {
   userId: string;
@@ -52,6 +53,7 @@ export class SmartLearningTelegramBot {
   private smartLearningAI: any;
   private aiToolsManager: any;
   private aiAgentSystem: any;
+  private mcpProtocol: any;
   private learningData: Map<string, any> = new Map();
 
   constructor(token: string) {
@@ -59,6 +61,7 @@ export class SmartLearningTelegramBot {
     this.smartLearningAI = getSmartLearningAI();
     this.aiToolsManager = getAdvancedAIToolsManager();
     this.aiAgentSystem = getAdvancedAIAgentSystem();
+    this.mcpProtocol = getMCPProtocol();
     
     this.setupBot();
     this.initializeLearningCapabilities();
@@ -72,6 +75,13 @@ export class SmartLearningTelegramBot {
     this.bot.command('profile', this.handleProfileCommand.bind(this));
     this.bot.command('stats', this.handleStatsCommand.bind(this));
     this.bot.command('reset', this.handleResetCommand.bind(this));
+
+    // MCP-specific commands
+    this.bot.command('mcp', this.handleMCPCommand.bind(this));
+    this.bot.command('tools', this.handleToolsCommand.bind(this));
+    this.bot.command('agents', this.handleAgentsCommand.bind(this));
+    this.bot.command('execute', this.handleExecuteCommand.bind(this));
+    this.bot.command('capabilities', this.handleCapabilitiesCommand.bind(this));
 
     // Message handlers
     this.bot.on('text', this.handleTextMessage.bind(this));
@@ -228,6 +238,238 @@ export class SmartLearningTelegramBot {
     await ctx.reply('🔄 Your profile has been reset. Welcome back!');
   }
 
+  // MCP Command Handlers
+  private async handleMCPCommand(ctx: Context) {
+    const chatId = ctx.chat!.id;
+    const userContext = this.userContexts.get(chatId);
+    
+    if (!userContext) {
+      await ctx.reply('Please start the bot first with /start');
+      return;
+    }
+
+    try {
+      const capabilities = await this.mcpProtocol.getCapabilities();
+      const tools = await this.mcpProtocol.getTools();
+      const agents = await this.mcpProtocol.getAgents();
+
+      const mcpInfo = `🔗 MCP (Model Context Protocol) Access
+
+📋 Available Capabilities:
+${capabilities.map((cap: any) => `• ${cap.name}: ${cap.description}`).join('\n')}
+
+🛠️ Available Tools:
+${tools.map((tool: any) => `• ${tool.name}: ${tool.description}`).join('\n')}
+
+🤖 Available Agents:
+${agents.map((agent: any) => `• ${agent.name}: ${agent.description}`).join('\n')}
+
+💡 Use /tools, /agents, or /execute to interact with MCP resources!`;
+
+      await ctx.reply(mcpInfo, {
+        reply_markup: {
+          inline_keyboard: [
+            [
+              { text: '🛠️ View Tools', callback_data: 'mcp_tools' },
+              { text: '🤖 View Agents', callback_data: 'mcp_agents' }
+            ],
+            [
+              { text: '📋 Capabilities', callback_data: 'mcp_capabilities' },
+              { text: '⚡ Execute Tool', callback_data: 'mcp_execute' }
+            ]
+          ]
+        }
+      });
+    } catch (error) {
+      await ctx.reply('❌ Failed to access MCP resources. Please try again.');
+    }
+  }
+
+  private async handleToolsCommand(ctx: Context) {
+    const chatId = ctx.chat!.id;
+    const userContext = this.userContexts.get(chatId);
+    
+    if (!userContext) {
+      await ctx.reply('Please start the bot first with /start');
+      return;
+    }
+
+    try {
+      const tools = await this.mcpProtocol.getTools();
+      const aiTools = this.aiToolsManager.getAllTools();
+
+      const toolsInfo = `🛠️ Available Tools
+
+🔗 MCP Tools:
+${tools.map((tool: any) => `• ${tool.name}: ${tool.description}`).join('\n')}
+
+🤖 AI Tools:
+${aiTools.map((tool: any) => `• ${tool.name}: ${tool.description}`).join('\n')}
+
+💡 Use /execute <tool_name> <parameters> to run a tool!`;
+
+      await ctx.reply(toolsInfo, {
+        reply_markup: {
+          inline_keyboard: [
+            [
+              { text: '🔗 MCP Tools', callback_data: 'tools_mcp' },
+              { text: '🤖 AI Tools', callback_data: 'tools_ai' }
+            ],
+            [
+              { text: '⚡ Execute Tool', callback_data: 'tools_execute' },
+              { text: '📊 Tool Analytics', callback_data: 'tools_analytics' }
+            ]
+          ]
+        }
+      });
+    } catch (error) {
+      await ctx.reply('❌ Failed to get tools information. Please try again.');
+    }
+  }
+
+  private async handleAgentsCommand(ctx: Context) {
+    const chatId = ctx.chat!.id;
+    const userContext = this.userContexts.get(chatId);
+    
+    if (!userContext) {
+      await ctx.reply('Please start the bot first with /start');
+      return;
+    }
+
+    try {
+      const mcpAgents = await this.mcpProtocol.getAgents();
+      const aiAgents = this.aiAgentSystem.getAllAgents();
+
+      const agentsInfo = `🤖 Available Agents
+
+🔗 MCP Agents:
+${mcpAgents.map((agent: any) => `• ${agent.name}: ${agent.description}`).join('\n')}
+
+🧠 AI Agents:
+${aiAgents.map((agent: any) => `• ${agent.name} (${agent.type}): ${agent.description}`).join('\n')}
+
+💡 Use /execute agent <agent_name> <task> to assign a task to an agent!`;
+
+      await ctx.reply(agentsInfo, {
+        reply_markup: {
+          inline_keyboard: [
+            [
+              { text: '🔗 MCP Agents', callback_data: 'agents_mcp' },
+              { text: '🧠 AI Agents', callback_data: 'agents_ai' }
+            ],
+            [
+              { text: '⚡ Assign Task', callback_data: 'agents_assign' },
+              { text: '📊 Agent Analytics', callback_data: 'agents_analytics' }
+            ]
+          ]
+        }
+      });
+    } catch (error) {
+      await ctx.reply('❌ Failed to get agents information. Please try again.');
+    }
+  }
+
+  private async handleExecuteCommand(ctx: Context) {
+    const chatId = ctx.chat!.id;
+    const userContext = this.userContexts.get(chatId);
+    const messageText = ctx.message?.text || '';
+    
+    if (!userContext) {
+      await ctx.reply('Please start the bot first with /start');
+      return;
+    }
+
+    // Parse command: /execute <type> <name> <parameters>
+    const parts = messageText.split(' ').slice(1);
+    if (parts.length < 2) {
+      await ctx.reply(`⚡ Execute Command Usage:
+
+/execute tool <tool_name> <parameters>
+/execute agent <agent_name> <task>
+/execute capability <capability_name> <parameters>
+
+Examples:
+/execute tool web_search_tool "AI technology"
+/execute agent content_creator "Write a blog post about AI"
+/execute capability file_system "read_file" "path/to/file.txt"`);
+
+      return;
+    }
+
+    const [type, name, ...params] = parts;
+    const parameters = params.join(' ');
+
+    try {
+      let result: any;
+
+      switch (type.toLowerCase()) {
+        case 'tool':
+          result = await this.executeMCPTool(name, parameters, userContext);
+          break;
+        case 'agent':
+          result = await this.executeMCPAgent(name, parameters, userContext);
+          break;
+        case 'capability':
+          result = await this.executeMCPCapability(name, parameters, userContext);
+          break;
+        default:
+          await ctx.reply('❌ Invalid execution type. Use: tool, agent, or capability');
+          return;
+      }
+
+      await ctx.reply(`✅ Execution Result:\n\n${JSON.stringify(result, null, 2)}`);
+    } catch (error) {
+      await ctx.reply(`❌ Execution failed: ${error.message}`);
+    }
+  }
+
+  private async handleCapabilitiesCommand(ctx: Context) {
+    const chatId = ctx.chat!.id;
+    const userContext = this.userContexts.get(chatId);
+    
+    if (!userContext) {
+      await ctx.reply('Please start the bot first with /start');
+      return;
+    }
+
+    try {
+      const capabilities = await this.mcpProtocol.getCapabilities();
+
+      const capabilitiesInfo = `📋 MCP Capabilities
+
+${capabilities.map((cap: any) => 
+  `🔹 ${cap.name} (v${cap.version})
+   ${cap.description}
+   
+   Methods: ${cap.methods.map((m: any) => m.name).join(', ')}
+   Resources: ${cap.resources.length} available`
+).join('\n\n')}
+
+💡 Use /execute capability <capability_name> <method> <parameters> to use a capability!`;
+
+      await ctx.reply(capabilitiesInfo, {
+        reply_markup: {
+          inline_keyboard: [
+            [
+              { text: '📁 File System', callback_data: 'cap_file_system' },
+              { text: '🌐 Web Search', callback_data: 'cap_web_search' }
+            ],
+            [
+              { text: '🗄️ Database', callback_data: 'cap_database' },
+              { text: '🤖 AI Models', callback_data: 'cap_ai_models' }
+            ],
+            [
+              { text: '📱 Social Media', callback_data: 'cap_social_media' },
+              { text: '⚡ Execute', callback_data: 'cap_execute' }
+            ]
+          ]
+        }
+      });
+    } catch (error) {
+      await ctx.reply('❌ Failed to get capabilities information. Please try again.');
+    }
+  }
+
   private async handleTextMessage(ctx: Context) {
     const chatId = ctx.chat!.id;
     const userContext = this.userContexts.get(chatId);
@@ -310,6 +552,85 @@ export class SmartLearningTelegramBot {
       await ctx.reply('Sorry, I encountered an error. Let me try to help you in a different way.');
     } catch (error) {
       console.error('Failed to send error message:', error);
+    }
+  }
+
+  // MCP Execution Methods
+  private async executeMCPTool(toolName: string, parameters: string, userContext: TelegramUserContext): Promise<any> {
+    try {
+      const mcpMessage = {
+        id: `mcp_tool_${Date.now()}`,
+        type: 'request' as const,
+        method: 'tools/call',
+        params: {
+          name: toolName,
+          arguments: this.parseParameters(parameters)
+        },
+        timestamp: new Date()
+      };
+
+      const result = await this.mcpProtocol.sendMessage(mcpMessage);
+      return result.result;
+    } catch (error) {
+      throw new Error(`Failed to execute MCP tool ${toolName}: ${error.message}`);
+    }
+  }
+
+  private async executeMCPAgent(agentName: string, task: string, userContext: TelegramUserContext): Promise<any> {
+    try {
+      const mcpMessage = {
+        id: `mcp_agent_${Date.now()}`,
+        type: 'request' as const,
+        method: 'agents/execute',
+        params: {
+          agentId: agentName,
+          task: task,
+          context: {
+            userId: userContext.userId,
+            chatId: userContext.chatId,
+            preferences: userContext.preferences
+          }
+        },
+        timestamp: new Date()
+      };
+
+      const result = await this.mcpProtocol.sendMessage(mcpMessage);
+      return result.result;
+    } catch (error) {
+      throw new Error(`Failed to execute MCP agent ${agentName}: ${error.message}`);
+    }
+  }
+
+  private async executeMCPCapability(capabilityName: string, parameters: string, userContext: TelegramUserContext): Promise<any> {
+    try {
+      const [method, ...args] = parameters.split(' ');
+      const mcpMessage = {
+        id: `mcp_cap_${Date.now()}`,
+        type: 'request' as const,
+        method: `capabilities/${capabilityName}/${method}`,
+        params: {
+          arguments: args
+        },
+        timestamp: new Date()
+      };
+
+      const result = await this.mcpProtocol.sendMessage(mcpMessage);
+      return result.result;
+    } catch (error) {
+      throw new Error(`Failed to execute MCP capability ${capabilityName}: ${error.message}`);
+    }
+  }
+
+  private parseParameters(parameters: string): any {
+    try {
+      // Try to parse as JSON first
+      return JSON.parse(parameters);
+    } catch {
+      // If not JSON, treat as simple string or split by spaces
+      if (parameters.includes(' ')) {
+        return { query: parameters };
+      }
+      return parameters;
     }
   }
 
@@ -464,6 +785,7 @@ export class SmartLearningTelegramBot {
 • Advanced AI tools
 • Continuous learning from our interactions
 • Personalized responses based on your preferences
+• Full MCP (Model Context Protocol) access
 
 🎯 I can help you with:
 • Content generation and writing
@@ -471,6 +793,14 @@ export class SmartLearningTelegramBot {
 • Learning new topics
 • Using AI tools effectively
 • Answering questions intelligently
+• Executing MCP tools and agents
+• Accessing external resources
+
+🔗 MCP Commands:
+/mcp - Access MCP resources
+/tools - View available tools
+/agents - View available agents
+/execute - Execute tools directly
 
 Let's start learning together! What would you like to explore?`;
   }
@@ -486,12 +816,20 @@ Let's start learning together! What would you like to explore?`;
 /stats - See your learning statistics
 /reset - Reset your profile
 
+🔗 MCP Commands:
+/mcp - Access MCP (Model Context Protocol) resources
+/tools - View available tools (MCP + AI)
+/agents - View available agents (MCP + AI)
+/execute - Execute tools, agents, or capabilities
+/capabilities - View MCP capabilities
+
 💡 Features:
 • Smart conversation with AI
 • Image and document analysis
 • Personalized learning paths
 • Continuous improvement
 • AI tool integration
+• Full MCP access
 
 Just send me a message and I'll help you!`;
     }
@@ -511,7 +849,15 @@ Just send me a message and I'll help you!`;
 /profile - Update your preferences and goals
 /stats - Track your learning progress
 
-💬 Just chat with me naturally - I learn from every conversation!`;
+🔗 MCP Access:
+/mcp - Access Model Context Protocol resources
+/tools - Execute AI tools and MCP tools
+/agents - Assign tasks to AI agents
+/execute - Direct tool/agent execution
+/capabilities - Use MCP capabilities
+
+💬 Just chat with me naturally - I learn from every conversation!
+🔗 I have full MCP access for advanced AI capabilities!`;
   }
 
   private async generateLearningContent(userContext: TelegramUserContext): Promise<string> {

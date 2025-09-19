@@ -13,6 +13,9 @@ import { getAdvancedAIToolsManager } from "./advanced-ai-tools.js";
 import { getAdvancedAIAgentSystem } from "./advanced-ai-agents.js";
 import { getAdvancedAutomationEngine } from "./advanced-automation.js";
 import { getIntelligentWorkflowOrchestrator } from "./intelligent-workflow.js";
+import { initializeMultiModalAI, getMultiModalAIEngine } from "./multi-modal-ai.js";
+import { initializeRealTimeAIStreaming, getRealTimeAIStreaming } from "./real-time-streaming.js";
+import { initializeAIModelManagement, getAIModelManagementSystem } from "./ai-model-management.js";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
@@ -55,6 +58,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     console.log('🤖 Advanced AI Agent System initialized successfully');
   } catch (error) {
     console.error('❌ Failed to initialize AI Agent System:', error);
+  }
+
+  // Initialize Multi-Modal AI Engine
+  try {
+    const multiModalAI = initializeMultiModalAI();
+    console.log('🧠 Multi-Modal AI Engine initialized successfully');
+  } catch (error) {
+    console.error('❌ Failed to initialize Multi-Modal AI Engine:', error);
+  }
+
+  // Initialize Real-Time AI Streaming
+  try {
+    const realTimeStreaming = initializeRealTimeAIStreaming();
+    await realTimeStreaming.start();
+    console.log('🚀 Real-Time AI Streaming initialized successfully');
+  } catch (error) {
+    console.error('❌ Failed to initialize Real-Time AI Streaming:', error);
+  }
+
+  // Initialize AI Model Management System
+  try {
+    const modelManagement = initializeAIModelManagement();
+    console.log('🤖 AI Model Management System initialized successfully');
+  } catch (error) {
+    console.error('❌ Failed to initialize AI Model Management System:', error);
   }
 
   // WebSocket server for real-time updates
