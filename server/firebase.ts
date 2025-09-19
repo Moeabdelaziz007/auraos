@@ -24,3 +24,16 @@ export function initializeFirebase() {
     isFirebaseInitialized
   };
 }
+
+export async function verifyToken(token: string) {
+    if (!isFirebaseInitialized) {
+        initializeFirebase();
+    }
+    try {
+        const decodedToken = await admin.auth().verifyIdToken(token);
+        return decodedToken;
+    } catch (error) {
+        console.error('Error verifying token:', error);
+        throw new Error('Invalid authentication token');
+    }
+}

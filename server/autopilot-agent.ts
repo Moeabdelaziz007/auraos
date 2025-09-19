@@ -1,11 +1,10 @@
 import { getAdvancedAIAgentSystem, AIAgent, AgentTask } from './advanced-ai-agents.js';
-import { getFirestore } from 'firebase-admin/firestore';
-
-const db = getFirestore();
+import { getFirestore, Firestore } from 'firebase-admin/firestore';
 
 export class AutopilotAgent {
   private agentSystem: any;
   private agent: AIAgent;
+  private db!: Firestore;
 
   constructor() {
     this.agentSystem = getAdvancedAIAgentSystem();
@@ -47,9 +46,10 @@ export class AutopilotAgent {
   }
 
   async start() {
+    this.db = getFirestore();
     console.log('Autopilot Agent started.');
     // Listen for new tasks from Firestore
-    db.collection('autopilot_tasks').onSnapshot(snapshot => {
+    this.db.collection('autopilot_tasks').onSnapshot(snapshot => {
       snapshot.docChanges().forEach(change => {
         if (change.type === 'added') {
           const taskData = change.doc.data();

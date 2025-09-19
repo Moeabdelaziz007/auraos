@@ -6,10 +6,14 @@ import { setupVite, serveStatic, log } from "./vite";
 import { autopilotAgent } from "./autopilot-agent";
 import { getSelfImprovingAISystem } from "./self-improving-ai";
 import { getDebugStream } from "./debug-stream";
+import { initializeFirebase } from "./firebase";
 
 const app = express();
 const server = createServer(app);
 const debugStream = getDebugStream();
+
+// Initialize Firebase
+initializeFirebase();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

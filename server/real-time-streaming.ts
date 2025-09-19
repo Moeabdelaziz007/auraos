@@ -3,6 +3,7 @@ import { WebSocket, WebSocketServer } from 'ws';
 import { v4 as uuidv4 } from 'uuid';
 import { getMultiModalAIEngine, MultiModalInput, MultiModalOutput } from './multi-modal-ai.js';
 import { Server as HttpServer } from 'http';
+import { verifyToken } from './firebase.js'; // Import Firebase token verification
 
 export interface StreamingConnection {
   id: string;
@@ -28,6 +29,7 @@ export interface StreamingConfig {
   heartbeatInterval: number;
   connectionTimeout: number;
   enableCompression: boolean;
+  path: string; // Add path to config
 }
 
 export class RealTimeAIStreaming extends EventEmitter {
@@ -50,7 +52,21 @@ export class RealTimeAIStreaming extends EventEmitter {
       try {
         this.wss = new WebSocketServer({
           server,
-          perMessageDeflate: this.config.enableCompression
+          path: this.config.path, // Use the path from config
+          perMessageDeflate: this.config.enableCompression,
+          verifyClient: async (info, done) => { // Add client verification
+            const token = new URL(info.req.url, `http://${info.req.headers.host}`).searchParams.get('token');
+            if (!token) {
+              return done(false, 401, 'Unauthorized');
+            }
+            try {
+              const decodedToken = await verifyToken(token);
+              (info.req as any).user = decodedToken;
+              done(true);
+            } catch (error) {
+              done(false, 401, 'Unauthorized');
+            }
+          }
         });
 
         this.wss.on('connection', (ws: WebSocket, request) => {
@@ -65,7 +81,7 @@ export class RealTimeAIStreaming extends EventEmitter {
         this.startHeartbeat();
         this.startCleanup();
 
-        console.log(`🚀 Real-Time AI Streaming started and attached to the main server`);
+        console.log(`🚀 Real-Time AI Streaming started on path: ${this.config.path}`);
         this.emit('started');
         resolve();
 
@@ -83,7 +99,6 @@ export class RealTimeAIStreaming extends EventEmitter {
       clearInterval(this.cleanupInterval);
     }
 
-    // Close all connections
     for (const connection of this.connections.values()) {
       connection.ws.close();
     }
@@ -98,7 +113,7 @@ export class RealTimeAIStreaming extends EventEmitter {
 
   private handleNewConnection(ws: WebSocket, request: any): void {
     const connectionId = uuidv4();
-    const userId = this.extractUserId(request);
+    const userId = (request as any).user.uid;
     
     const connection: StreamingConnection = {
       id: connectionId,
@@ -112,7 +127,6 @@ export class RealTimeAIStreaming extends EventEmitter {
 
     this.connections.set(connectionId, connection);
 
-    // Setup message handlers
     ws.on('message', (data: Buffer) => {
       this.handleMessage(connectionId, data);
     });
@@ -125,27 +139,20 @@ export class RealTimeAIStreaming extends EventEmitter {
       this.handleConnectionError(connectionId, error);
     });
 
-    // Send welcome message
-      this.sendMessage(connectionId, {
-        id: uuidv4(),
-        type: 'status',
-        data: {
-          message: 'Connected to Real-Time AI Streaming',
-          connectionId,
-          userId,
-          timestamp: new Date()
-        },
+    this.sendMessage(connectionId, {
+      id: uuidv4(),
+      type: 'status',
+      data: {
+        message: 'Connected to Real-Time AI Streaming',
+        connectionId,
+        userId,
         timestamp: new Date()
-      });
+      },
+      timestamp: new Date()
+    });
 
     this.emit('connectionEstablished', connection);
     console.log(`🔗 New streaming connection: ${connectionId} (User: ${userId})`);
-  }
-
-  private extractUserId(request: any): string {
-    // Extract user ID from request headers or query params
-    const url = new URL(request.url, `http://${request.headers.host}`);
-    return url.searchParams.get('userId') || 'anonymous';
   }
 
   private async handleMessage(connectionId: string, data: Buffer): Promise<void> {
@@ -180,10 +187,11 @@ export class RealTimeAIStreaming extends EventEmitter {
       }
 
     } catch (error) {
-      this.sendError(connectionId, `Message processing error: ${error.message}`);
+      this.sendError(connectionId, `Message processing error: ${(error as Error).message}`);
     }
   }
 
+  // ... (rest of the methods remain the same)
   private async handleStartSession(connectionId: string, data: any): Promise<void> {
     const connection = this.connections.get(connectionId);
     if (!connection) return;
@@ -327,7 +335,6 @@ export class RealTimeAIStreaming extends EventEmitter {
     if (connection) {
       connection.isActive = false;
       
-      // End any active session
       if (connection.sessionId) {
         this.aiEngine.endStreamingSession(connection.sessionId);
       }
@@ -400,7 +407,7 @@ export class RealTimeAIStreaming extends EventEmitter {
         this.connections.delete(connectionId);
       }
     }
-    }, 60000); // Check every minute
+    }, 60000); 
   }
 
   private setupAIEngineListeners(): void {
@@ -425,7 +432,6 @@ export class RealTimeAIStreaming extends EventEmitter {
     });
   }
 
-  // Public API Methods
   getConnection(connectionId: string): StreamingConnection | undefined {
     return this.connections.get(connectionId);
   }
@@ -484,16 +490,16 @@ export class RealTimeAIStreaming extends EventEmitter {
   }
 }
 
-// Singleton instance
 let realTimeAIStreaming: RealTimeAIStreaming | null = null;
 
 export function initializeRealTimeAIStreaming(server: HttpServer): RealTimeAIStreaming {
   if (!realTimeAIStreaming) {
     const config: StreamingConfig = {
       maxConnections: 1000,
-      heartbeatInterval: 30000, // 30 seconds
-      connectionTimeout: 300000, // 5 minutes
-      enableCompression: true
+      heartbeatInterval: 30000,
+      connectionTimeout: 300000,
+      enableCompression: true,
+      path: '/api/ws' // Define a specific path for WebSocket
     };
     realTimeAIStreaming = new RealTimeAIStreaming(config);
     realTimeAIStreaming.start(server);
