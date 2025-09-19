@@ -5,23 +5,36 @@ import { cn } from "@/lib/utils";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import type { User } from "@shared/schema";
+import { useAuth } from "@/hooks/use-auth";
+import { FirestoreService } from "@/lib/firebase";
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: 'fas fa-home' },
   { name: 'Social Feed', href: '/social-feed', icon: 'fas fa-users', hasNotification: true },
   { name: 'Workflows', href: '/workflows', icon: 'fas fa-project-diagram' },
   { name: 'AI Agents', href: '/ai-agents', icon: 'fas fa-robot' },
+  { name: 'Telegram', href: '/telegram', icon: 'fab fa-telegram' },
   { name: 'Analytics', href: '/analytics', icon: 'fas fa-chart-bar' },
   { name: 'Settings', href: '/settings', icon: 'fas fa-cog' },
 ];
 
 export default function Sidebar() {
   const [location] = useLocation();
+  const { user, signOut } = useAuth();
   
-  const { data: user } = useQuery<User>({
-    queryKey: ['/api/users/current'],
+  const { data: userData } = useQuery({
+    queryKey: ['userData', user?.uid],
+    queryFn: () => user?.uid ? FirestoreService.getUserData(user.uid) : null,
+    enabled: !!user?.uid
   });
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      console.error('Sign out error:', error);
+    }
+  };
 
   return (
     <div className="w-64 bg-card border-r border-border flex flex-col">
@@ -72,21 +85,27 @@ export default function Sidebar() {
       <div className="p-4">
         <div className="flex items-center gap-3">
           <Avatar className="w-10 h-10">
-            <AvatarImage src={user?.identityIcon || undefined} alt={user?.identityName} />
+            <AvatarImage src={user?.photoURL || undefined} alt={user?.displayName || 'User'} />
             <AvatarFallback>
-              {user?.identityName?.split(' ').map(n => n[0]).join('') || 'SC'}
+              {user?.displayName?.split(' ').map(n => n[0]).join('') || user?.email?.[0]?.toUpperCase() || 'U'}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-foreground truncate" data-testid="text-user-name">
-              {user?.identityName || 'Sarah Chen'}
+              {user?.displayName || user?.email || 'User'}
             </p>
             <p className="text-xs text-muted-foreground truncate" data-testid="text-user-email">
-              {user?.email || 'sarah@aiflow.com'}
+              {user?.email || 'user@example.com'}
             </p>
           </div>
-          <Button variant="ghost" size="sm" data-testid="button-user-menu">
-            <i className="fas fa-ellipsis-h"></i>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={handleSignOut}
+            data-testid="button-sign-out"
+            title="Sign Out"
+          >
+            <i className="fas fa-sign-out-alt"></i>
           </Button>
         </div>
       </div>

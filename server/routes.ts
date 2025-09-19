@@ -4,9 +4,23 @@ import { WebSocketServer, WebSocket } from "ws";
 import { generateContent, generatePostContent, chatWithAssistant, analyzeWorkflow } from "./gemini.js";
 import { storage } from "./storage";
 import { insertPostSchema, insertWorkflowSchema, insertUserAgentSchema, insertChatMessageSchema } from "@shared/schema";
+import { initializeTelegramBot, getTelegramService } from "./telegram.js";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
+
+  // Initialize Telegram Bot
+  const telegramToken = process.env.TELEGRAM_BOT_TOKEN;
+  if (telegramToken) {
+    try {
+      initializeTelegramBot(telegramToken);
+      console.log('🤖 Telegram bot initialized successfully');
+    } catch (error) {
+      console.error('❌ Failed to initialize Telegram bot:', error);
+    }
+  } else {
+    console.warn('⚠️ TELEGRAM_BOT_TOKEN not found in environment variables');
+  }
 
   // WebSocket server for real-time updates
   const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
@@ -257,6 +271,104 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(messages);
     } catch (error) {
       res.status(500).json({ message: 'Failed to get chat history' });
+    }
+  });
+
+  // Telegram Bot API routes
+  app.get('/api/telegram/status', async (req, res) => {
+    try {
+      const telegramService = getTelegramService();
+      if (!telegramService) {
+        return res.status(404).json({ message: 'Telegram bot not initialized' });
+      }
+
+      const botInfo = await telegramService.getBotInfo();
+      const isConnected = telegramService.isBotConnected();
+
+      res.json({
+        connected: isConnected,
+        botInfo: {
+          id: botInfo.id,
+          username: botInfo.username,
+          firstName: botInfo.first_name,
+          canJoinGroups: botInfo.can_join_groups,
+          canReadAllGroupMessages: botInfo.can_read_all_group_messages
+        }
+      });
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to get Telegram bot status' });
+    }
+  });
+
+  app.post('/api/telegram/send-message', async (req, res) => {
+    try {
+      const { chatId, message, options } = req.body;
+      
+      if (!chatId || !message) {
+        return res.status(400).json({ message: 'chatId and message are required' });
+      }
+
+      const telegramService = getTelegramService();
+      if (!telegramService) {
+        return res.status(404).json({ message: 'Telegram bot not initialized' });
+      }
+
+      const result = await telegramService.sendMessage(chatId, message, options);
+      res.json({ success: true, messageId: result.message_id });
+    } catch (error) {
+      console.error('Telegram send message error:', error);
+      res.status(500).json({ message: 'Failed to send Telegram message' });
+    }
+  });
+
+  app.post('/api/telegram/send-photo', async (req, res) => {
+    try {
+      const { chatId, photo, caption, options } = req.body;
+      
+      if (!chatId || !photo) {
+        return res.status(400).json({ message: 'chatId and photo are required' });
+      }
+
+      const telegramService = getTelegramService();
+      if (!telegramService) {
+        return res.status(404).json({ message: 'Telegram bot not initialized' });
+      }
+
+      const result = await telegramService.sendPhoto(chatId, photo, { caption, ...options });
+      res.json({ success: true, messageId: result.message_id });
+    } catch (error) {
+      console.error('Telegram send photo error:', error);
+      res.status(500).json({ message: 'Failed to send Telegram photo' });
+    }
+  });
+
+  app.post('/api/telegram/broadcast', async (req, res) => {
+    try {
+      const { message, chatIds, options } = req.body;
+      
+      if (!message || !Array.isArray(chatIds)) {
+        return res.status(400).json({ message: 'message and chatIds array are required' });
+      }
+
+      const telegramService = getTelegramService();
+      if (!telegramService) {
+        return res.status(404).json({ message: 'Telegram bot not initialized' });
+      }
+
+      const results = [];
+      for (const chatId of chatIds) {
+        try {
+          const result = await telegramService.sendMessage(chatId, message, options);
+          results.push({ chatId, success: true, messageId: result.message_id });
+        } catch (error) {
+          results.push({ chatId, success: false, error: error.message });
+        }
+      }
+
+      res.json({ success: true, results });
+    } catch (error) {
+      console.error('Telegram broadcast error:', error);
+      res.status(500).json({ message: 'Failed to broadcast Telegram messages' });
     }
   });
 
