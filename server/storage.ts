@@ -1,0 +1,410 @@
+import { 
+  type User, 
+  type InsertUser, 
+  type Post, 
+  type InsertPost,
+  type PostWithAuthor,
+  type Workflow,
+  type InsertWorkflow,
+  type AgentTemplate,
+  type InsertAgentTemplate,
+  type UserAgent,
+  type InsertUserAgent,
+  type ChatMessage,
+  type InsertChatMessage
+} from "@shared/schema";
+import { randomUUID } from "crypto";
+
+export interface IStorage {
+  // Users
+  getUser(id: string): Promise<User | undefined>;
+  getUserByUsername(username: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
+  createUser(user: InsertUser): Promise<User>;
+
+  // Posts
+  createPost(post: InsertPost): Promise<Post>;
+  getPostsWithAuthor(limit?: number): Promise<PostWithAuthor[]>;
+  getPost(id: string): Promise<Post | undefined>;
+  updatePostStats(id: string, likes: number, shares: number, comments: number): Promise<void>;
+
+  // Workflows
+  createWorkflow(workflow: InsertWorkflow): Promise<Workflow>;
+  getWorkflowsByUser(userId: string): Promise<Workflow[]>;
+  getWorkflow(id: string): Promise<Workflow | undefined>;
+  updateWorkflow(id: string, updates: Partial<Workflow>): Promise<void>;
+  deleteWorkflow(id: string): Promise<void>;
+
+  // Agent Templates
+  getAgentTemplates(): Promise<AgentTemplate[]>;
+  getAgentTemplate(id: string): Promise<AgentTemplate | undefined>;
+  createAgentTemplate(template: InsertAgentTemplate): Promise<AgentTemplate>;
+  incrementTemplateUsage(id: string): Promise<void>;
+
+  // User Agents
+  createUserAgent(agent: InsertUserAgent): Promise<UserAgent>;
+  getUserAgents(userId: string): Promise<UserAgent[]>;
+  getUserAgent(id: string): Promise<UserAgent | undefined>;
+  updateUserAgent(id: string, updates: Partial<UserAgent>): Promise<void>;
+  deleteUserAgent(id: string): Promise<void>;
+
+  // Chat Messages
+  createChatMessage(message: InsertChatMessage): Promise<ChatMessage>;
+  getChatMessages(userId: string, limit?: number): Promise<ChatMessage[]>;
+
+  // Statistics
+  getUserStats(userId: string): Promise<{
+    totalPosts: number;
+    activeAgents: number;
+    engagementRate: number;
+    automationsRun: number;
+  }>;
+}
+
+export class MemStorage implements IStorage {
+  private users: Map<string, User> = new Map();
+  private posts: Map<string, Post> = new Map();
+  private workflows: Map<string, Workflow> = new Map();
+  private agentTemplates: Map<string, AgentTemplate> = new Map();
+  private userAgents: Map<string, UserAgent> = new Map();
+  private chatMessages: Map<string, ChatMessage> = new Map();
+
+  constructor() {
+    this.seedData();
+  }
+
+  private seedData() {
+    // Create default user
+    const defaultUser: User = {
+      id: "user-1",
+      username: "sarah_chen",
+      email: "sarah@aiflow.com",
+      password: "hashed_password",
+      displayName: "Sarah Chen",
+      avatar: "https://pixabay.com/get/g011ff5f5c9bd65a7bc140f57f12d8cfdf70bb92b9dd19ca90dce3197ce111976f37bb58b61f09efdc75e86cdc7ecbb61d7c6632c241ef7517650a98d2e8a979e_1280.jpg",
+      bio: "AI enthusiast building the future of social automation",
+      verified: true,
+      createdAt: new Date()
+    };
+    this.users.set(defaultUser.id, defaultUser);
+
+    // Create sample agent templates
+    const templates: AgentTemplate[] = [
+      {
+        id: "template-1",
+        name: "Content Curator",
+        description: "Finds and curates trending content in your niche",
+        category: "Content",
+        icon: "fas fa-magic",
+        config: {
+          triggers: ["trending_topic", "keyword_mention"],
+          actions: ["create_post", "schedule_post"]
+        },
+        usageCount: 2300,
+        isPopular: true,
+        createdAt: new Date()
+      },
+      {
+        id: "template-2",
+        name: "Reply Assistant",
+        description: "Auto-responds to comments and mentions",
+        category: "Engagement",
+        icon: "fas fa-comments",
+        config: {
+          triggers: ["new_comment", "mention"],
+          actions: ["generate_reply", "send_notification"]
+        },
+        usageCount: 892,
+        isPopular: false,
+        createdAt: new Date()
+      },
+      {
+        id: "template-3",
+        name: "Trend Analyzer",
+        description: "Analyzes trends and suggests content ideas",
+        category: "Analytics",
+        icon: "fas fa-chart-line",
+        config: {
+          triggers: ["daily_schedule"],
+          actions: ["analyze_trends", "suggest_content"]
+        },
+        usageCount: 1500,
+        isPopular: false,
+        createdAt: new Date()
+      }
+    ];
+
+    templates.forEach(template => {
+      this.agentTemplates.set(template.id, template);
+    });
+
+    // Create sample posts
+    const posts: Post[] = [
+      {
+        id: "post-1",
+        authorId: "user-1",
+        content: "Just launched my new AI-powered workflow automation! 🤖 It automatically generates social media content based on trending topics and schedules posts at optimal times. The results have been incredible - 300% increase in engagement! #AIAutomation #SocialMedia #ProductivityHack",
+        imageUrl: "https://images.unsplash.com/photo-1551434678-e076c223a692?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=400",
+        isAiGenerated: true,
+        likes: 247,
+        shares: 18,
+        comments: 32,
+        createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000) // 2 hours ago
+      },
+      {
+        id: "post-2",
+        authorId: "user-1",
+        content: "Sharing my top 5 AI agent templates that have transformed my content strategy! These automation workflows handle everything from research to publishing. Who else is using AI to scale their social presence? 🚀",
+        imageUrl: null,
+        isAiGenerated: false,
+        likes: 156,
+        shares: 12,
+        comments: 23,
+        createdAt: new Date(Date.now() - 4 * 60 * 60 * 1000) // 4 hours ago
+      }
+    ];
+
+    posts.forEach(post => {
+      this.posts.set(post.id, post);
+    });
+
+    // Create sample workflow
+    const workflow: Workflow = {
+      id: "workflow-1",
+      userId: "user-1",
+      name: "Auto Engagement Responder",
+      description: "Automatically responds to mentions with AI-generated replies",
+      nodes: [
+        {
+          id: "trigger-1",
+          type: "trigger",
+          position: { x: 100, y: 100 },
+          data: { type: "new_mention" }
+        },
+        {
+          id: "ai-1",
+          type: "ai",
+          position: { x: 300, y: 100 },
+          data: { type: "sentiment_analysis" }
+        },
+        {
+          id: "action-1",
+          type: "action",
+          position: { x: 500, y: 100 },
+          data: { type: "auto_reply" }
+        }
+      ],
+      isActive: true,
+      runCount: 12,
+      lastRun: new Date(Date.now() - 2 * 60 * 1000), // 2 minutes ago
+      createdAt: new Date()
+    };
+    this.workflows.set(workflow.id, workflow);
+  }
+
+  async getUser(id: string): Promise<User | undefined> {
+    return this.users.get(id);
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    return Array.from(this.users.values()).find(user => user.username === username);
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    return Array.from(this.users.values()).find(user => user.email === email);
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const id = randomUUID();
+    const user: User = { 
+      ...insertUser, 
+      id, 
+      avatar: insertUser.avatar || null,
+      bio: insertUser.bio || null,
+      verified: false,
+      createdAt: new Date()
+    };
+    this.users.set(id, user);
+    return user;
+  }
+
+  async createPost(insertPost: InsertPost): Promise<Post> {
+    const id = randomUUID();
+    const post: Post = {
+      ...insertPost,
+      id,
+      imageUrl: insertPost.imageUrl || null,
+      isAiGenerated: insertPost.isAiGenerated || false,
+      likes: 0,
+      shares: 0,
+      comments: 0,
+      createdAt: new Date()
+    };
+    this.posts.set(id, post);
+    return post;
+  }
+
+  async getPostsWithAuthor(limit = 10): Promise<PostWithAuthor[]> {
+    const posts = Array.from(this.posts.values())
+      .sort((a, b) => (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0))
+      .slice(0, limit);
+
+    return posts.map(post => {
+      const author = this.users.get(post.authorId);
+      if (!author) throw new Error('Post author not found');
+      return { ...post, author };
+    });
+  }
+
+  async getPost(id: string): Promise<Post | undefined> {
+    return this.posts.get(id);
+  }
+
+  async updatePostStats(id: string, likes: number, shares: number, comments: number): Promise<void> {
+    const post = this.posts.get(id);
+    if (post) {
+      this.posts.set(id, { ...post, likes, shares, comments });
+    }
+  }
+
+  async createWorkflow(insertWorkflow: InsertWorkflow): Promise<Workflow> {
+    const id = randomUUID();
+    const workflow: Workflow = {
+      ...insertWorkflow,
+      id,
+      description: insertWorkflow.description || null,
+      isActive: insertWorkflow.isActive ?? false,
+      runCount: 0,
+      lastRun: null,
+      createdAt: new Date()
+    };
+    this.workflows.set(id, workflow);
+    return workflow;
+  }
+
+  async getWorkflowsByUser(userId: string): Promise<Workflow[]> {
+    return Array.from(this.workflows.values()).filter(w => w.userId === userId);
+  }
+
+  async getWorkflow(id: string): Promise<Workflow | undefined> {
+    return this.workflows.get(id);
+  }
+
+  async updateWorkflow(id: string, updates: Partial<Workflow>): Promise<void> {
+    const workflow = this.workflows.get(id);
+    if (workflow) {
+      this.workflows.set(id, { ...workflow, ...updates });
+    }
+  }
+
+  async deleteWorkflow(id: string): Promise<void> {
+    this.workflows.delete(id);
+  }
+
+  async getAgentTemplates(): Promise<AgentTemplate[]> {
+    return Array.from(this.agentTemplates.values());
+  }
+
+  async getAgentTemplate(id: string): Promise<AgentTemplate | undefined> {
+    return this.agentTemplates.get(id);
+  }
+
+  async createAgentTemplate(insertTemplate: InsertAgentTemplate): Promise<AgentTemplate> {
+    const id = randomUUID();
+    const template: AgentTemplate = {
+      ...insertTemplate,
+      id,
+      usageCount: 0,
+      isPopular: insertTemplate.isPopular ?? false,
+      createdAt: new Date()
+    };
+    this.agentTemplates.set(id, template);
+    return template;
+  }
+
+  async incrementTemplateUsage(id: string): Promise<void> {
+    const template = this.agentTemplates.get(id);
+    if (template) {
+      this.agentTemplates.set(id, { 
+        ...template, 
+        usageCount: template.usageCount + 1 
+      });
+    }
+  }
+
+  async createUserAgent(insertAgent: InsertUserAgent): Promise<UserAgent> {
+    const id = randomUUID();
+    const agent: UserAgent = {
+      ...insertAgent,
+      id,
+      isActive: insertAgent.isActive ?? true,
+      runCount: 0,
+      lastRun: null,
+      createdAt: new Date()
+    };
+    this.userAgents.set(id, agent);
+    return agent;
+  }
+
+  async getUserAgents(userId: string): Promise<UserAgent[]> {
+    return Array.from(this.userAgents.values()).filter(a => a.userId === userId);
+  }
+
+  async getUserAgent(id: string): Promise<UserAgent | undefined> {
+    return this.userAgents.get(id);
+  }
+
+  async updateUserAgent(id: string, updates: Partial<UserAgent>): Promise<void> {
+    const agent = this.userAgents.get(id);
+    if (agent) {
+      this.userAgents.set(id, { ...agent, ...updates });
+    }
+  }
+
+  async deleteUserAgent(id: string): Promise<void> {
+    this.userAgents.delete(id);
+  }
+
+  async createChatMessage(insertMessage: InsertChatMessage): Promise<ChatMessage> {
+    const id = randomUUID();
+    const message: ChatMessage = {
+      ...insertMessage,
+      id,
+      createdAt: new Date()
+    };
+    this.chatMessages.set(id, message);
+    return message;
+  }
+
+  async getChatMessages(userId: string, limit = 50): Promise<ChatMessage[]> {
+    return Array.from(this.chatMessages.values())
+      .filter(m => m.userId === userId)
+      .sort((a, b) => (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0))
+      .slice(0, limit);
+  }
+
+  async getUserStats(userId: string): Promise<{
+    totalPosts: number;
+    activeAgents: number;
+    engagementRate: number;
+    automationsRun: number;
+  }> {
+    const userPosts = Array.from(this.posts.values()).filter(p => p.authorId === userId);
+    const userAgents = Array.from(this.userAgents.values()).filter(a => a.userId === userId && a.isActive);
+    const userWorkflows = Array.from(this.workflows.values()).filter(w => w.userId === userId);
+    
+    const totalLikes = userPosts.reduce((sum, post) => sum + post.likes, 0);
+    const totalPosts = userPosts.length;
+    const engagementRate = totalPosts > 0 ? (totalLikes / totalPosts) / 100 : 0;
+    const automationsRun = userWorkflows.reduce((sum, w) => sum + w.runCount, 0);
+
+    return {
+      totalPosts,
+      activeAgents: userAgents.length,
+      engagementRate: Math.round(engagementRate * 100) / 100,
+      automationsRun
+    };
+  }
+}
+
+export const storage = new MemStorage();
