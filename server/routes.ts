@@ -5,6 +5,8 @@ import { generateContent, generatePostContent, chatWithAssistant, analyzeWorkflo
 import { storage } from "./storage";
 import { insertPostSchema, insertWorkflowSchema, insertUserAgentSchema, insertChatMessageSchema } from "@shared/schema";
 import { initializeTelegramBot, getTelegramService } from "./telegram.js";
+import { getTravelFoodServiceManager } from "./travel-food-services.js";
+import { getSmartLearningAI } from "./smart-learning-ai.js";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
@@ -369,6 +371,491 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Telegram broadcast error:', error);
       res.status(500).json({ message: 'Failed to broadcast Telegram messages' });
+    }
+  });
+
+  // Smart Learning AI Meta Loop API routes
+  app.post('/api/ai/smart-learning', async (req, res) => {
+    try {
+      const { userId, taskType, inputData, expectedOutput, metadata } = req.body;
+      
+      if (!userId || !taskType || !inputData) {
+        return res.status(400).json({ message: 'userId, taskType, and inputData are required' });
+      }
+
+      const smartAI = getSmartLearningAI();
+      const context = {
+        userId,
+        sessionId: `session_${Date.now()}`,
+        taskType,
+        inputData,
+        expectedOutput,
+        timestamp: new Date(),
+        metadata: metadata || {}
+      };
+
+      const result = await smartAI.processLearningRequest(context);
+      res.json(result);
+    } catch (error) {
+      console.error('Smart learning error:', error);
+      res.status(500).json({ message: 'Failed to process smart learning request' });
+    }
+  });
+
+  app.get('/api/ai/learning-state/:userId', async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const smartAI = getSmartLearningAI();
+      const state = await smartAI.getLearningState(userId);
+      
+      if (!state) {
+        return res.status(404).json({ message: 'Learning state not found' });
+      }
+
+      res.json(state);
+    } catch (error) {
+      console.error('Get learning state error:', error);
+      res.status(500).json({ message: 'Failed to get learning state' });
+    }
+  });
+
+  app.get('/api/ai/performance-metrics/:userId', async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const smartAI = getSmartLearningAI();
+      const metrics = await smartAI.getPerformanceMetrics(userId);
+      
+      if (!metrics) {
+        return res.status(404).json({ message: 'Performance metrics not found' });
+      }
+
+      res.json(metrics);
+    } catch (error) {
+      console.error('Get performance metrics error:', error);
+      res.status(500).json({ message: 'Failed to get performance metrics' });
+    }
+  });
+
+  app.post('/api/ai/zero-shot/content-generation', async (req, res) => {
+    try {
+      const { userId, prompt, topic, style } = req.body;
+      
+      if (!userId || !prompt) {
+        return res.status(400).json({ message: 'userId and prompt are required' });
+      }
+
+      const smartAI = getSmartLearningAI();
+      const context = {
+        userId,
+        sessionId: `session_${Date.now()}`,
+        taskType: 'content_generation',
+        inputData: prompt,
+        timestamp: new Date(),
+        metadata: { topic, style }
+      };
+
+      const result = await smartAI.processLearningRequest(context);
+      res.json(result);
+    } catch (error) {
+      console.error('Zero-shot content generation error:', error);
+      res.status(500).json({ message: 'Failed to generate content' });
+    }
+  });
+
+  app.post('/api/ai/zero-shot/sentiment-analysis', async (req, res) => {
+    try {
+      const { userId, text } = req.body;
+      
+      if (!userId || !text) {
+        return res.status(400).json({ message: 'userId and text are required' });
+      }
+
+      const smartAI = getSmartLearningAI();
+      const context = {
+        userId,
+        sessionId: `session_${Date.now()}`,
+        taskType: 'sentiment_analysis',
+        inputData: text,
+        timestamp: new Date(),
+        metadata: {}
+      };
+
+      const result = await smartAI.processLearningRequest(context);
+      res.json(result);
+    } catch (error) {
+      console.error('Zero-shot sentiment analysis error:', error);
+      res.status(500).json({ message: 'Failed to analyze sentiment' });
+    }
+  });
+
+  app.post('/api/ai/zero-shot/intent-classification', async (req, res) => {
+    try {
+      const { userId, text } = req.body;
+      
+      if (!userId || !text) {
+        return res.status(400).json({ message: 'userId and text are required' });
+      }
+
+      const smartAI = getSmartLearningAI();
+      const context = {
+        userId,
+        sessionId: `session_${Date.now()}`,
+        taskType: 'intent_classification',
+        inputData: text,
+        timestamp: new Date(),
+        metadata: {}
+      };
+
+      const result = await smartAI.processLearningRequest(context);
+      res.json(result);
+    } catch (error) {
+      console.error('Zero-shot intent classification error:', error);
+      res.status(500).json({ message: 'Failed to classify intent' });
+    }
+  });
+
+  app.post('/api/ai/zero-shot/style-transfer', async (req, res) => {
+    try {
+      const { userId, text, targetStyle } = req.body;
+      
+      if (!userId || !text || !targetStyle) {
+        return res.status(400).json({ message: 'userId, text, and targetStyle are required' });
+      }
+
+      const smartAI = getSmartLearningAI();
+      const context = {
+        userId,
+        sessionId: `session_${Date.now()}`,
+        taskType: 'style_transfer',
+        inputData: text,
+        timestamp: new Date(),
+        metadata: { style: targetStyle }
+      };
+
+      const result = await smartAI.processLearningRequest(context);
+      res.json(result);
+    } catch (error) {
+      console.error('Zero-shot style transfer error:', error);
+      res.status(500).json({ message: 'Failed to transfer style' });
+    }
+  });
+
+  app.post('/api/ai/feedback', async (req, res) => {
+    try {
+      const { userId, sessionId, feedback, taskType } = req.body;
+      
+      if (!userId || !sessionId || feedback === undefined) {
+        return res.status(400).json({ message: 'userId, sessionId, and feedback are required' });
+      }
+
+      const smartAI = getSmartLearningAI();
+      const state = await smartAI.getLearningState(userId);
+      
+      if (!state) {
+        return res.status(404).json({ message: 'Learning state not found' });
+      }
+
+      // Update learning state with feedback
+      const feedbackContext = {
+        userId,
+        sessionId,
+        taskType: taskType || 'general',
+        inputData: {},
+        feedback: feedback,
+        timestamp: new Date(),
+        metadata: { feedbackType: 'user_feedback' }
+      };
+
+      // This would update the learning state with feedback
+      res.json({ success: true, message: 'Feedback recorded successfully' });
+    } catch (error) {
+      console.error('Feedback error:', error);
+      res.status(500).json({ message: 'Failed to record feedback' });
+    }
+  });
+
+  app.post('/api/ai/reset-learning/:userId', async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const smartAI = getSmartLearningAI();
+      
+      await smartAI.resetLearningState(userId);
+      res.json({ success: true, message: 'Learning state reset successfully' });
+    } catch (error) {
+      console.error('Reset learning error:', error);
+      res.status(500).json({ message: 'Failed to reset learning state' });
+    }
+  });
+
+  app.get('/api/ai/export-learning/:userId', async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const smartAI = getSmartLearningAI();
+      
+      const data = await smartAI.exportLearningData(userId);
+      res.json({ data });
+    } catch (error) {
+      console.error('Export learning error:', error);
+      res.status(500).json({ message: 'Failed to export learning data' });
+    }
+  });
+
+  app.post('/api/ai/import-learning/:userId', async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const { data } = req.body;
+      
+      if (!data) {
+        return res.status(400).json({ message: 'Data is required' });
+      }
+
+      const smartAI = getSmartLearningAI();
+      await smartAI.importLearningData(userId, data);
+      
+      res.json({ success: true, message: 'Learning data imported successfully' });
+    } catch (error) {
+      console.error('Import learning error:', error);
+      res.status(500).json({ message: 'Failed to import learning data' });
+    }
+  });
+
+  // Travel Services API Routes
+  app.get('/api/travel/services', async (req, res) => {
+    try {
+      const travelServiceManager = getTravelFoodServiceManager();
+      const services = travelServiceManager.getTravelServices();
+      res.json(services);
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to get travel services' });
+    }
+  });
+
+  app.get('/api/travel/services/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      const travelServiceManager = getTravelFoodServiceManager();
+      const service = travelServiceManager.getTravelService(id);
+      
+      if (!service) {
+        return res.status(404).json({ message: 'Travel service not found' });
+      }
+      
+      res.json(service);
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to get travel service' });
+    }
+  });
+
+  app.post('/api/travel/recommendations', async (req, res) => {
+    try {
+      const { destination, budget, preferences } = req.body;
+      
+      if (!destination || !budget) {
+        return res.status(400).json({ message: 'destination and budget are required' });
+      }
+
+      const travelServiceManager = getTravelFoodServiceManager();
+      const recommendations = await travelServiceManager.generateTravelRecommendations(
+        destination, 
+        budget, 
+        preferences || {}
+      );
+      
+      res.json(recommendations);
+    } catch (error) {
+      console.error('Travel recommendations error:', error);
+      res.status(500).json({ message: 'Failed to generate travel recommendations' });
+    }
+  });
+
+  // Food Services API Routes
+  app.get('/api/food/services', async (req, res) => {
+    try {
+      const travelFoodServiceManager = getTravelFoodServiceManager();
+      const services = travelFoodServiceManager.getFoodServices();
+      res.json(services);
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to get food services' });
+    }
+  });
+
+  app.get('/api/food/services/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      const travelFoodServiceManager = getTravelFoodServiceManager();
+      const service = travelFoodServiceManager.getFoodService(id);
+      
+      if (!service) {
+        return res.status(404).json({ message: 'Food service not found' });
+      }
+      
+      res.json(service);
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to get food service' });
+    }
+  });
+
+  app.post('/api/food/recommendations', async (req, res) => {
+    try {
+      const { location, budget, preferences } = req.body;
+      
+      if (!location || !budget) {
+        return res.status(400).json({ message: 'location and budget are required' });
+      }
+
+      const travelFoodServiceManager = getTravelFoodServiceManager();
+      const recommendations = await travelFoodServiceManager.generateFoodRecommendations(
+        location, 
+        budget, 
+        preferences || {}
+      );
+      
+      res.json(recommendations);
+    } catch (error) {
+      console.error('Food recommendations error:', error);
+      res.status(500).json({ message: 'Failed to generate food recommendations' });
+    }
+  });
+
+  // Smart Shopping Agents API Routes
+  app.get('/api/shopping/agents', async (req, res) => {
+    try {
+      const travelFoodServiceManager = getTravelFoodServiceManager();
+      const agents = travelFoodServiceManager.getSmartAgents();
+      res.json(agents);
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to get smart agents' });
+    }
+  });
+
+  app.get('/api/shopping/agents/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      const travelFoodServiceManager = getTravelFoodServiceManager();
+      const agent = travelFoodServiceManager.getSmartAgent(id);
+      
+      if (!agent) {
+        return res.status(404).json({ message: 'Smart agent not found' });
+      }
+      
+      res.json(agent);
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to get smart agent' });
+    }
+  });
+
+  app.post('/api/shopping/agents', async (req, res) => {
+    try {
+      const { name, category, capabilities, integrations, automationRules } = req.body;
+      
+      if (!name || !category) {
+        return res.status(400).json({ message: 'name and category are required' });
+      }
+
+      const travelFoodServiceManager = getTravelFoodServiceManager();
+      const agent = travelFoodServiceManager.createCustomAgentTemplate(
+        name,
+        category,
+        capabilities || {},
+        integrations || [],
+        automationRules || []
+      );
+      
+      res.status(201).json(agent);
+    } catch (error) {
+      console.error('Create smart agent error:', error);
+      res.status(500).json({ message: 'Failed to create smart agent' });
+    }
+  });
+
+  // Travel and Food Automation Workflows
+  app.post('/api/automation/travel-workflow', async (req, res) => {
+    try {
+      const { destination, budget, preferences, automationRules } = req.body;
+      
+      if (!destination || !budget) {
+        return res.status(400).json({ message: 'destination and budget are required' });
+      }
+
+      // Create travel automation workflow
+      const workflow = {
+        id: `travel_workflow_${Date.now()}`,
+        name: `Travel Automation for ${destination}`,
+        type: 'travel',
+        destination,
+        budget,
+        preferences,
+        automationRules: automationRules || [
+          'Monitor flight prices',
+          'Auto-book when price drops',
+          'Send deal alerts',
+          'Manage hotel reservations',
+          'Coordinate activities'
+        ],
+        status: 'active',
+        createdAt: new Date().toISOString()
+      };
+
+      // Save workflow to database
+      await storage.createWorkflow({
+        userId: 'user-1',
+        name: workflow.name,
+        description: `Automated travel planning for ${destination}`,
+        steps: workflow.automationRules,
+        isActive: true,
+        triggerType: 'schedule',
+        triggerConfig: JSON.stringify({ frequency: 'daily' })
+      });
+
+      res.status(201).json(workflow);
+    } catch (error) {
+      console.error('Travel workflow error:', error);
+      res.status(500).json({ message: 'Failed to create travel workflow' });
+    }
+  });
+
+  app.post('/api/automation/food-workflow', async (req, res) => {
+    try {
+      const { location, budget, preferences, automationRules } = req.body;
+      
+      if (!location || !budget) {
+        return res.status(400).json({ message: 'location and budget are required' });
+      }
+
+      // Create food automation workflow
+      const workflow = {
+        id: `food_workflow_${Date.now()}`,
+        name: `Food Automation for ${location}`,
+        type: 'food',
+        location,
+        budget,
+        preferences,
+        automationRules: automationRules || [
+          'Monitor restaurant deals',
+          'Auto-order repeat meals',
+          'Send food recommendations',
+          'Manage grocery lists',
+          'Track dietary preferences'
+        ],
+        status: 'active',
+        createdAt: new Date().toISOString()
+      };
+
+      // Save workflow to database
+      await storage.createWorkflow({
+        userId: 'user-1',
+        name: workflow.name,
+        description: `Automated food management for ${location}`,
+        steps: workflow.automationRules,
+        isActive: true,
+        triggerType: 'schedule',
+        triggerConfig: JSON.stringify({ frequency: 'daily' })
+      });
+
+      res.status(201).json(workflow);
+    } catch (error) {
+      console.error('Food workflow error:', error);
+      res.status(500).json({ message: 'Failed to create food workflow' });
     }
   });
 

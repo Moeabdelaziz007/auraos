@@ -11,6 +11,7 @@ import SocialFeed from "@/pages/social-feed";
 import Workflows from "@/pages/workflows";
 import AIAgents from "@/pages/ai-agents";
 import TelegramPage from "@/pages/telegram";
+import SmartLearningPage from "@/pages/smart-learning";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -22,6 +23,7 @@ function Router() {
         <Route path="/workflows" component={Workflows} />
         <Route path="/ai-agents" component={AIAgents} />
         <Route path="/telegram" component={TelegramPage} />
+        <Route path="/smart-learning" component={SmartLearningPage} />
         <Route component={NotFound} />
       </Switch>
     </ProtectedRoute>

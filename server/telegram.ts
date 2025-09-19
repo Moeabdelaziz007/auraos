@@ -1,9 +1,12 @@
 import TelegramBot from 'node-telegram-bot-api';
 import { storage } from './storage.js';
+import { getSmartMenuService } from './smart-menu.js';
+import { getEnhancedChatPersona } from './enhanced-persona.js';
 
 export class TelegramService {
   private bot: TelegramBot;
   private isConnected: boolean = false;
+  private smartMenuService = getSmartMenuService();
 
   constructor(token: string) {
     this.bot = new TelegramBot(token, { polling: true });
@@ -50,6 +53,11 @@ export class TelegramService {
 
     console.log(`📨 Received message from ${username}: ${text}`);
 
+    // Track command usage for smart suggestions
+    if (text?.startsWith('/')) {
+      this.smartMenuService.trackCommandUsage(chatId, text.split(' ')[0]);
+    }
+
     // Save message to database
     await storage.createChatMessage({
       userId: 'telegram-user',
@@ -57,11 +65,13 @@ export class TelegramService {
       response: 'Message received by AuraOS'
     });
 
-    // Handle different types of messages
+    // Handle different types of messages with smart menu integration
     if (text?.startsWith('/start')) {
-      await this.sendWelcomeMessage(chatId, username);
+      await this.sendSmartWelcomeMessage(chatId, username);
     } else if (text?.startsWith('/help')) {
-      await this.sendHelpMessage(chatId);
+      await this.sendSmartHelpMessage(chatId);
+    } else if (text?.startsWith('/menu')) {
+      await this.sendSmartMenu(chatId, username);
     } else if (text?.startsWith('/status')) {
       await this.sendStatusMessage(chatId);
     } else if (text?.startsWith('/posts')) {
@@ -82,6 +92,13 @@ export class TelegramService {
     // Answer the callback query to remove loading state
     await this.bot.answerCallbackQuery(callbackQuery.id);
 
+    // Handle smart menu callbacks
+    if (data.endsWith('_menu')) {
+      await this.handleSmartMenuCallback(chatId, data);
+      return;
+    }
+
+    // Handle legacy callbacks
     switch (data) {
       case 'get_posts':
         await this.sendRecentPosts(chatId);
@@ -95,11 +112,142 @@ export class TelegramService {
       case 'create_post':
         await this.bot.sendMessage(chatId, '📝 To create a post, send your content with the format:\n\n`/create Your post content here`');
         break;
+      case 'main_menu':
+        await this.sendSmartMenu(chatId, 'User');
+        break;
       default:
-        await this.bot.sendMessage(chatId, '❓ Unknown command. Use /help to see available commands.');
+        await this.handleSmartMenuCallback(chatId, data);
     }
   }
 
+  // Handle smart menu callbacks
+  private async handleSmartMenuCallback(chatId: number, callbackData: string) {
+    const username = 'User'; // In a real app, you'd get this from user context
+    
+    switch (callbackData) {
+      case 'posts_menu':
+        const postsMenu = await this.smartMenuService.generateSmartMenu(chatId, username, 'posts');
+        await this.bot.sendMessage(chatId, postsMenu.text, postsMenu.keyboard);
+        break;
+      case 'agents_menu':
+        const agentsMenu = await this.smartMenuService.generateSmartMenu(chatId, username, 'agents');
+        await this.bot.sendMessage(chatId, agentsMenu.text, agentsMenu.keyboard);
+        break;
+      case 'analytics_menu':
+        const analyticsMenu = await this.smartMenuService.generateSmartMenu(chatId, username, 'analytics');
+        await this.bot.sendMessage(chatId, analyticsMenu.text, analyticsMenu.keyboard);
+        break;
+      case 'settings_menu':
+        const settingsMenu = await this.smartMenuService.generateSmartMenu(chatId, username, 'settings');
+        await this.bot.sendMessage(chatId, settingsMenu.text, settingsMenu.keyboard);
+        break;
+      case 'quick_actions_menu':
+        const quickActionsMenu = await this.smartMenuService.generateSmartMenu(chatId, username, 'quick_actions');
+        await this.bot.sendMessage(chatId, quickActionsMenu.text, quickActionsMenu.keyboard);
+        break;
+      case 'help_menu':
+        await this.sendSmartHelpMessage(chatId);
+        break;
+      case 'create_post':
+        await this.bot.sendMessage(chatId, '📝 To create a post, send your content with the format:\n\n`/create Your post content here`');
+        break;
+      case 'schedule_post':
+        await this.bot.sendMessage(chatId, '📅 To schedule a post, use:\n\n`/schedule YYYY-MM-DD HH:MM Your post content here`');
+        break;
+      case 'view_all_posts':
+        await this.sendRecentPosts(chatId);
+        break;
+      case 'ai_generator':
+        await this.bot.sendMessage(chatId, '🤖 AI Content Generator\n\nSend me a topic or idea, and I\'ll help you create engaging content!');
+        break;
+      case 'post_analytics':
+        await this.sendStatusMessage(chatId);
+        break;
+      case 'create_agent':
+        await this.bot.sendMessage(chatId, '🆕 Create AI Agent\n\nUse `/agents` to see available templates, or describe what you need!');
+        break;
+      case 'browse_templates':
+        await this.sendAgentTemplates(chatId);
+        break;
+      case 'active_agents':
+        await this.bot.sendMessage(chatId, '⚡ Active Agents\n\nChecking your active AI agents...');
+        break;
+      case 'agent_performance':
+        await this.bot.sendMessage(chatId, '📊 Agent Performance\n\nAnalyzing your AI agents\' performance...');
+        break;
+      case 'performance_overview':
+        await this.sendStatusMessage(chatId);
+        break;
+      case 'engagement_insights':
+        await this.bot.sendMessage(chatId, '🎯 Engagement Insights\n\nAnalyzing your content engagement...');
+        break;
+      case 'quick_post':
+        await this.bot.sendMessage(chatId, '📝 Quick Post\n\nSend your content and I\'ll help you optimize it!');
+        break;
+      case 'quick_agent':
+        await this.bot.sendMessage(chatId, '🤖 Quick Agent\n\nTell me what you need automated!');
+        break;
+      case 'quick_stats':
+        await this.sendStatusMessage(chatId);
+        break;
+      case 'run_automation':
+        await this.bot.sendMessage(chatId, '🔄 Run Automation\n\nStarting your automation workflows...');
+        break;
+      case 'ai_chat':
+        await this.bot.sendMessage(chatId, '💬 AI Chat\n\nI\'m here to help! What would you like to know?');
+        break;
+      default:
+        await this.bot.sendMessage(chatId, '❓ Unknown command. Use /menu to see available options.');
+    }
+  }
+
+  // Smart welcome message using the smart menu system
+  private async sendSmartWelcomeMessage(chatId: number, username: string) {
+    const menu = await this.smartMenuService.generateSmartMenu(chatId, username, 'main');
+    await this.bot.sendMessage(chatId, menu.text, menu.keyboard);
+  }
+
+  // Smart help message
+  private async sendSmartHelpMessage(chatId: number) {
+    const helpText = `🆘 AuraOS Smart Assistant Help
+
+🎯 **Smart Commands:**
+/start - Welcome message with smart menu
+/menu - Access main smart menu
+/help - Show this help message
+
+📱 **Core Commands:**
+/status - Get platform status and statistics
+/posts - View recent posts
+/agents - List available AI agent templates
+/create <content> - Create a new post
+/schedule <time> <content> - Schedule a post
+
+🤖 **Smart Features:**
+• Context-aware menus
+• Personalized suggestions
+• Quick actions for power users
+• Intelligent command tracking
+• Adaptive interface
+
+💡 **Pro Tips:**
+• Use /menu to access smart navigation
+• The bot learns your preferences over time
+• Quick actions appear after 10+ interactions
+• All menus adapt to your usage patterns
+
+🎯 Try /menu to see your personalized smart menu!`;
+
+    await this.bot.sendMessage(chatId, helpText);
+  }
+
+  // Send smart menu
+  private async sendSmartMenu(chatId: number, username: string) {
+    const menu = await this.smartMenuService.generateSmartMenu(chatId, username, 'main');
+    await this.bot.sendMessage(chatId, menu.text, menu.keyboard);
+  }
+
+  // Legacy welcome message (kept for compatibility)
   private async sendWelcomeMessage(chatId: number, username: string) {
     const welcomeText = `🎉 Welcome to AuraOS, ${username}!
 
@@ -236,9 +384,40 @@ ${posts.slice(0, 3).map(post =>
       }
     }
 
-    // Default AI response
-    const aiResponse = await this.generateAIResponse(text);
-    await this.bot.sendMessage(chatId, `🤖 AI Response:\n\n${aiResponse}`);
+    // Enhanced AI response with persona
+    try {
+      const username = 'User'; // In a real app, get from message context
+      const intelligentResponse = await this.enhancedPersona.generateIntelligentResponse(text, chatId, username);
+      
+      // Send main response
+      await this.bot.sendMessage(chatId, intelligentResponse.response);
+      
+      // Send suggestions if available
+      if (intelligentResponse.suggestions.length > 0) {
+        const suggestionsText = `💡 **Quick Actions:**\n${intelligentResponse.suggestions.map(s => `• ${s}`).join('\n')}`;
+        await this.bot.sendMessage(chatId, suggestionsText);
+      }
+      
+      // Add smart menu option for easy navigation
+      const menuKeyboard = {
+        reply_markup: {
+          inline_keyboard: [
+            [
+              { text: '🎯 Smart Menu', callback_data: 'main_menu' },
+              { text: '💬 Continue Chat', callback_data: 'continue_chat' }
+            ]
+          ]
+        }
+      };
+      
+      await this.bot.sendMessage(chatId, '🎯 Need more help? Use the smart menu for quick navigation!', menuKeyboard);
+      
+    } catch (error) {
+      console.error('Enhanced persona error:', error);
+      // Fallback to basic AI response
+      const aiResponse = await this.generateAIResponse(text);
+      await this.bot.sendMessage(chatId, `🤖 AI Response:\n\n${aiResponse}`);
+    }
   }
 
   private async createPostFromTelegram(chatId: number, content: string) {
