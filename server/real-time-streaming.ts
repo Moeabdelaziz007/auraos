@@ -47,14 +47,20 @@ export class RealTimeAIStreaming extends EventEmitter {
     this.setupAIEngineListeners();
   }
 
-  async start(server: HttpServer): Promise<void> {
+  async start(server?: HttpServer): Promise<void> {
+    // Skip starting if already running or if main WebSocket server is handling connections
+    if (this.wss) {
+      console.log('⚠️ Real-Time AI Streaming already started');
+      return;
+    }
+
     return new Promise((resolve, reject) => {
       try {
         // Use a different port to avoid conflicts with main WebSocket server
         const aiStreamingPort = this.config.port + 1; // Use port 8081 instead of 8080
         
         this.wss = new WebSocketServer({
-          server,
+          port: aiStreamingPort,
           path: this.config.path, // Use the path from config
           perMessageDeflate: this.config.enableCompression,
           verifyClient: async (info, done) => { // Add client verification
@@ -85,7 +91,7 @@ export class RealTimeAIStreaming extends EventEmitter {
         this.startHeartbeat();
         this.startCleanup();
 
-        console.log(`🚀 Real-Time AI Streaming started on path: ${this.config.path}`);
+        console.log(`🚀 Real-Time AI Streaming started on port ${aiStreamingPort}`);
         this.emit('started');
         resolve();
 

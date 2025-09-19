@@ -2,7 +2,7 @@
 // Machine learning for user preferences and behavior analysis
 
 import { UserHistory, UserAction, ActionType, ActionCategory } from './firestore-types';
-import { UserHistoryService } from './user-history-service';
+// import { UserHistoryService } from './user-history-service';
 
 export interface UserPreference {
   id: string;
@@ -92,10 +92,8 @@ export class AIPersonalizationEngine {
    */
   static async analyzeUserBehavior(userId: string): Promise<UserProfile> {
     try {
-      // Get recent user history
-      const { history } = await UserHistoryService.getUserHistory(userId, {
-        limit: 1000
-      });
+      // Get recent user history - Mock implementation for now
+      const history: UserHistory[] = []; // await UserHistoryService.getUserHistory(userId, { limit: 1000 });
 
       // Analyze behavior patterns
       const behaviorPatterns = this.extractBehaviorPatterns(userId, history);

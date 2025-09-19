@@ -1,8 +1,13 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+<<<<<<< HEAD
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
 import { ErrorHandler } from '@/lib/error-handling';
+=======
+import { AlertTriangle, RefreshCw, Home, Bug } from 'lucide-react';
+import { cn } from '@/lib/utils';
+>>>>>>> e8bb23a83fe4837498de46efa961a02da877f1dd
 
 interface Props {
   children: ReactNode;

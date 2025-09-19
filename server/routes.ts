@@ -17,6 +17,11 @@ import { initializeMultiModalAI, getMultiModalAIEngine } from "./multi-modal-ai.
 import { initializeRealTimeAIStreaming, getRealTimeAIStreaming } from "./real-time-streaming.js";
 import { initializeAIModelManagement, getAIModelManagementSystem } from "./ai-model-management.js";
 import { initializeLearningSystem, getLearningSystem } from "./learning-automation.js";
+import { getEnterpriseTeamManager } from "./enterprise-team-management.js";
+import { getEnterpriseAdminDashboard } from "./enterprise-admin-dashboard.js";
+import { getEnterpriseCollaborationSystem } from "./enterprise-collaboration.js";
+import { getEnhancedTravelAgency } from "./enhanced-travel-agency.js";
+import { getTravelDashboard } from "./travel-dashboard.js";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
@@ -205,6 +210,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     broadcast({
       type: 'workflow_update',
       data: status,
+      timestamp: Date.now()
+    });
+  });
+
+  // Enterprise System Integration with WebSocket
+  const teamManager = getEnterpriseTeamManager();
+  const adminDashboard = getEnterpriseAdminDashboard();
+  const collaborationSystem = getEnterpriseCollaborationSystem();
+  const travelAgency = getEnhancedTravelAgency();
+  const travelDashboard = getTravelDashboard();
+
+  // Subscribe to enterprise updates and broadcast them
+  adminDashboard.subscribeToUpdates((update) => {
+    broadcast({
+      type: 'admin_dashboard_update',
+      data: update,
+      timestamp: Date.now()
+    });
+  });
+
+  collaborationSystem.subscribeToUpdates((update) => {
+    broadcast({
+      type: 'collaboration_update',
+      data: update,
+      timestamp: Date.now()
+    });
+  });
+
+  travelDashboard.subscribeToUpdates((update) => {
+    broadcast({
+      type: 'travel_dashboard_update',
+      data: update,
       timestamp: Date.now()
     });
   });
@@ -2363,6 +2400,342 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ success: true, message: 'Model restored successfully' });
     } catch (error) {
       res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Enterprise Team Management API Routes
+  app.post('/api/enterprise/teams', async (req, res) => {
+    try {
+      const { name, description, organizationId, creatorId } = req.body;
+      
+      if (!name || !creatorId) {
+        return res.status(400).json({ message: 'name and creatorId are required' });
+      }
+
+      const team = await teamManager.createTeam(name, description, organizationId, creatorId);
+      res.status(201).json(team);
+    } catch (error) {
+      console.error('Create team error:', error);
+      res.status(500).json({ message: 'Failed to create team' });
+    }
+  });
+
+  app.get('/api/enterprise/teams', async (req, res) => {
+    try {
+      const { organizationId } = req.query;
+      const teams = await teamManager.getAllTeams(organizationId as string);
+      res.json(teams);
+    } catch (error) {
+      console.error('Get teams error:', error);
+      res.status(500).json({ message: 'Failed to get teams' });
+    }
+  });
+
+  app.get('/api/enterprise/teams/:teamId', async (req, res) => {
+    try {
+      const { teamId } = req.params;
+      const team = await teamManager.getTeam(teamId);
+      
+      if (!team) {
+        return res.status(404).json({ message: 'Team not found' });
+      }
+      
+      res.json(team);
+    } catch (error) {
+      console.error('Get team error:', error);
+      res.status(500).json({ message: 'Failed to get team' });
+    }
+  });
+
+  app.post('/api/enterprise/teams/:teamId/members', async (req, res) => {
+    try {
+      const { teamId } = req.params;
+      const { userId, email, name, roleId, metadata } = req.body;
+      
+      if (!userId || !email || !name || !roleId) {
+        return res.status(400).json({ message: 'userId, email, name, and roleId are required' });
+      }
+
+      const member = await teamManager.addTeamMember(teamId, userId, email, name, roleId, metadata);
+      res.status(201).json(member);
+    } catch (error) {
+      console.error('Add team member error:', error);
+      res.status(500).json({ message: 'Failed to add team member' });
+    }
+  });
+
+  app.get('/api/enterprise/teams/:teamId/analytics', async (req, res) => {
+    try {
+      const { teamId } = req.params;
+      const analytics = await teamManager.getTeamAnalytics(teamId);
+      res.json(analytics);
+    } catch (error) {
+      console.error('Get team analytics error:', error);
+      res.status(500).json({ message: 'Failed to get team analytics' });
+    }
+  });
+
+  // Enterprise Admin Dashboard API Routes
+  app.get('/api/enterprise/admin/dashboard/metrics', async (req, res) => {
+    try {
+      const metrics = await adminDashboard.getDashboardMetrics();
+      res.json(metrics);
+    } catch (error) {
+      console.error('Get admin dashboard metrics error:', error);
+      res.status(500).json({ message: 'Failed to get dashboard metrics' });
+    }
+  });
+
+  app.get('/api/enterprise/admin/dashboard/widgets', async (req, res) => {
+    try {
+      const widgets = await adminDashboard.getWidgets();
+      res.json(widgets);
+    } catch (error) {
+      console.error('Get dashboard widgets error:', error);
+      res.status(500).json({ message: 'Failed to get dashboard widgets' });
+    }
+  });
+
+  app.get('/api/enterprise/admin/dashboard/alerts', async (req, res) => {
+    try {
+      const { acknowledged } = req.query;
+      const alerts = await adminDashboard.getAlerts(acknowledged === 'true');
+      res.json(alerts);
+    } catch (error) {
+      console.error('Get dashboard alerts error:', error);
+      res.status(500).json({ message: 'Failed to get dashboard alerts' });
+    }
+  });
+
+  app.post('/api/enterprise/admin/dashboard/alerts/:alertId/acknowledge', async (req, res) => {
+    try {
+      const { alertId } = req.params;
+      const { acknowledgedBy } = req.body;
+      
+      if (!acknowledgedBy) {
+        return res.status(400).json({ message: 'acknowledgedBy is required' });
+      }
+
+      const success = await adminDashboard.acknowledgeAlert(alertId, acknowledgedBy);
+      
+      if (!success) {
+        return res.status(404).json({ message: 'Alert not found' });
+      }
+      
+      res.json({ success: true, message: 'Alert acknowledged successfully' });
+    } catch (error) {
+      console.error('Acknowledge alert error:', error);
+      res.status(500).json({ message: 'Failed to acknowledge alert' });
+    }
+  });
+
+  // Enhanced Travel Agency API Routes
+  app.get('/api/travel/destinations', async (req, res) => {
+    try {
+      const destinations = await travelAgency.getDestinations();
+      res.json(destinations);
+    } catch (error) {
+      console.error('Get destinations error:', error);
+      res.status(500).json({ message: 'Failed to get destinations' });
+    }
+  });
+
+  app.get('/api/travel/destinations/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      const destination = await travelAgency.getDestination(id);
+      
+      if (!destination) {
+        return res.status(404).json({ message: 'Destination not found' });
+      }
+      
+      res.json(destination);
+    } catch (error) {
+      console.error('Get destination error:', error);
+      res.status(500).json({ message: 'Failed to get destination' });
+    }
+  });
+
+  app.post('/api/travel/flights/search', async (req, res) => {
+    try {
+      const searchParams = req.body;
+      const flights = await travelAgency.searchFlights(searchParams);
+      res.json(flights);
+    } catch (error) {
+      console.error('Search flights error:', error);
+      res.status(500).json({ message: 'Failed to search flights' });
+    }
+  });
+
+  app.post('/api/travel/hotels/search', async (req, res) => {
+    try {
+      const searchParams = req.body;
+      const hotels = await travelAgency.searchHotels(searchParams);
+      res.json(hotels);
+    } catch (error) {
+      console.error('Search hotels error:', error);
+      res.status(500).json({ message: 'Failed to search hotels' });
+    }
+  });
+
+  app.post('/api/travel/recommendations', async (req, res) => {
+    try {
+      const { userId, destination } = req.body;
+      
+      if (!userId || !destination) {
+        return res.status(400).json({ message: 'userId and destination are required' });
+      }
+
+      const recommendations = await travelAgency.getPersonalizedRecommendations(userId, destination);
+      res.json(recommendations);
+    } catch (error) {
+      console.error('Get travel recommendations error:', error);
+      res.status(500).json({ message: 'Failed to get travel recommendations' });
+    }
+  });
+
+  app.post('/api/travel/bookings', async (req, res) => {
+    try {
+      const bookingRequest = req.body;
+      const booking = await travelAgency.bookTravel(bookingRequest);
+      res.status(201).json(booking);
+    } catch (error) {
+      console.error('Create travel booking error:', error);
+      res.status(500).json({ message: 'Failed to create travel booking' });
+    }
+  });
+
+  app.get('/api/travel/bookings/:userId', async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const bookings = await travelAgency.getUserBookings(userId);
+      res.json(bookings);
+    } catch (error) {
+      console.error('Get user bookings error:', error);
+      res.status(500).json({ message: 'Failed to get user bookings' });
+    }
+  });
+
+  app.get('/api/travel/bookings/booking/:bookingId', async (req, res) => {
+    try {
+      const { bookingId } = req.params;
+      const booking = await travelAgency.getBooking(bookingId);
+      
+      if (!booking) {
+        return res.status(404).json({ message: 'Booking not found' });
+      }
+      
+      res.json(booking);
+    } catch (error) {
+      console.error('Get booking error:', error);
+      res.status(500).json({ message: 'Failed to get booking' });
+    }
+  });
+
+  // Travel Dashboard API Routes
+  app.get('/api/travel/dashboard/metrics', async (req, res) => {
+    try {
+      const metrics = await travelDashboard.getDashboardMetrics();
+      res.json(metrics);
+    } catch (error) {
+      console.error('Get travel dashboard metrics error:', error);
+      res.status(500).json({ message: 'Failed to get travel dashboard metrics' });
+    }
+  });
+
+  app.get('/api/travel/dashboard/widgets', async (req, res) => {
+    try {
+      const widgets = await travelDashboard.getWidgets();
+      res.json(widgets);
+    } catch (error) {
+      console.error('Get travel dashboard widgets error:', error);
+      res.status(500).json({ message: 'Failed to get travel dashboard widgets' });
+    }
+  });
+
+  // Enterprise Collaboration API Routes
+  app.post('/api/collaboration/sessions', async (req, res) => {
+    try {
+      const { type, resourceId, resourceName, teamId, creatorId, permissions } = req.body;
+      
+      if (!type || !resourceId || !resourceName || !teamId || !creatorId) {
+        return res.status(400).json({ message: 'type, resourceId, resourceName, teamId, and creatorId are required' });
+      }
+
+      const session = await collaborationSystem.createCollaborationSession(
+        type, resourceId, resourceName, teamId, creatorId, permissions
+      );
+      res.status(201).json(session);
+    } catch (error) {
+      console.error('Create collaboration session error:', error);
+      res.status(500).json({ message: 'Failed to create collaboration session' });
+    }
+  });
+
+  app.post('/api/collaboration/sessions/:sessionId/join', async (req, res) => {
+    try {
+      const { sessionId } = req.params;
+      const { userId, teamId } = req.body;
+      
+      if (!userId || !teamId) {
+        return res.status(400).json({ message: 'userId and teamId are required' });
+      }
+
+      const participant = await collaborationSystem.joinCollaborationSession(sessionId, userId, teamId);
+      res.json(participant);
+    } catch (error) {
+      console.error('Join collaboration session error:', error);
+      res.status(500).json({ message: 'Failed to join collaboration session' });
+    }
+  });
+
+  app.post('/api/collaboration/sessions/:sessionId/leave', async (req, res) => {
+    try {
+      const { sessionId } = req.params;
+      const { userId } = req.body;
+      
+      if (!userId) {
+        return res.status(400).json({ message: 'userId is required' });
+      }
+
+      const success = await collaborationSystem.leaveCollaborationSession(sessionId, userId);
+      
+      if (!success) {
+        return res.status(404).json({ message: 'Session not found' });
+      }
+      
+      res.json({ success: true, message: 'Left collaboration session successfully' });
+    } catch (error) {
+      console.error('Leave collaboration session error:', error);
+      res.status(500).json({ message: 'Failed to leave collaboration session' });
+    }
+  });
+
+  app.get('/api/collaboration/sessions/:sessionId/comments', async (req, res) => {
+    try {
+      const { sessionId } = req.params;
+      const comments = await collaborationSystem.getSessionComments(sessionId);
+      res.json(comments);
+    } catch (error) {
+      console.error('Get session comments error:', error);
+      res.status(500).json({ message: 'Failed to get session comments' });
+    }
+  });
+
+  app.post('/api/collaboration/sessions/:sessionId/comments', async (req, res) => {
+    try {
+      const { sessionId } = req.params;
+      const { userId, content, type, position } = req.body;
+      
+      if (!userId || !content) {
+        return res.status(400).json({ message: 'userId and content are required' });
+      }
+
+      const comment = await collaborationSystem.addComment(sessionId, userId, content, type, position);
+      res.status(201).json(comment);
+    } catch (error) {
+      console.error('Add comment error:', error);
+      res.status(500).json({ message: 'Failed to add comment' });
     }
   });
 
