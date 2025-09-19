@@ -877,29 +877,29 @@ export class WorkflowAutomationEngine {
     limit: number = 5
   ): Promise<WorkflowTemplate[]> {
     try {
-      // Get user behavior patterns
-      const { history } = await UserHistoryService.getUserHistory(userId, { limit: 100 });
+      // Get user behavior patterns - Mock implementation for now
+      const history: any[] = []; // await UserHistoryService.getUserHistory(userId, { limit: 100 });
       
       // Analyze patterns to recommend relevant workflows
       const recommendations: WorkflowTemplate[] = [];
       
       // Check for social media usage
-      const socialActions = history.filter(h => h.action.category === 'social').length;
+      const socialActions = history.filter((h: any) => h.action?.category === 'social').length;
       if (socialActions > 5) {
         const socialTemplate = this.MARKETPLACE_TEMPLATES.find(t => t.id === 'social_auto_post');
         if (socialTemplate) recommendations.push(socialTemplate);
       }
       
       // Check for AI usage
-      const aiActions = history.filter(h => h.action.category === 'ai').length;
+      const aiActions = history.filter((h: any) => h.action?.category === 'ai').length;
       if (aiActions > 3) {
         const aiTemplate = this.MARKETPLACE_TEMPLATES.find(t => t.id === 'ai_content_generator');
         if (aiTemplate) recommendations.push(aiTemplate);
       }
       
       // Check for content creation
-      const contentActions = history.filter(h => 
-        h.action.type === 'create' && h.action.targetType === 'post'
+      const contentActions = history.filter((h: any) => 
+        h.action?.type === 'create' && h.action?.targetType === 'post'
       ).length;
       if (contentActions > 2) {
         const contentTemplate = this.MARKETPLACE_TEMPLATES.find(t => t.id === 'ai_content_generator');

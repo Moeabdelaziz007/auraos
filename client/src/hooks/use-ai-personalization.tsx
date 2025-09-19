@@ -202,7 +202,7 @@ export function usePersonalizedTracking() {
   // Track content engagement
   const trackContentEngagement = useCallback(async (
     contentId: string,
-    engagementType: 'view' | 'like' | 'comment' | 'share',
+    engagementType: 'view' | 'like' | 'share' | 'click',
     metadata?: Record<string, any>
   ) => {
     await trackInteraction(contentId, engagementType, {
@@ -215,7 +215,7 @@ export function usePersonalizedTracking() {
   // Track feature usage
   const trackFeatureUsage = useCallback(async (
     featureId: string,
-    usageType: 'open' | 'use' | 'complete',
+    usageType: 'view' | 'click' | 'complete',
     metadata?: Record<string, any>
   ) => {
     await trackInteraction(featureId, usageType, metadata);
@@ -224,7 +224,7 @@ export function usePersonalizedTracking() {
   // Track workflow interaction
   const trackWorkflowInteraction = useCallback(async (
     workflowId: string,
-    interactionType: 'view' | 'install' | 'execute' | 'complete',
+    interactionType: 'view' | 'click' | 'complete',
     metadata?: Record<string, any>
   ) => {
     await trackInteraction(workflowId, interactionType, {

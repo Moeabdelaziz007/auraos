@@ -457,4 +457,4 @@ export function useWorkflowTesting(workflowId?: string) {
   };
 }
 
-export default useWorkflowAutomation;
+export default useWorkflowMarketplace;

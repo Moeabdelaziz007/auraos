@@ -28,13 +28,15 @@ export function useWebSocket(path: string, onMessage: (data: any) => void, optio
       // Use the correct WebSocket URL - check if we're in production
       let wsUrl: string;
       
-      if (process.env.NODE_ENV === 'production') {
+      if (process.env.NODE_ENV === 'production' && window.location.hostname !== 'localhost') {
         // In production, use the deployed URL
         wsUrl = `wss://aios-97581.web.app${path}`;
       } else {
-        // In development, use local server
+        // In development or local production, use local server
         const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-        wsUrl = `${protocol}//${window.location.host}${path}`;
+        // Use localhost for development, but allow for different ports
+        const host = window.location.hostname === 'localhost' ? 'localhost:8080' : window.location.host;
+        wsUrl = `${protocol}//${host}${path}`;
       }
 
       console.log('Attempting WebSocket connection to:', wsUrl);

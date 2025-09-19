@@ -43,7 +43,7 @@ export function WorkflowMarketplace({ userId }: WorkflowMarketplaceProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState<WorkflowFilters>({});
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [sortBy, setSortBy] = useState<'popularity' | 'rating' | 'recent'>('popularity');
+  const [sortBy, setSortBy] = useState<string>('popularity');
 
   const { 
     marketplace, 
@@ -217,6 +217,7 @@ function MarketplaceTab({
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
             className="px-3 py-1 border rounded-md text-sm"
+            aria-label="Sort workflows"
           >
             <option value="popularity">Most Popular</option>
             <option value="rating">Highest Rated</option>

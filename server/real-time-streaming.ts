@@ -75,9 +75,7 @@ export class RealTimeAIStreaming extends EventEmitter {
             } catch (error) {
               done(false, 401, 'Unauthorized');
             }
-          },
-          port: aiStreamingPort,
-          perMessageDeflate: this.config.enableCompression
+          }
         });
 
         this.wss.on('connection', (ws: WebSocket, request) => {

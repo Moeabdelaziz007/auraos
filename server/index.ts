@@ -19,6 +19,15 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 app.get('/api/events', (req, res) => {
+  // Set proper headers for Server-Sent Events
+  res.writeHead(200, {
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    'Connection': 'keep-alive',
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Cache-Control'
+  });
+  
   debugStream.addClient(res);
 });
 
@@ -98,7 +107,19 @@ app.use((req, res, next) => {
     port,
     host: "0.0.0.0",
     reusePort: true,
-  }, () => {
+  }, async () => {
     log(`serving on port ${port}`);
+    
+    // Initialize real-time AI streaming
+    try {
+      const streaming = await initializeRealTimeAIStreaming({
+        port: port,
+        path: '/ws',
+        enableCompression: true
+      });
+      log('✅ Real-time AI streaming initialized');
+    } catch (error) {
+      log(`❌ Failed to initialize real-time AI streaming: ${error}`);
+    }
   });
 })();
