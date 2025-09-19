@@ -1,4 +1,6 @@
+
 import { initializeApp } from 'firebase/app';
+import { getAnalytics, logEvent } from "firebase/analytics";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, User } from 'firebase/auth';
 import { getFirestore, doc, setDoc, getDoc, collection, addDoc, updateDoc, deleteDoc, query, where, getDocs, orderBy, limit } from 'firebase/firestore';
 
@@ -16,6 +18,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
+export const analytics = getAnalytics(app);
 
 // Google Auth Provider
 const googleProvider = new GoogleAuthProvider();
@@ -238,7 +241,7 @@ export class FirestoreService {
         id: doc.id,
         ...doc.data()
       }));
-    } catch (error) {
+    } catch.error {
       console.error('Error getting agents:', error);
       throw error;
     }
@@ -279,5 +282,9 @@ export class FirestoreService {
     }
   }
 }
+
+export const trackEvent = (eventName: string, eventParams?: { [key: string]: any }) => {
+  logEvent(analytics, eventName, eventParams);
+};
 
 export default app;

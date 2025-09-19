@@ -1,10 +1,26 @@
 import express, { type Request, Response, NextFunction } from "express";
+import { createServer } from "http";
 import { registerRoutes } from "./routes";
+import { initializeRealTimeAIStreaming } from "./real-time-streaming";
 import { setupVite, serveStatic, log } from "./vite";
+import { autopilotAgent } from "./autopilot-agent";
+import { getSelfImprovingAISystem } from "./self-improving-ai";
+import { getDebugStream } from "./debug-stream";
+import { initializeFirebase } from "./firebase";
 
 const app = express();
+const server = createServer(app);
+const debugStream = getDebugStream();
+
+// Initialize Firebase
+initializeFirebase();
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+app.get('/api/events', (req, res) => {
+  debugStream.addClient(res);
+});
 
 app.use((req, res, next) => {
   const start = Date.now();
@@ -30,6 +46,12 @@ app.use((req, res, next) => {
       }
 
       log(logLine);
+
+      // Also send the log to the debug stream
+      debugStream.broadcast({ 
+        timestamp: new Date().toISOString(), 
+        message: logLine 
+      });
     }
   });
 
@@ -37,29 +59,40 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  const server = await registerRoutes(app);
+  await registerRoutes(app);
+  initializeRealTimeAIStreaming(server);
+  autopilotAgent.start();
+
+  const selfImprovingSystem = getSelfImprovingAISystem();
+  selfImprovingSystem.start();
+
+  // Run a self-improvement cycle shortly after startup
+  setTimeout(() => {
+    selfImprovingSystem.runImprovementCycle();
+  }, 10000);
+
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
 
+    // Also send the error to the debug stream
+    debugStream.broadcast({ 
+      timestamp: new Date().toISOString(), 
+      error: message,
+      status: status,
+    });
+
     res.status(status).json({ message });
     throw err;
   });
 
-  // importantly only setup vite in development and after
-  // setting up all the other routes so the catch-all route
-  // doesn't interfere with the other routes
   if (app.get("env") === "development") {
     await setupVite(app, server);
   } else {
     serveStatic(app);
   }
 
-  // ALWAYS serve the app on the port specified in the environment variable PORT
-  // Other ports are firewalled. Default to 5000 if not specified.
-  // this serves both the API and the client.
-  // It is the only port that is not firewalled.
   const port = parseInt(process.env.PORT || '5000', 10);
   server.listen({
     port,

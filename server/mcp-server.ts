@@ -309,6 +309,53 @@ export class AuraOSMCPServer {
         required: ['task_type', 'config'],
       },
     });
+
+    // 11. Knowledge Base Tool (New)
+    this.tools.set('knowledge_base', {
+      name: 'knowledge_base',
+      description: 'Query a knowledge base for information',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          query: {
+            type: 'string',
+            description: 'The query to search for in the knowledge base',
+          },
+        },
+        required: ['query'],
+      },
+    });
+
+    // 12. System Info Tool (New)
+    this.tools.set('system_info', {
+      name: 'system_info',
+      description: 'Get information about the system',
+      inputSchema: {
+        type: 'object',
+        properties: {},
+        required: [],
+      },
+    });
+
+    // 13. Code Formatter Tool (New)
+    this.tools.set('code_formatter', {
+      name: 'code_formatter',
+      description: 'Format code snippets',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          code: {
+            type: 'string',
+            description: 'The code to format',
+          },
+          language: {
+            type: 'string',
+            description: 'The programming language of the code',
+          },
+        },
+        required: ['code', 'language'],
+      },
+    });
   }
 
   private setupHandlers() {
@@ -374,6 +421,12 @@ export class AuraOSMCPServer {
         return await this.dataVisualizer(args);
       case 'automation':
         return await this.automation(args);
+      case 'knowledge_base':
+        return await this.knowledgeBase(args);
+      case 'system_info':
+        return await this.systemInfo(args);
+      case 'code_formatter':
+        return await this.codeFormatter(args);
       default:
         throw new Error(`Unknown tool: ${name}`);
     }
@@ -716,6 +769,23 @@ export class AuraOSMCPServer {
   private async automation(args: any): Promise<any> {
     // Implementation for automation
     return { success: true, message: 'Automation tool implemented' };
+  }
+
+  private async knowledgeBase(args: any): Promise<any> {
+    const { query } = args;
+    // This is a placeholder for a real knowledge base implementation
+    return { success: true, results: `No results found for \"${query}\"` };
+  }
+
+  private async systemInfo(args: any): Promise<any> {
+    // This is a placeholder for a real system info implementation
+    return { success: true, results: { arch: 'x64', cpus: 8, memory: '16GB' } };
+  }
+
+  private async codeFormatter(args: any): Promise<any> {
+    const { code, language } = args;
+    // This is a placeholder for a real code formatter implementation
+    return { success: true, formattedCode: `// Formatted ${language} code\n${code}` };
   }
 
   async start() {

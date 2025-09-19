@@ -19,6 +19,8 @@ import SmartLearningPage from "@/pages/smart-learning";
 import AdvancedAIToolsPage from "@/pages/advanced-ai-tools";
 import LearningDashboard from "@/pages/learning-dashboard";
 import NotFound from "@/pages/not-found";
+import DebugView from "@/pages/DebugView";
+import Workspace from "@/pages/Workspace";
 
 function Router() {
   useRouterTracking(); // Track router navigation
@@ -34,6 +36,8 @@ function Router() {
         <Route path="/smart-learning" component={withPageTracking(SmartLearningPage, 'Smart Learning')} />
         <Route path="/advanced-ai-tools" component={withPageTracking(AdvancedAIToolsPage, 'Advanced AI Tools')} />
         <Route path="/learning" component={withPageTracking(LearningDashboard, 'Learning Dashboard')} />
+        <Route path="/debug" component={withPageTracking(DebugView, 'Debug View')} />
+        <Route path="/workspace" component={withPageTracking(Workspace, 'Workspace')} />
         <Route component={withPageTracking(NotFound, 'Not Found')} />
       </Switch>
     </ProtectedRoute>

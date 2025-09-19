@@ -3,8 +3,15 @@ import { pgTable, text, varchar, timestamp, integer, boolean, jsonb } from "driz
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+export const tenants = pgTable("tenants", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  tenantId: varchar("tenant_id").notNull().references(() => tenants.id),
   username: text("username").notNull().unique(),
   email: text("email").notNull().unique(),
   password: text("password").notNull(),
@@ -17,6 +24,7 @@ export const users = pgTable("users", {
 
 export const posts = pgTable("posts", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  tenantId: varchar("tenant_id").notNull().references(() => tenants.id),
   authorId: varchar("author_id").notNull().references(() => users.id),
   content: text("content").notNull(),
   imageUrl: text("image_url"),
@@ -29,6 +37,7 @@ export const posts = pgTable("posts", {
 
 export const workflows = pgTable("workflows", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  tenantId: varchar("tenant_id").notNull().references(() => tenants.id),
   userId: varchar("user_id").notNull().references(() => users.id),
   name: text("name").notNull(),
   description: text("description"),
@@ -41,6 +50,7 @@ export const workflows = pgTable("workflows", {
 
 export const agentTemplates = pgTable("agent_templates", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  tenantId: varchar("tenant_id").references(() => tenants.id), // Can be null for global templates
   name: text("name").notNull(),
   description: text("description").notNull(),
   category: text("category").notNull(),
@@ -53,6 +63,7 @@ export const agentTemplates = pgTable("agent_templates", {
 
 export const userAgents = pgTable("user_agents", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  tenantId: varchar("tenant_id").notNull().references(() => tenants.id),
   userId: varchar("user_id").notNull().references(() => users.id),
   templateId: varchar("template_id").notNull().references(() => agentTemplates.id),
   name: text("name").notNull(),
@@ -65,6 +76,7 @@ export const userAgents = pgTable("user_agents", {
 
 export const chatMessages = pgTable("chat_messages", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  tenantId: varchar("tenant_id").notNull().references(() => tenants.id),
   userId: varchar("user_id").notNull().references(() => users.id),
   message: text("message").notNull(),
   response: text("response").notNull(),
@@ -72,6 +84,11 @@ export const chatMessages = pgTable("chat_messages", {
 });
 
 // Insert schemas
+export const insertTenantSchema = createInsertSchema(tenants).omit({
+  id: true,
+  createdAt: true,
+});
+
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
   createdAt: true,
@@ -111,6 +128,8 @@ export const insertChatMessageSchema = createInsertSchema(chatMessages).omit({
 });
 
 // Types
+export type Tenant = typeof tenants.$inferSelect;
+export type InsertTenant = z.infer<typeof insertTenantSchema>;
 export type DigitalIdentity = typeof users.$inferSelect;
 export type User = DigitalIdentity; // Keep for backward compatibility
 export type InsertUser = z.infer<typeof insertUserSchema>;
