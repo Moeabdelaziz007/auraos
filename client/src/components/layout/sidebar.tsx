@@ -14,6 +14,7 @@ const navigation = [
   { name: 'Workflows', href: '/workflows', icon: 'fas fa-project-diagram' },
   { name: 'AI Agents', href: '/ai-agents', icon: 'fas fa-robot' },
   { name: 'Smart Learning', href: '/smart-learning', icon: 'fas fa-brain' },
+  { name: 'AI Tools', href: '/advanced-ai-tools', icon: 'fas fa-tools' },
   { name: 'Telegram', href: '/telegram', icon: 'fab fa-telegram' },
   { name: 'Analytics', href: '/analytics', icon: 'fas fa-chart-bar' },
   { name: 'Settings', href: '/settings', icon: 'fas fa-cog' },
