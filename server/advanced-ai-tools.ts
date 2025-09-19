@@ -115,6 +115,155 @@ export class AdvancedAIToolsManager {
       usage: { totalCalls: 0, successRate: 0, averageExecutionTime: 0, lastUsed: new Date() }
     });
 
+    // Free Utility Tools
+    this.addTool({
+      id: 'url_shortener',
+      name: 'URL Shortener',
+      description: 'Shorten long URLs for easier sharing',
+      category: 'utility',
+      version: '1.0.0',
+      capabilities: ['url_shortening', 'custom_aliases'],
+      parameters: [
+        { name: 'url', type: 'string', required: true, description: 'URL to shorten' },
+        { name: 'custom_alias', type: 'string', required: false, description: 'Custom short alias' }
+      ],
+      execute: this.executeUrlShortener.bind(this),
+      isActive: true,
+      usage: { totalCalls: 0, successRate: 0, averageExecutionTime: 0, lastUsed: new Date() }
+    });
+
+    this.addTool({
+      id: 'qr_generator',
+      name: 'QR Code Generator',
+      description: 'Generate QR codes for text or URLs',
+      category: 'utility',
+      version: '1.0.0',
+      capabilities: ['qr_generation', 'image_creation'],
+      parameters: [
+        { name: 'text', type: 'string', required: true, description: 'Text or URL to encode' },
+        { name: 'size', type: 'number', required: false, description: 'QR code size in pixels', default: 200 }
+      ],
+      execute: this.executeQRGenerator.bind(this),
+      isActive: true,
+      usage: { totalCalls: 0, successRate: 0, averageExecutionTime: 0, lastUsed: new Date() }
+    });
+
+    this.addTool({
+      id: 'password_generator',
+      name: 'Password Generator',
+      description: 'Generate secure passwords with customizable options',
+      category: 'security',
+      version: '1.0.0',
+      capabilities: ['password_generation', 'security_analysis'],
+      parameters: [
+        { name: 'length', type: 'number', required: false, description: 'Password length', default: 12 },
+        { name: 'include_uppercase', type: 'boolean', required: false, description: 'Include uppercase letters', default: true },
+        { name: 'include_lowercase', type: 'boolean', required: false, description: 'Include lowercase letters', default: true },
+        { name: 'include_numbers', type: 'boolean', required: false, description: 'Include numbers', default: true },
+        { name: 'include_symbols', type: 'boolean', required: false, description: 'Include symbols', default: true }
+      ],
+      execute: this.executePasswordGenerator.bind(this),
+      isActive: true,
+      usage: { totalCalls: 0, successRate: 0, averageExecutionTime: 0, lastUsed: new Date() }
+    });
+
+    this.addTool({
+      id: 'base64_converter',
+      name: 'Base64 Encoder/Decoder',
+      description: 'Encode and decode Base64 strings',
+      category: 'utility',
+      version: '1.0.0',
+      capabilities: ['base64_encoding', 'base64_decoding'],
+      parameters: [
+        { name: 'text', type: 'string', required: true, description: 'Text to encode/decode' },
+        { name: 'operation', type: 'string', required: false, description: 'Operation type', default: 'encode' }
+      ],
+      execute: this.executeBase64Converter.bind(this),
+      isActive: true,
+      usage: { totalCalls: 0, successRate: 0, averageExecutionTime: 0, lastUsed: new Date() }
+    });
+
+    this.addTool({
+      id: 'json_formatter',
+      name: 'JSON Formatter',
+      description: 'Format and validate JSON strings',
+      category: 'utility',
+      version: '1.0.0',
+      capabilities: ['json_formatting', 'json_validation'],
+      parameters: [
+        { name: 'json_string', type: 'string', required: true, description: 'JSON string to format' },
+        { name: 'indent', type: 'number', required: false, description: 'Indentation spaces', default: 2 }
+      ],
+      execute: this.executeJSONFormatter.bind(this),
+      isActive: true,
+      usage: { totalCalls: 0, successRate: 0, averageExecutionTime: 0, lastUsed: new Date() }
+    });
+
+    this.addTool({
+      id: 'hash_generator',
+      name: 'Hash Generator',
+      description: 'Generate various types of hashes',
+      category: 'security',
+      version: '1.0.0',
+      capabilities: ['hash_generation', 'cryptographic_hashing'],
+      parameters: [
+        { name: 'text', type: 'string', required: true, description: 'Text to hash' },
+        { name: 'algorithm', type: 'string', required: false, description: 'Hash algorithm', default: 'sha256' }
+      ],
+      execute: this.executeHashGenerator.bind(this),
+      isActive: true,
+      usage: { totalCalls: 0, successRate: 0, averageExecutionTime: 0, lastUsed: new Date() }
+    });
+
+    this.addTool({
+      id: 'color_palette_generator',
+      name: 'Color Palette Generator',
+      description: 'Generate harmonious color palettes',
+      category: 'design',
+      version: '1.0.0',
+      capabilities: ['color_generation', 'palette_creation'],
+      parameters: [
+        { name: 'base_color', type: 'string', required: false, description: 'Base color in hex format', default: '#00ff41' },
+        { name: 'palette_type', type: 'string', required: false, description: 'Palette type', default: 'complementary' },
+        { name: 'count', type: 'number', required: false, description: 'Number of colors', default: 5 }
+      ],
+      execute: this.executeColorPaletteGenerator.bind(this),
+      isActive: true,
+      usage: { totalCalls: 0, successRate: 0, averageExecutionTime: 0, lastUsed: new Date() }
+    });
+
+    this.addTool({
+      id: 'text_analyzer',
+      name: 'Text Analyzer',
+      description: 'Analyze text for sentiment, keywords, and readability',
+      category: 'analysis',
+      version: '1.0.0',
+      capabilities: ['sentiment_analysis', 'keyword_extraction', 'readability_analysis'],
+      parameters: [
+        { name: 'text', type: 'string', required: true, description: 'Text to analyze' },
+        { name: 'analysis_type', type: 'string', required: false, description: 'Type of analysis', default: 'all' }
+      ],
+      execute: this.executeTextAnalyzer.bind(this),
+      isActive: true,
+      usage: { totalCalls: 0, successRate: 0, averageExecutionTime: 0, lastUsed: new Date() }
+    });
+
+    this.addTool({
+      id: 'uuid_generator',
+      name: 'UUID Generator',
+      description: 'Generate unique identifiers',
+      category: 'utility',
+      version: '1.0.0',
+      capabilities: ['uuid_generation', 'unique_identifiers'],
+      parameters: [
+        { name: 'version', type: 'string', required: false, description: 'UUID version', default: 'v4' },
+        { name: 'count', type: 'number', required: false, description: 'Number of UUIDs to generate', default: 1 }
+      ],
+      execute: this.executeUUIDGenerator.bind(this),
+      isActive: true,
+      usage: { totalCalls: 0, successRate: 0, averageExecutionTime: 0, lastUsed: new Date() }
+    });
+
     // Image Processing Tools
     this.addTool({
       id: 'image_processor',

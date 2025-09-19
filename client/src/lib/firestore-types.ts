@@ -94,6 +94,93 @@ export interface ChatMessage {
   metadata?: Record<string, any>;
 }
 
+export interface UserHistory {
+  id: string;
+  userId: string;
+  action: UserAction;
+  timestamp: Date;
+  sessionId: string;
+  metadata?: Record<string, any>;
+  duration?: number; // in milliseconds
+  success: boolean;
+  errorMessage?: string;
+}
+
+export interface UserAction {
+  type: ActionType;
+  category: ActionCategory;
+  description: string;
+  target?: string; // ID of the target resource
+  targetType?: string; // Type of target (post, workflow, agent, etc.)
+  details?: Record<string, any>;
+}
+
+export type ActionType = 
+  | 'login' | 'logout' | 'signup'
+  | 'create' | 'update' | 'delete' | 'view' | 'search'
+  | 'like' | 'unlike' | 'share' | 'comment'
+  | 'execute' | 'pause' | 'resume' | 'stop'
+  | 'chat' | 'message' | 'command'
+  | 'navigate' | 'scroll' | 'click' | 'hover'
+  | 'upload' | 'download' | 'export' | 'import'
+  | 'error' | 'warning' | 'info';
+
+export type ActionCategory = 
+  | 'authentication' | 'content' | 'social' | 'workflow' | 'ai' | 'navigation' | 'system';
+
+export interface UserSession {
+  id: string;
+  userId: string;
+  startTime: Date;
+  endTime?: Date;
+  duration?: number; // in milliseconds
+  deviceInfo: {
+    userAgent: string;
+    platform: string;
+    language: string;
+    timezone: string;
+    screenResolution: string;
+    viewport: string;
+  };
+  location?: {
+    country: string;
+    region: string;
+    city: string;
+    ip?: string;
+  };
+  actions: number;
+  lastActivity: Date;
+  isActive: boolean;
+}
+
+export interface UserAnalytics {
+  userId: string;
+  period: 'daily' | 'weekly' | 'monthly' | 'yearly';
+  date: Date;
+  stats: {
+    totalSessions: number;
+    totalActions: number;
+    averageSessionDuration: number;
+    mostUsedFeatures: Array<{
+      feature: string;
+      count: number;
+      percentage: number;
+    }>;
+    topPages: Array<{
+      page: string;
+      visits: number;
+      averageTime: number;
+    }>;
+    deviceBreakdown: Array<{
+      device: string;
+      count: number;
+      percentage: number;
+    }>;
+    errorRate: number;
+    retentionRate: number;
+  };
+}
+
 export interface UserStats {
   user: User;
   stats: {
@@ -124,7 +211,10 @@ export const COLLECTIONS = {
   AGENTS: 'agents',
   CHAT_MESSAGES: 'chatMessages',
   ANALYTICS: 'analytics',
-  NOTIFICATIONS: 'notifications'
+  NOTIFICATIONS: 'notifications',
+  USER_HISTORY: 'userHistory',
+  USER_SESSIONS: 'userSessions',
+  USER_ANALYTICS: 'userAnalytics'
 } as const;
 
 // Firestore Query Types

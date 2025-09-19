@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { LoadingSpinner, LoadingButton } from "@/components/ui/loading-spinner";
 import { useWebSocket } from "@/hooks/use-websocket";
 import { apiRequest } from "@/lib/queryClient";
 import type { ChatMessage } from "@shared/schema";
@@ -16,9 +17,22 @@ export default function ChatWidget() {
   const [messages, setMessages] = useState<Array<{ id: string; type: 'user' | 'ai'; content: string; timestamp: Date }>>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
-  useWebSocket('/ws', (data: any) => {
+  const { isConnected } = useWebSocket('/ws', (data: any) => {
     // Handle real-time updates if needed
     console.log('WebSocket message:', data);
+    
+    // Handle real-time chat messages
+    if (data.type === 'chat_message') {
+      setMessages(prev => [
+        ...prev,
+        { 
+          id: data.id, 
+          type: 'ai', 
+          content: data.content, 
+          timestamp: new Date(data.timestamp) 
+        }
+      ]);
+    }
   });
 
   const { data: chatHistory } = useQuery<ChatMessage[]>({
@@ -107,8 +121,11 @@ export default function ChatWidget() {
                 </Avatar>
                 <div className="flex-1">
                   <h4 className="font-medium text-foreground">AI Assistant</h4>
-                  <Badge variant="secondary" className="text-xs bg-green-500/10 text-green-600">
-                    Online
+                  <Badge 
+                    variant="secondary" 
+                    className={`text-xs ${isConnected ? 'bg-green-500/10 text-green-600' : 'bg-red-500/10 text-red-600'}`}
+                  >
+                    {isConnected ? 'Online' : 'Offline'}
                   </Badge>
                 </div>
                 <Button 
@@ -157,8 +174,31 @@ export default function ChatWidget() {
                         </AvatarFallback>
                       </Avatar>
                       <div className="bg-muted text-foreground p-3 rounded-lg text-sm">
-                        <i className="fas fa-spinner fa-spin mr-2"></i>
-                        AI is thinking...
+                        <LoadingSpinner size="sm" variant="cyber" text="AI is thinking..." />
+                      </div>
+                    </div>
+                  )}
+                  
+                  {chatMutation.isError && (
+                    <div className="flex gap-3 justify-start">
+                      <Avatar className="w-6 h-6 flex-shrink-0">
+                        <AvatarFallback className="bg-destructive text-white">
+                          <i className="fas fa-exclamation-triangle text-xs"></i>
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="bg-destructive/10 border border-destructive/20 text-destructive p-3 rounded-lg text-sm">
+                        <p className="font-medium">Error sending message</p>
+                        <p className="text-xs mt-1">
+                          {chatMutation.error?.message || 'Please try again'}
+                        </p>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => chatMutation.reset()}
+                          className="mt-2 h-6 text-xs"
+                        >
+                          Try Again
+                        </Button>
                       </div>
                     </div>
                   )}

@@ -12,6 +12,7 @@ const navigation = [
   { name: 'Social Feed', href: '/social-feed', icon: 'fas fa-users', hasNotification: true },
   { name: 'Workflows', href: '/workflows', icon: 'fas fa-project-diagram' },
   { name: 'AI Agents', href: '/ai-agents', icon: 'fas fa-robot' },
+  { name: 'Learning', href: '/learning', icon: 'fas fa-graduation-cap', hasNotification: true },
   { name: 'Smart Learning', href: '/smart-learning', icon: 'fas fa-brain' },
   { name: 'AI Tools', href: '/advanced-ai-tools', icon: 'fas fa-tools' },
   { name: 'Telegram', href: '/telegram', icon: 'fab fa-telegram' },

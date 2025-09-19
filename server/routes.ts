@@ -16,6 +16,7 @@ import { getIntelligentWorkflowOrchestrator } from "./intelligent-workflow.js";
 import { initializeMultiModalAI, getMultiModalAIEngine } from "./multi-modal-ai.js";
 import { initializeRealTimeAIStreaming, getRealTimeAIStreaming } from "./real-time-streaming.js";
 import { initializeAIModelManagement, getAIModelManagementSystem } from "./ai-model-management.js";
+import { initializeLearningSystem, getLearningSystem } from "./learning-automation.js";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
@@ -85,26 +86,128 @@ export async function registerRoutes(app: Express): Promise<Server> {
     console.error('❌ Failed to initialize AI Model Management System:', error);
   }
 
+  // Initialize Learning Automation System
+  try {
+    const learningSystem = initializeLearningSystem();
+    console.log('📚 Learning Automation System initialized successfully');
+  } catch (error) {
+    console.error('❌ Failed to initialize Learning Automation System:', error);
+  }
+
   // WebSocket server for real-time updates
-  const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
+  const wss = new WebSocketServer({ 
+    server: httpServer, 
+    path: '/ws',
+    perMessageDeflate: true
+  });
   
   const clients = new Set<WebSocket>();
 
-  wss.on('connection', (ws) => {
+  wss.on('connection', (ws, request) => {
+    console.log('🔗 New WebSocket connection from:', request.headers.origin || request.socket.remoteAddress);
     clients.add(ws);
     
-    ws.on('close', () => {
+    // Send welcome message
+    ws.send(JSON.stringify({
+      type: 'connection',
+      message: 'Connected to AuraOS WebSocket',
+      timestamp: new Date().toISOString()
+    }));
+
+    // Handle ping/pong for heartbeat
+    ws.on('message', (data) => {
+      try {
+        const message = JSON.parse(data.toString());
+        if (message.type === 'ping') {
+          ws.send(JSON.stringify({ type: 'pong', timestamp: Date.now() }));
+        }
+      } catch (error) {
+        console.error('Error parsing WebSocket message:', error);
+      }
+    });
+    
+    ws.on('close', (code, reason) => {
+      console.log('🔌 WebSocket disconnected:', code, reason.toString());
+      clients.delete(ws);
+    });
+
+    ws.on('error', (error) => {
+      console.error('❌ WebSocket error:', error);
       clients.delete(ws);
     });
   });
 
   function broadcast(data: any) {
+    const message = JSON.stringify(data);
     clients.forEach(client => {
       if (client.readyState === WebSocket.OPEN) {
-        client.send(JSON.stringify(data));
+        try {
+          client.send(message);
+        } catch (error) {
+          console.error('Error sending message to client:', error);
+          clients.delete(client);
+        }
       }
     });
   }
+
+  // Heartbeat to keep connections alive
+  setInterval(() => {
+    broadcast({
+      type: 'heartbeat',
+      timestamp: Date.now(),
+      activeConnections: clients.size
+    });
+  }, 30000); // Every 30 seconds
+
+  // Learning System Integration with WebSocket
+  const learningSystem = getLearningSystem();
+  
+  // Listen for learning events and broadcast them
+  learningSystem.on('levelUp', (data) => {
+    broadcast({
+      type: 'levelUp',
+      ...data,
+      timestamp: Date.now()
+    });
+  });
+
+  learningSystem.on('badgeUnlocked', (data) => {
+    broadcast({
+      type: 'badgeUnlocked',
+      ...data,
+      timestamp: Date.now()
+    });
+  });
+
+  learningSystem.on('achievementUnlocked', (data) => {
+    broadcast({
+      type: 'achievementUnlocked',
+      ...data,
+      timestamp: Date.now()
+    });
+  });
+
+  // Autopilot System Integration with WebSocket
+  const automationEngine = getAdvancedAutomationEngine();
+  const orchestrator = getIntelligentWorkflowOrchestrator();
+  
+  // Subscribe to autopilot updates and broadcast them
+  automationEngine.subscribeToUpdates((status) => {
+    broadcast({
+      type: 'autopilot_update',
+      data: status,
+      timestamp: Date.now()
+    });
+  });
+
+  orchestrator.subscribeToWorkflowUpdates((status) => {
+    broadcast({
+      type: 'workflow_update',
+      data: status,
+      timestamp: Date.now()
+    });
+  });
 
   // User routes
   app.get('/api/users/current', async (req, res) => {
@@ -127,6 +230,66 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(stats);
     } catch (error) {
       res.status(500).json({ message: 'Failed to get user stats' });
+    }
+  });
+
+  // Learning System API Routes
+  app.get('/api/learning/progress/:userId', async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const progress = learningSystem.getUserProgress(userId);
+      res.json(progress);
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to get learning progress' });
+    }
+  });
+
+  app.get('/api/learning/activities/:userId', async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const limit = parseInt(req.query.limit as string) || 50;
+      const activities = learningSystem.getUserActivities(userId, limit);
+      res.json(activities);
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to get learning activities' });
+    }
+  });
+
+  app.get('/api/learning/recommendations/:userId', async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const recommendations = learningSystem.getUserRecommendations(userId);
+      res.json(recommendations);
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to get learning recommendations' });
+    }
+  });
+
+  app.post('/api/learning/activity', async (req, res) => {
+    try {
+      const activity = await learningSystem.recordActivity(req.body);
+      res.json(activity);
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to record learning activity' });
+    }
+  });
+
+  app.get('/api/learning/leaderboard', async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 10;
+      const leaderboard = learningSystem.getLeaderboard(limit);
+      res.json(leaderboard);
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to get leaderboard' });
+    }
+  });
+
+  app.get('/api/learning/challenges', async (req, res) => {
+    try {
+      const challenges = learningSystem.getActiveChallenges();
+      res.json(challenges);
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to get challenges' });
     }
   });
 
@@ -965,6 +1128,176 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Create automation rule error:', error);
       res.status(500).json({ message: 'Failed to create automation rule' });
+    }
+  });
+
+  // Live Autopilot Control API Routes
+  app.get('/api/autopilot/live/status', async (req, res) => {
+    try {
+      const automationEngine = getAdvancedAutomationEngine();
+      const orchestrator = getIntelligentWorkflowOrchestrator();
+      
+      const liveStatus = {
+        automation: automationEngine.getLiveStatus(),
+        workflows: orchestrator.getLiveStatus(),
+        timestamp: new Date().toISOString()
+      };
+      
+      res.json(liveStatus);
+    } catch (error) {
+      console.error('Get live status error:', error);
+      res.status(500).json({ message: 'Failed to get live status' });
+    }
+  });
+
+  app.post('/api/autopilot/emergency-stop', async (req, res) => {
+    try {
+      const { stop } = req.body;
+      
+      if (typeof stop !== 'boolean') {
+        return res.status(400).json({ message: 'stop parameter must be a boolean' });
+      }
+
+      const automationEngine = getAdvancedAutomationEngine();
+      automationEngine.setEmergencyStop(stop);
+      
+      res.json({ 
+        success: true, 
+        emergencyStop: stop,
+        message: `Autopilot ${stop ? 'stopped' : 'resumed'}` 
+      });
+    } catch (error) {
+      console.error('Emergency stop error:', error);
+      res.status(500).json({ message: 'Failed to set emergency stop' });
+    }
+  });
+
+  app.post('/api/autopilot/rule/:ruleId/toggle', async (req, res) => {
+    try {
+      const { ruleId } = req.params;
+      const { enabled } = req.body;
+      
+      if (typeof enabled !== 'boolean') {
+        return res.status(400).json({ message: 'enabled parameter must be a boolean' });
+      }
+
+      const automationEngine = getAdvancedAutomationEngine();
+      const success = automationEngine.toggleRule(ruleId, enabled);
+      
+      if (success) {
+        res.json({ 
+          success: true, 
+          ruleId, 
+          enabled,
+          message: `Rule ${enabled ? 'enabled' : 'disabled'}` 
+        });
+      } else {
+        res.status(404).json({ message: 'Rule not found' });
+      }
+    } catch (error) {
+      console.error('Toggle rule error:', error);
+      res.status(500).json({ message: 'Failed to toggle rule' });
+    }
+  });
+
+  app.post('/api/autopilot/rule/:ruleId/override', async (req, res) => {
+    try {
+      const { ruleId } = req.params;
+      const { override } = req.body;
+      
+      const automationEngine = getAdvancedAutomationEngine();
+      automationEngine.setUserOverride(ruleId, override);
+      
+      res.json({ 
+        success: true, 
+        ruleId, 
+        override,
+        message: 'User override set successfully' 
+      });
+    } catch (error) {
+      console.error('Set override error:', error);
+      res.status(500).json({ message: 'Failed to set override' });
+    }
+  });
+
+  app.delete('/api/autopilot/rule/:ruleId/override', async (req, res) => {
+    try {
+      const { ruleId } = req.params;
+      
+      const automationEngine = getAdvancedAutomationEngine();
+      automationEngine.clearUserOverride(ruleId);
+      
+      res.json({ 
+        success: true, 
+        ruleId,
+        message: 'User override cleared successfully' 
+      });
+    } catch (error) {
+      console.error('Clear override error:', error);
+      res.status(500).json({ message: 'Failed to clear override' });
+    }
+  });
+
+  // Workflow Control API Routes
+  app.post('/api/workflows/:workflowId/pause', async (req, res) => {
+    try {
+      const { workflowId } = req.params;
+      
+      const orchestrator = getIntelligentWorkflowOrchestrator();
+      const success = orchestrator.pauseWorkflow(workflowId);
+      
+      if (success) {
+        res.json({ 
+          success: true, 
+          workflowId,
+          message: 'Workflow paused successfully' 
+        });
+      } else {
+        res.status(404).json({ message: 'Workflow not found' });
+      }
+    } catch (error) {
+      console.error('Pause workflow error:', error);
+      res.status(500).json({ message: 'Failed to pause workflow' });
+    }
+  });
+
+  app.post('/api/workflows/:workflowId/resume', async (req, res) => {
+    try {
+      const { workflowId } = req.params;
+      
+      const orchestrator = getIntelligentWorkflowOrchestrator();
+      const success = orchestrator.resumeWorkflow(workflowId);
+      
+      if (success) {
+        res.json({ 
+          success: true, 
+          workflowId,
+          message: 'Workflow resumed successfully' 
+        });
+      } else {
+        res.status(404).json({ message: 'Workflow not found' });
+      }
+    } catch (error) {
+      console.error('Resume workflow error:', error);
+      res.status(500).json({ message: 'Failed to resume workflow' });
+    }
+  });
+
+  app.get('/api/workflows/:workflowId/status', async (req, res) => {
+    try {
+      const { workflowId } = req.params;
+      
+      const orchestrator = getIntelligentWorkflowOrchestrator();
+      const status = orchestrator.getWorkflowStatus(workflowId);
+      
+      if (status) {
+        res.json(status);
+      } else {
+        res.status(404).json({ message: 'Workflow not found' });
+      }
+    } catch (error) {
+      console.error('Get workflow status error:', error);
+      res.status(500).json({ message: 'Failed to get workflow status' });
     }
   });
 
