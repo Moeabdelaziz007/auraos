@@ -196,6 +196,75 @@ export class TelegramService {
       case 'ai_chat':
         await this.bot.sendMessage(chatId, '💬 AI Chat\n\nI\'m here to help! What would you like to know?');
         break;
+      // Travel service callbacks
+      case 'travel_menu':
+        const travelMenu = await this.smartMenuService.generateSmartMenu(chatId, username, 'travel');
+        await this.bot.sendMessage(chatId, travelMenu.text, travelMenu.keyboard);
+        break;
+      case 'flight_booking':
+        await this.bot.sendMessage(chatId, '✈️ Flight Booking\n\nI can help you find the best flight deals! Tell me your destination and travel dates.');
+        break;
+      case 'hotel_booking':
+        await this.bot.sendMessage(chatId, '🏨 Hotel Booking\n\nI\'ll find the perfect hotel for you! What city are you visiting?');
+        break;
+      case 'car_rental':
+        await this.bot.sendMessage(chatId, '🚗 Car Rental\n\nI can help you find the best car rental deals! Where do you need a car?');
+        break;
+      case 'travel_packages':
+        await this.bot.sendMessage(chatId, '📦 Travel Packages\n\nI\'ll create a complete travel package for you! What\'s your dream destination?');
+        break;
+      case 'travel_activities':
+        await this.bot.sendMessage(chatId, '🎯 Travel Activities\n\nI can recommend amazing activities! What type of experiences are you looking for?');
+        break;
+      case 'travel_agents':
+        await this.bot.sendMessage(chatId, '🤖 Travel Agents\n\nHere are your AI travel agents:\n• Flight Booking Agent\n• Hotel Booking Agent\n• Car Rental Agent\n• Travel Package Agent\n• Activity Booking Agent');
+        break;
+      // Food service callbacks
+      case 'food_menu':
+        const foodMenu = await this.smartMenuService.generateSmartMenu(chatId, username, 'food');
+        await this.bot.sendMessage(chatId, foodMenu.text, foodMenu.keyboard);
+        break;
+      case 'restaurant_discovery':
+        await this.bot.sendMessage(chatId, '🍴 Restaurant Discovery\n\nI\'ll find the perfect restaurant for you! What cuisine do you prefer?');
+        break;
+      case 'food_delivery':
+        await this.bot.sendMessage(chatId, '🚚 Food Delivery\n\nI can help you order food! What are you craving today?');
+        break;
+      case 'grocery_shopping':
+        await this.bot.sendMessage(chatId, '🛒 Grocery Shopping\n\nI\'ll help you with your grocery shopping! What do you need to buy?');
+        break;
+      case 'meal_planning':
+        await this.bot.sendMessage(chatId, '📋 Meal Planning\n\nI can create a meal plan for you! What are your dietary preferences?');
+        break;
+      case 'catering_services':
+        await this.bot.sendMessage(chatId, '🎉 Catering Services\n\nI can help coordinate catering for your event! What type of event are you planning?');
+        break;
+      case 'food_agents':
+        await this.bot.sendMessage(chatId, '🤖 Food Agents\n\nHere are your AI food agents:\n• Restaurant Discovery Agent\n• Food Delivery Agent\n• Grocery Shopping Agent\n• Meal Planning Agent\n• Catering Service Agent');
+        break;
+      // Shopping service callbacks
+      case 'shopping_menu':
+        const shoppingMenu = await this.smartMenuService.generateSmartMenu(chatId, username, 'shopping');
+        await this.bot.sendMessage(chatId, shoppingMenu.text, shoppingMenu.keyboard);
+        break;
+      case 'price_comparison':
+        await this.bot.sendMessage(chatId, '🔍 Price Comparison\n\nI can compare prices across multiple platforms! What are you looking to buy?');
+        break;
+      case 'deal_detection':
+        await this.bot.sendMessage(chatId, '💰 Deal Detection\n\nI\'ll monitor deals for you! What products are you interested in?');
+        break;
+      case 'auto_purchase':
+        await this.bot.sendMessage(chatId, '🤖 Auto-Purchase\n\nI can automatically purchase items when criteria are met! What should I watch for?');
+        break;
+      case 'wishlist_manager':
+        await this.bot.sendMessage(chatId, '📋 Wishlist Manager\n\nI\'ll help you manage your wishlist! What would you like to add?');
+        break;
+      case 'budget_tracker':
+        await this.bot.sendMessage(chatId, '📊 Budget Tracker\n\nI can help you track your shopping budget! What\'s your monthly budget?');
+        break;
+      case 'shopping_agents':
+        await this.bot.sendMessage(chatId, '🤖 Shopping Agents\n\nHere are your AI shopping agents:\n• Travel Shopping Agent\n• Food Shopping Agent\n• Universal Shopping Agent');
+        break;
       default:
         await this.bot.sendMessage(chatId, '❓ Unknown command. Use /menu to see available options.');
     }

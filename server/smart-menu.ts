@@ -311,7 +311,10 @@ ${context.stats.favoriteCommands.length > 0 ?
     options.push(
       { text: '📝 Posts', callback_data: 'posts_menu', icon: '📝', priority: 1 },
       { text: '🤖 Agents', callback_data: 'agents_menu', icon: '🤖', priority: 2 },
-      { text: '📊 Analytics', callback_data: 'analytics_menu', icon: '📊', priority: 3 }
+      { text: '📊 Analytics', callback_data: 'analytics_menu', icon: '📊', priority: 3 },
+      { text: '✈️ Travel', callback_data: 'travel_menu', icon: '✈️', priority: 4 },
+      { text: '🍽️ Food', callback_data: 'food_menu', icon: '🍽️', priority: 5 },
+      { text: '🛒 Shopping', callback_data: 'shopping_menu', icon: '🛒', priority: 6 }
     );
 
     // Add contextual options based on user behavior
@@ -348,6 +351,123 @@ ${context.stats.favoriteCommands.length > 0 ?
     }
 
     return rows;
+  }
+
+  // Travel Menu
+  private async generateTravelMenu(context: UserContext): Promise<{ text: string; keyboard: any }> {
+    const text = `✈️ Travel Services Hub
+
+🎯 **AI-Powered Travel Solutions:**
+• Smart flight booking with price optimization
+• Hotel recommendations with amenity matching
+• Car rental with route optimization
+• Complete travel packages
+• Activity booking and recommendations
+
+🚀 **Smart Features:**
+• Real-time price monitoring
+• Deal detection and alerts
+• Automated booking when criteria met
+• Personalized recommendations
+• Multi-service coordination
+
+🎯 Choose your travel service:`;
+
+    const menuOptions: SmartMenuOption[] = [
+      { text: '✈️ Flight Booking', callback_data: 'flight_booking', icon: '✈️', priority: 1 },
+      { text: '🏨 Hotel Booking', callback_data: 'hotel_booking', icon: '🏨', priority: 2 },
+      { text: '🚗 Car Rental', callback_data: 'car_rental', icon: '🚗', priority: 3 },
+      { text: '📦 Travel Packages', callback_data: 'travel_packages', icon: '📦', priority: 4 },
+      { text: '🎯 Activities', callback_data: 'travel_activities', icon: '🎯', priority: 5 },
+      { text: '🤖 Travel Agents', callback_data: 'travel_agents', icon: '🤖', priority: 6 },
+      { text: '🔙 Back to Main', callback_data: 'main_menu', icon: '🔙', priority: 7 }
+    ];
+
+    const keyboard = {
+      reply_markup: {
+        inline_keyboard: this.organizeMenuOptions(menuOptions)
+      }
+    };
+
+    return { text, keyboard };
+  }
+
+  // Food Menu
+  private async generateFoodMenu(context: UserContext): Promise<{ text: string; keyboard: any }> {
+    const text = `🍽️ Food Services Hub
+
+🎯 **AI-Powered Food Solutions:**
+• Restaurant discovery with cuisine matching
+• Food delivery optimization
+• Grocery shopping automation
+• Meal planning with nutrition optimization
+• Catering coordination
+
+🚀 **Smart Features:**
+• Dietary preference learning
+• Price comparison across platforms
+• Automated repeat orders
+• Nutritional analysis and optimization
+• Group coordination
+
+🎯 Choose your food service:`;
+
+    const menuOptions: SmartMenuOption[] = [
+      { text: '🍴 Restaurant Discovery', callback_data: 'restaurant_discovery', icon: '🍴', priority: 1 },
+      { text: '🚚 Food Delivery', callback_data: 'food_delivery', icon: '🚚', priority: 2 },
+      { text: '🛒 Grocery Shopping', callback_data: 'grocery_shopping', icon: '🛒', priority: 3 },
+      { text: '📋 Meal Planning', callback_data: 'meal_planning', icon: '📋', priority: 4 },
+      { text: '🎉 Catering Services', callback_data: 'catering_services', icon: '🎉', priority: 5 },
+      { text: '🤖 Food Agents', callback_data: 'food_agents', icon: '🤖', priority: 6 },
+      { text: '🔙 Back to Main', callback_data: 'main_menu', icon: '🔙', priority: 7 }
+    ];
+
+    const keyboard = {
+      reply_markup: {
+        inline_keyboard: this.organizeMenuOptions(menuOptions)
+      }
+    };
+
+    return { text, keyboard };
+  }
+
+  // Shopping Menu
+  private async generateShoppingMenu(context: UserContext): Promise<{ text: string; keyboard: any }> {
+    const text = `🛒 Smart Shopping Hub
+
+🎯 **AI-Powered Shopping Solutions:**
+• Universal price comparison
+• Deal detection and alerts
+• Automated purchasing
+• Preference learning
+• Budget optimization
+
+🚀 **Smart Features:**
+• Cross-platform price monitoring
+• Deal aggregation and alerts
+• Automated wishlist management
+• Purchase timing optimization
+• Budget tracking and optimization
+
+🎯 Choose your shopping service:`;
+
+    const menuOptions: SmartMenuOption[] = [
+      { text: '🔍 Price Comparison', callback_data: 'price_comparison', icon: '🔍', priority: 1 },
+      { text: '💰 Deal Detection', callback_data: 'deal_detection', icon: '💰', priority: 2 },
+      { text: '🤖 Auto-Purchase', callback_data: 'auto_purchase', icon: '🤖', priority: 3 },
+      { text: '📋 Wishlist Manager', callback_data: 'wishlist_manager', icon: '📋', priority: 4 },
+      { text: '📊 Budget Tracker', callback_data: 'budget_tracker', icon: '📊', priority: 5 },
+      { text: '🤖 Shopping Agents', callback_data: 'shopping_agents', icon: '🤖', priority: 6 },
+      { text: '🔙 Back to Main', callback_data: 'main_menu', icon: '🔙', priority: 7 }
+    ];
+
+    const keyboard = {
+      reply_markup: {
+        inline_keyboard: this.organizeMenuOptions(menuOptions)
+      }
+    };
+
+    return { text, keyboard };
   }
 
   // Helper methods
