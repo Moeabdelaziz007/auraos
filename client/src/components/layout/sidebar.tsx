@@ -6,7 +6,6 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/hooks/use-auth";
-import { FirestoreService } from "@/lib/firebase";
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: 'fas fa-home' },
@@ -26,7 +25,7 @@ export default function Sidebar() {
   
   const { data: userData } = useQuery({
     queryKey: ['userData', user?.uid],
-    queryFn: () => user?.uid ? FirestoreService.getUserData(user.uid) : null,
+    queryFn: () => user?.uid ? Promise.resolve({ displayName: user.displayName, email: user.email }) : null,
     enabled: !!user?.uid
   });
 
@@ -39,16 +38,19 @@ export default function Sidebar() {
   };
 
   return (
-    <div className="w-64 bg-card border-r border-border flex flex-col">
+    <div className="w-64 glass-card border-r border-border/50 flex flex-col backdrop-blur-xl cyber-scrollbar">
       {/* Logo */}
-          <div className="p-6">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-to-r from-primary to-accent rounded-lg flex items-center justify-center neon-glow">
-                <i className="fas fa-robot text-white text-sm"></i>
-              </div>
-              <span className="font-bold text-xl text-foreground neon-text animate-neon-pulse">AIFlow</span>
-            </div>
+      <div className="p-6">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 gradient-cyber-primary rounded-xl flex items-center justify-center neon-glow-lg animate-neon-pulse">
+            <i className="fas fa-robot text-white text-lg"></i>
           </div>
+          <div className="flex flex-col">
+            <span className="font-bold text-xl neon-text animate-neon-flicker">AuraOS</span>
+            <span className="text-xs text-muted-foreground font-mono">v2.0</span>
+          </div>
+        </div>
+      </div>
       
       {/* Navigation */}
       <nav className="flex-1 px-4 pb-4">
@@ -60,19 +62,22 @@ export default function Sidebar() {
               <li key={item.name}>
                 <Link href={item.href}>
                   <a 
-                        className={cn(
-                          "flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-300",
-                          isActive
-                            ? "bg-primary text-primary-foreground neon-glow"
-                            : "text-muted-foreground hover:bg-muted hover:text-foreground hover:shadow-lg hover:shadow-primary/20"
-                        )}
+                    className={cn(
+                      "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group relative overflow-hidden",
+                      isActive
+                        ? "gradient-cyber-primary text-white neon-glow-lg animate-neon-pulse"
+                        : "text-muted-foreground hover:text-foreground hover:bg-primary/10 hover:neon-glow-sm hover:border-primary/30 border border-transparent"
+                    )}
                     data-testid={`nav-${item.name.toLowerCase().replace(' ', '-')}`}
                   >
-                    <i className={`${item.icon} w-5`}></i>
+                    <i className={`${item.icon} w-5 transition-transform duration-300 group-hover:scale-110`}></i>
                     <span className="font-medium">{item.name}</span>
-                        {item.hasNotification && (
-                          <div className="ml-auto w-2 h-2 bg-accent rounded-full animate-neon-pulse neon-glow" data-testid="notification-dot"></div>
-                        )}
+                    {item.hasNotification && (
+                      <div className="ml-auto w-2 h-2 bg-accent rounded-full animate-neon-pulse neon-glow-sm"></div>
+                    )}
+                    {isActive && (
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-cyber-scan"></div>
+                    )}
                   </a>
                 </Link>
               </li>
@@ -81,35 +86,35 @@ export default function Sidebar() {
         </ul>
       </nav>
       
-      <Separator />
+      <Separator className="bg-border/30" />
       
-          {/* User Profile */}
-          <div className="p-4">
-            <div className="flex items-center gap-3">
-              <Avatar className="w-10 h-10 border border-primary/30">
-                <AvatarImage src={user?.photoURL || undefined} alt={user?.displayName || 'User'} />
-                <AvatarFallback className="bg-primary/20 text-primary">
-                  {user?.displayName?.split(' ').map(n => n[0]).join('') || user?.email?.[0]?.toUpperCase() || 'U'}
-                </AvatarFallback>
-              </Avatar>
+      {/* User Profile */}
+      <div className="p-4">
+        <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-primary/10 transition-all duration-300 group">
+          <Avatar className="w-10 h-10 border border-primary/30 neon-glow-sm group-hover:neon-glow-md transition-all duration-300">
+            <AvatarImage src={user?.photoURL || undefined} alt={user?.displayName || 'User'} />
+            <AvatarFallback className="bg-gradient-to-r from-primary/20 to-accent/20 text-primary font-bold">
+              {user?.displayName?.split(' ').map(n => n[0]).join('') || user?.email?.[0]?.toUpperCase() || 'U'}
+            </AvatarFallback>
+          </Avatar>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-foreground truncate" data-testid="text-user-name">
+            <p className="text-sm font-medium text-foreground truncate neon-text" data-testid="text-user-name">
               {user?.displayName || user?.email || 'User'}
             </p>
             <p className="text-xs text-muted-foreground truncate" data-testid="text-user-email">
               {user?.email || 'user@example.com'}
             </p>
           </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleSignOut}
-                data-testid="button-sign-out"
-                title="Sign Out"
-                className="hover:bg-primary/20 hover:text-primary transition-all duration-300"
-              >
-                <i className="fas fa-sign-out-alt"></i>
-              </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleSignOut}
+            data-testid="button-sign-out"
+            title="Sign Out"
+            className="hover:bg-primary/20 hover:text-primary transition-all duration-300 neon-glow-sm hover:neon-glow-md"
+          >
+            <i className="fas fa-sign-out-alt"></i>
+          </Button>
         </div>
       </div>
     </div>
