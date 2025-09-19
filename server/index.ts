@@ -3,6 +3,7 @@ import { createServer } from "http";
 import { registerRoutes } from "./routes";
 import { initializeRealTimeAIStreaming } from "./real-time-streaming";
 import { setupVite, serveStatic, log } from "./vite";
+import { autopilotAgent } from "./autopilot-agent";
 
 const app = express();
 const server = createServer(app);
@@ -43,6 +44,7 @@ app.use((req, res, next) => {
 (async () => {
   await registerRoutes(app);
   initializeRealTimeAIStreaming(server);
+  autopilotAgent.start();
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
