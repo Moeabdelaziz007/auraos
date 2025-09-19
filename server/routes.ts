@@ -1701,5 +1701,337 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Multi-Modal AI Engine API Routes
+  app.get('/api/ai/multimodal/models', async (req, res) => {
+    try {
+      const multiModalAI = getMultiModalAIEngine();
+      const models = multiModalAI.getAllModels();
+      res.json(models);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.get('/api/ai/multimodal/models/active', async (req, res) => {
+    try {
+      const multiModalAI = getMultiModalAIEngine();
+      const models = multiModalAI.getActiveModels();
+      res.json(models);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.get('/api/ai/multimodal/models/:modelId', async (req, res) => {
+    try {
+      const { modelId } = req.params;
+      const multiModalAI = getMultiModalAIEngine();
+      const model = multiModalAI.getModel(modelId);
+      
+      if (!model) {
+        return res.status(404).json({ error: 'Model not found' });
+      }
+      
+      res.json(model);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.post('/api/ai/multimodal/process', async (req, res) => {
+    try {
+      const { input, modelId } = req.body;
+      const multiModalAI = getMultiModalAIEngine();
+      const output = await multiModalAI.processMultiModal(input, modelId);
+      res.json(output);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.get('/api/ai/multimodal/performance', async (req, res) => {
+    try {
+      const multiModalAI = getMultiModalAIEngine();
+      const metrics = multiModalAI.getPerformanceMetrics();
+      res.json(Object.fromEntries(metrics));
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Real-Time AI Streaming API Routes
+  app.get('/api/ai/streaming/status', async (req, res) => {
+    try {
+      const streaming = getRealTimeAIStreaming();
+      const stats = streaming.getConnectionStats();
+      res.json(stats);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.get('/api/ai/streaming/connections', async (req, res) => {
+    try {
+      const streaming = getRealTimeAIStreaming();
+      const connections = streaming.getAllConnections();
+      res.json(connections);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.get('/api/ai/streaming/sessions', async (req, res) => {
+    try {
+      const streaming = getRealTimeAIStreaming();
+      const sessions = streaming.getActiveConnections();
+      res.json(sessions);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.get('/api/ai/streaming/metrics', async (req, res) => {
+    try {
+      const streaming = getRealTimeAIStreaming();
+      const metrics = streaming.getStreamingMetrics();
+      res.json(metrics);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // AI Model Management API Routes
+  app.get('/api/ai/models', async (req, res) => {
+    try {
+      const modelManagement = getAIModelManagementSystem();
+      const models = modelManagement.getAllModels();
+      res.json(models);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.get('/api/ai/models/:modelId/versions', async (req, res) => {
+    try {
+      const { modelId } = req.params;
+      const modelManagement = getAIModelManagementSystem();
+      const versions = modelManagement.getModelVersions(modelId);
+      res.json(versions);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.get('/api/ai/models/:modelId/versions/latest', async (req, res) => {
+    try {
+      const { modelId } = req.params;
+      const modelManagement = getAIModelManagementSystem();
+      const version = modelManagement.getLatestModelVersion(modelId);
+      
+      if (!version) {
+        return res.status(404).json({ error: 'No versions found' });
+      }
+      
+      res.json(version);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.post('/api/ai/models/:modelId/versions/:versionId/activate', async (req, res) => {
+    try {
+      const { modelId, versionId } = req.params;
+      const modelManagement = getAIModelManagementSystem();
+      const success = modelManagement.activateModelVersion(modelId, versionId);
+      
+      if (!success) {
+        return res.status(404).json({ error: 'Version not found' });
+      }
+      
+      res.json({ success: true, message: 'Version activated successfully' });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.get('/api/ai/deployments', async (req, res) => {
+    try {
+      const modelManagement = getAIModelManagementSystem();
+      const deployments = modelManagement.getDeployments();
+      res.json(deployments);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.get('/api/ai/deployments/active', async (req, res) => {
+    try {
+      const modelManagement = getAIModelManagementSystem();
+      const deployments = modelManagement.getActiveDeployments();
+      res.json(deployments);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.post('/api/ai/deployments', async (req, res) => {
+    try {
+      const { modelId, versionId, environment, config } = req.body;
+      const modelManagement = getAIModelManagementSystem();
+      const deployment = await modelManagement.deployModel(modelId, versionId, environment, config);
+      res.status(201).json(deployment);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.delete('/api/ai/deployments/:deploymentId', async (req, res) => {
+    try {
+      const { deploymentId } = req.params;
+      const modelManagement = getAIModelManagementSystem();
+      const success = await modelManagement.undeployModel(deploymentId);
+      
+      if (!success) {
+        return res.status(404).json({ error: 'Deployment not found' });
+      }
+      
+      res.json({ success: true, message: 'Model undeployed successfully' });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.get('/api/ai/training', async (req, res) => {
+    try {
+      const modelManagement = getAIModelManagementSystem();
+      const jobs = modelManagement.getTrainingJobs();
+      res.json(jobs);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.get('/api/ai/training/active', async (req, res) => {
+    try {
+      const modelManagement = getAIModelManagementSystem();
+      const jobs = modelManagement.getActiveTrainingJobs();
+      res.json(jobs);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.post('/api/ai/training', async (req, res) => {
+    try {
+      const { modelId, config } = req.body;
+      const modelManagement = getAIModelManagementSystem();
+      const job = await modelManagement.startTrainingJob(modelId, config);
+      res.status(201).json(job);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.delete('/api/ai/training/:jobId', async (req, res) => {
+    try {
+      const { jobId } = req.params;
+      const modelManagement = getAIModelManagementSystem();
+      const success = await modelManagement.cancelTrainingJob(jobId);
+      
+      if (!success) {
+        return res.status(404).json({ error: 'Training job not found or not running' });
+      }
+      
+      res.json({ success: true, message: 'Training job cancelled successfully' });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.get('/api/ai/federated-learning', async (req, res) => {
+    try {
+      const modelManagement = getAIModelManagementSystem();
+      const rounds = modelManagement.getFederatedLearningRounds();
+      res.json(rounds);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.get('/api/ai/federated-learning/active', async (req, res) => {
+    try {
+      const modelManagement = getAIModelManagementSystem();
+      const rounds = modelManagement.getActiveFederatedLearningRounds();
+      res.json(rounds);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.post('/api/ai/federated-learning', async (req, res) => {
+    try {
+      const { modelId, participants } = req.body;
+      const modelManagement = getAIModelManagementSystem();
+      const round = await modelManagement.startFederatedLearningRound(modelId, participants);
+      res.status(201).json(round);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.get('/api/ai/system-metrics', async (req, res) => {
+    try {
+      const modelManagement = getAIModelManagementSystem();
+      const metrics = modelManagement.getSystemMetrics();
+      res.json(metrics);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.post('/api/ai/models/:modelId/optimize', async (req, res) => {
+    try {
+      const { modelId } = req.params;
+      const { optimizationConfig } = req.body;
+      const modelManagement = getAIModelManagementSystem();
+      const result = await modelManagement.optimizeModel(modelId, optimizationConfig);
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.post('/api/ai/models/:modelId/archive', async (req, res) => {
+    try {
+      const { modelId } = req.params;
+      const modelManagement = getAIModelManagementSystem();
+      const success = await modelManagement.archiveModel(modelId);
+      
+      if (!success) {
+        return res.status(404).json({ error: 'Model not found' });
+      }
+      
+      res.json({ success: true, message: 'Model archived successfully' });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.post('/api/ai/models/:modelId/restore', async (req, res) => {
+    try {
+      const { modelId } = req.params;
+      const modelManagement = getAIModelManagementSystem();
+      const success = await modelManagement.restoreModel(modelId);
+      
+      if (!success) {
+        return res.status(404).json({ error: 'Model not found' });
+      }
+      
+      res.json({ success: true, message: 'Model restored successfully' });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   return httpServer;
 }

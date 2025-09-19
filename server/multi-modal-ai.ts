@@ -214,7 +214,7 @@ export class MultiModalAIEngine extends EventEmitter {
       return output;
 
     } catch (error) {
-      this.emit('processingError', { input, error: error.message });
+      this.emit('processingError', { input, error: (error as Error).message });
       throw error;
     }
   }

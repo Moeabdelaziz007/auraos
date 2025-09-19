@@ -126,15 +126,17 @@ export class RealTimeAIStreaming extends EventEmitter {
     });
 
     // Send welcome message
-    this.sendMessage(connectionId, {
-      type: 'status',
-      data: {
-        message: 'Connected to Real-Time AI Streaming',
-        connectionId,
-        userId,
+      this.sendMessage(connectionId, {
+        id: uuidv4(),
+        type: 'status',
+        data: {
+          message: 'Connected to Real-Time AI Streaming',
+          connectionId,
+          userId,
+          timestamp: new Date()
+        },
         timestamp: new Date()
-      }
-    });
+      });
 
     this.emit('connectionEstablished', connection);
     console.log(`🔗 New streaming connection: ${connectionId} (User: ${userId})`);
@@ -193,19 +195,21 @@ export class RealTimeAIStreaming extends EventEmitter {
       connection.sessionId = sessionId;
 
       this.sendMessage(connectionId, {
+        id: uuidv4(),
         type: 'status',
         data: {
           message: 'Streaming session started',
           sessionId,
           modelId,
           timestamp: new Date()
-        }
+        },
+        timestamp: new Date()
       });
 
       this.emit('sessionStarted', { connectionId, sessionId, modelId });
 
     } catch (error) {
-      this.sendError(connectionId, `Failed to start session: ${error.message}`);
+      this.sendError(connectionId, `Failed to start session: ${(error as Error).message}`);
     }
   }
 
@@ -226,13 +230,15 @@ export class RealTimeAIStreaming extends EventEmitter {
       const processingTime = Date.now() - startTime;
 
       this.sendMessage(connectionId, {
+        id: uuidv4(),
         type: 'output',
         data: {
           input,
           output,
           processingTime,
           timestamp: new Date()
-        }
+        },
+        timestamp: new Date()
       });
 
       this.emit('inputProcessed', {
@@ -244,7 +250,7 @@ export class RealTimeAIStreaming extends EventEmitter {
       });
 
     } catch (error) {
-      this.sendError(connectionId, `Input processing failed: ${error.message}`);
+      this.sendError(connectionId, `Input processing failed: ${(error as Error).message}`);
     }
   }
 
@@ -259,19 +265,21 @@ export class RealTimeAIStreaming extends EventEmitter {
       await this.aiEngine.endStreamingSession(connection.sessionId);
       
       this.sendMessage(connectionId, {
+        id: uuidv4(),
         type: 'status',
         data: {
           message: 'Streaming session ended',
           sessionId: connection.sessionId,
           timestamp: new Date()
-        }
+        },
+        timestamp: new Date()
       });
 
       this.emit('sessionEnded', { connectionId, sessionId: connection.sessionId });
       connection.sessionId = undefined;
 
     } catch (error) {
-      this.sendError(connectionId, `Failed to end session: ${error.message}`);
+      this.sendError(connectionId, `Failed to end session: ${(error as Error).message}`);
     }
   }
 
@@ -280,11 +288,13 @@ export class RealTimeAIStreaming extends EventEmitter {
     if (connection) {
       connection.lastActivity = new Date();
       this.sendMessage(connectionId, {
+        id: uuidv4(),
         type: 'heartbeat',
         data: {
           timestamp: new Date(),
           status: 'alive'
-        }
+        },
+        timestamp: new Date()
       });
     }
   }
@@ -305,8 +315,10 @@ export class RealTimeAIStreaming extends EventEmitter {
     };
 
     this.sendMessage(connectionId, {
+      id: uuidv4(),
       type: 'status',
-      data: status
+      data: status,
+      timestamp: new Date()
     });
   }
 
@@ -359,19 +371,19 @@ export class RealTimeAIStreaming extends EventEmitter {
 
   private startHeartbeat(): void {
     this.heartbeatInterval = setInterval(() => {
-      for (const connection of this.connections.values()) {
-        if (connection.isActive) {
-          this.sendMessage(connection.id, {
-            id: uuidv4(),
-            type: 'heartbeat',
-            data: {
-              timestamp: new Date(),
-              status: 'ping'
-            },
-            timestamp: new Date()
-          });
-        }
+    for (const connection of Array.from(this.connections.values())) {
+      if (connection.isActive) {
+        this.sendMessage(connection.id, {
+          id: uuidv4(),
+          type: 'heartbeat',
+          data: {
+            timestamp: new Date(),
+            status: 'ping'
+          },
+          timestamp: new Date()
+        });
       }
+    }
     }, this.config.heartbeatInterval);
   }
 
@@ -380,14 +392,14 @@ export class RealTimeAIStreaming extends EventEmitter {
       const now = Date.now();
       const timeout = this.config.connectionTimeout;
 
-      for (const [connectionId, connection] of this.connections.entries()) {
-        const lastActivity = connection.lastActivity.getTime();
-        if (now - lastActivity > timeout) {
-          console.log(`🧹 Cleaning up inactive connection: ${connectionId}`);
-          connection.ws.close();
-          this.connections.delete(connectionId);
-        }
+    for (const [connectionId, connection] of Array.from(this.connections.entries())) {
+      const lastActivity = connection.lastActivity.getTime();
+      if (now - lastActivity > timeout) {
+        console.log(`🧹 Cleaning up inactive connection: ${connectionId}`);
+        connection.ws.close();
+        this.connections.delete(connectionId);
       }
+    }
     }, 60000); // Check every minute
   }
 
@@ -440,7 +452,7 @@ export class RealTimeAIStreaming extends EventEmitter {
   }
 
   broadcastMessage(message: StreamingMessage, excludeConnectionId?: string): void {
-    for (const connection of this.connections.values()) {
+    for (const connection of Array.from(this.connections.values())) {
       if (connection.isActive && connection.id !== excludeConnectionId) {
         this.sendMessage(connection.id, message);
       }
@@ -448,7 +460,7 @@ export class RealTimeAIStreaming extends EventEmitter {
   }
 
   sendToUser(userId: string, message: StreamingMessage): void {
-    for (const connection of this.connections.values()) {
+    for (const connection of Array.from(this.connections.values())) {
       if (connection.isActive && connection.userId === userId) {
         this.sendMessage(connection.id, message);
       }
