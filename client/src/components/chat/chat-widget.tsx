@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { LoadingSpinner, LoadingButton } from "@/components/ui/loading-spinner";
 import { useWebSocket } from "@/hooks/use-websocket";
 import { apiRequest } from "@/lib/queryClient";
 import type { ChatMessage } from "@shared/schema";
@@ -173,8 +174,31 @@ export default function ChatWidget() {
                         </AvatarFallback>
                       </Avatar>
                       <div className="bg-muted text-foreground p-3 rounded-lg text-sm">
-                        <i className="fas fa-spinner fa-spin mr-2"></i>
-                        AI is thinking...
+                        <LoadingSpinner size="sm" variant="cyber" text="AI is thinking..." />
+                      </div>
+                    </div>
+                  )}
+                  
+                  {chatMutation.isError && (
+                    <div className="flex gap-3 justify-start">
+                      <Avatar className="w-6 h-6 flex-shrink-0">
+                        <AvatarFallback className="bg-destructive text-white">
+                          <i className="fas fa-exclamation-triangle text-xs"></i>
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="bg-destructive/10 border border-destructive/20 text-destructive p-3 rounded-lg text-sm">
+                        <p className="font-medium">Error sending message</p>
+                        <p className="text-xs mt-1">
+                          {chatMutation.error?.message || 'Please try again'}
+                        </p>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => chatMutation.reset()}
+                          className="mt-2 h-6 text-xs"
+                        >
+                          Try Again
+                        </Button>
                       </div>
                     </div>
                   )}

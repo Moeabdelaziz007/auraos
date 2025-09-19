@@ -146,11 +146,19 @@
     @apply font-sans antialiased bg-background text-foreground;
     font-family: 'Inter', 'SF Pro Display', system-ui, sans-serif;
     background: 
-      radial-gradient(circle at 20% 50%, transparent 20%, rgba(0,255,65,0.02) 21%, rgba(0,255,65,0.02) 34%, transparent 35%, transparent),
-      radial-gradient(circle at 80% 20%, transparent 20%, rgba(0,255,255,0.01) 21%, rgba(0,255,255,0.01) 34%, transparent 35%, transparent),
-      radial-gradient(circle at 40% 80%, transparent 20%, rgba(255,0,255,0.01) 21%, rgba(255,0,255,0.01) 34%, transparent 35%, transparent),
-      linear-gradient(0deg, rgba(0,0,0,0.95) 50%, transparent 50%);
+      /* Animated grid pattern */
+      linear-gradient(90deg, transparent 98%, rgba(0,255,65,0.03) 100%),
+      linear-gradient(0deg, transparent 98%, rgba(0,255,65,0.03) 100%),
+      /* Dynamic radial gradients */
+      radial-gradient(circle at 20% 50%, transparent 20%, rgba(0,255,65,0.04) 21%, rgba(0,255,65,0.04) 34%, transparent 35%, transparent),
+      radial-gradient(circle at 80% 20%, transparent 20%, rgba(0,255,255,0.03) 21%, rgba(0,255,255,0.03) 34%, transparent 35%, transparent),
+      radial-gradient(circle at 40% 80%, transparent 20%, rgba(255,0,255,0.03) 21%, rgba(255,0,255,0.03) 34%, transparent 35%, transparent),
+      radial-gradient(circle at 60% 30%, transparent 20%, rgba(255,255,0,0.02) 21%, rgba(255,255,0,0.02) 34%, transparent 35%, transparent),
+      /* Base gradient */
+      linear-gradient(135deg, rgba(0,0,0,0.98) 0%, rgba(0,0,0,0.95) 50%, rgba(0,0,0,0.98) 100%);
+    background-size: 50px 50px, 50px 50px, 800px 800px, 600px 600px, 700px 700px, 500px 500px, 100% 100%;
     background-attachment: fixed;
+    animation: backgroundShift 20s ease-in-out infinite;
   }
 
   /* Enhanced Typography */
@@ -484,6 +492,98 @@
     }
     50% {
       background-position: 100% 50%;
+    }
+  }
+
+  @keyframes backgroundShift {
+    0%, 100% {
+      background-position: 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%;
+    }
+    25% {
+      background-position: 10px 10px, 5px 5px, 200px 100px, 150px 50px, 175px 125px, 125px 75px, 0% 0%;
+    }
+    50% {
+      background-position: 20px 20px, 10px 10px, 400px 200px, 300px 100px, 350px 250px, 250px 150px, 0% 0%;
+    }
+    75% {
+      background-position: 15px 15px, 8px 8px, 300px 150px, 225px 75px, 275px 200px, 200px 125px, 0% 0%;
+    }
+  }
+
+  @keyframes matrixRain {
+    0% {
+      transform: translateY(-100vh);
+      opacity: 0;
+    }
+    10% {
+      opacity: 1;
+    }
+    90% {
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(100vh);
+      opacity: 0;
+    }
+  }
+
+  @keyframes cyberScanLines {
+    0% {
+      transform: translateY(-100%);
+      opacity: 0;
+    }
+    50% {
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(100vh);
+      opacity: 0;
+    }
+  }
+
+  @keyframes particleFloat {
+    0%, 100% {
+      transform: translateY(0px) translateX(0px) rotate(0deg);
+      opacity: 0.3;
+    }
+    25% {
+      transform: translateY(-20px) translateX(10px) rotate(90deg);
+      opacity: 0.6;
+    }
+    50% {
+      transform: translateY(-40px) translateX(-5px) rotate(180deg);
+      opacity: 0.8;
+    }
+    75% {
+      transform: translateY(-20px) translateX(-15px) rotate(270deg);
+      opacity: 0.6;
+    }
+  }
+
+  @keyframes glitchEffect {
+    0%, 100% {
+      transform: translate(0);
+      filter: hue-rotate(0deg);
+    }
+    10% {
+      transform: translate(-2px, 2px);
+      filter: hue-rotate(90deg);
+    }
+    20% {
+      transform: translate(2px, -2px);
+      filter: hue-rotate(180deg);
+    }
+    30% {
+      transform: translate(-2px, -2px);
+      filter: hue-rotate(270deg);
+    }
+    40% {
+      transform: translate(2px, 2px);
+      filter: hue-rotate(360deg);
+    }
+    50% {
+      transform: translate(0);
+      filter: hue-rotate(0deg);
     }
   }
   

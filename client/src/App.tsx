@@ -6,6 +6,10 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/hooks/use-theme";
 import { AuthProvider } from "@/hooks/use-auth";
 import ProtectedRoute from "@/components/auth/protected-route";
+import { ErrorBoundary } from "@/components/ui/error-boundary";
+import { KeyboardShortcuts, COMMON_SHORTCUTS } from "@/components/ui/keyboard-navigation";
+import { useRouterTracking } from "@/components/analytics/page-tracker";
+import { withPageTracking } from "@/components/analytics/page-tracker";
 import Dashboard from "@/pages/dashboard";
 import SocialFeed from "@/pages/social-feed";
 import Workflows from "@/pages/workflows";
@@ -17,18 +21,20 @@ import LearningDashboard from "@/pages/learning-dashboard";
 import NotFound from "@/pages/not-found";
 
 function Router() {
+  useRouterTracking(); // Track router navigation
+  
   return (
     <ProtectedRoute>
       <Switch>
-        <Route path="/" component={Dashboard} />
-        <Route path="/social-feed" component={SocialFeed} />
-        <Route path="/workflows" component={Workflows} />
-        <Route path="/ai-agents" component={AIAgents} />
-        <Route path="/telegram" component={TelegramPage} />
-        <Route path="/smart-learning" component={SmartLearningPage} />
-        <Route path="/advanced-ai-tools" component={AdvancedAIToolsPage} />
-        <Route path="/learning" component={LearningDashboard} />
-        <Route component={NotFound} />
+        <Route path="/" component={withPageTracking(Dashboard, 'Dashboard')} />
+        <Route path="/social-feed" component={withPageTracking(SocialFeed, 'Social Feed')} />
+        <Route path="/workflows" component={withPageTracking(Workflows, 'Workflows')} />
+        <Route path="/ai-agents" component={withPageTracking(AIAgents, 'AI Agents')} />
+        <Route path="/telegram" component={withPageTracking(TelegramPage, 'Telegram')} />
+        <Route path="/smart-learning" component={withPageTracking(SmartLearningPage, 'Smart Learning')} />
+        <Route path="/advanced-ai-tools" component={withPageTracking(AdvancedAIToolsPage, 'Advanced AI Tools')} />
+        <Route path="/learning" component={withPageTracking(LearningDashboard, 'Learning Dashboard')} />
+        <Route component={withPageTracking(NotFound, 'Not Found')} />
       </Switch>
     </ProtectedRoute>
   );
@@ -36,16 +42,20 @@ function Router() {
 
 function App() {
   return (
-    <AuthProvider>
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Router />
-          </TooltipProvider>
-        </ThemeProvider>
-      </QueryClientProvider>
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <QueryClientProvider client={queryClient}>
+          <ThemeProvider>
+            <TooltipProvider>
+              <KeyboardShortcuts shortcuts={COMMON_SHORTCUTS}>
+                <Toaster />
+                <Router />
+              </KeyboardShortcuts>
+            </TooltipProvider>
+          </ThemeProvider>
+        </QueryClientProvider>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
 

@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import Sidebar from "@/components/layout/sidebar";
 import Header from "@/components/layout/header";
 import StatsGrid from "@/components/dashboard/stats-grid";
@@ -8,9 +9,12 @@ import ChatWidget from "@/components/chat/chat-widget";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import UserHistoryAnalytics from "@/components/analytics/user-history-analytics";
 import type { PostWithAuthor, AgentTemplate, UserAgent } from "@shared/schema";
 
 export default function Dashboard() {
+  const [showAnalytics, setShowAnalytics] = useState(false);
+
   const { data: posts, isLoading: postsLoading } = useQuery<PostWithAuthor[]>({
     queryKey: ['/api/posts'],
   });
@@ -33,7 +37,23 @@ export default function Dashboard() {
         
         <main className="flex-1 overflow-auto cyber-scrollbar">
           <div className="p-6 max-w-7xl mx-auto">
-            <StatsGrid />
+            {showAnalytics ? (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <h1 className="text-2xl font-bold neon-text">User Analytics</h1>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setShowAnalytics(false)}
+                    className="neon-glow-sm"
+                  >
+                    Back to Dashboard
+                  </Button>
+                </div>
+                <UserHistoryAnalytics />
+              </div>
+            ) : (
+              <>
+                <StatsGrid />
             
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
               {/* Left Column: Social Feed */}
@@ -267,7 +287,12 @@ export default function Dashboard() {
                         <span className="text-sm font-medium">AI Generate</span>
                       </Button>
                       
-                      <Button variant="ghost" className="p-4 bg-gradient-to-br from-blue-500/20 to-blue-500/10 text-blue-400 hover:from-blue-500/30 hover:to-blue-500/20 h-auto flex-col neon-glow-sm hover:neon-glow-md transition-all duration-300" data-testid="button-view-analytics">
+                      <Button 
+                        variant="ghost" 
+                        className="p-4 bg-gradient-to-br from-blue-500/20 to-blue-500/10 text-blue-400 hover:from-blue-500/30 hover:to-blue-500/20 h-auto flex-col neon-glow-sm hover:neon-glow-md transition-all duration-300" 
+                        data-testid="button-view-analytics"
+                        onClick={() => setShowAnalytics(true)}
+                      >
                         <i className="fas fa-chart-bar text-xl mb-2"></i>
                         <span className="text-sm font-medium">Analytics</span>
                       </Button>
@@ -281,6 +306,8 @@ export default function Dashboard() {
                 </Card>
               </div>
             </div>
+              </>
+            )}
           </div>
         </main>
       </div>
