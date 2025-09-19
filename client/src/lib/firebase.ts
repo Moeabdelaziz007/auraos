@@ -4,12 +4,12 @@ import { getFirestore, doc, setDoc, getDoc, collection, addDoc, updateDoc, delet
 
 // Firebase configuration
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID
+  apiKey: "AIzaSyApDku-geNVplwIgRBz2U0rs46aAVo-_mE",
+  authDomain: "aios-97581.firebaseapp.com",
+  projectId: "aios-97581",
+  storageBucket: "aios-97581.appspot.com",
+  messagingSenderId: "307575156824",
+  appId: "1:307575156824:web:00924bd384df1f29909a2d"
 };
 
 // Initialize Firebase
