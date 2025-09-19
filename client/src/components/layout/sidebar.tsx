@@ -41,14 +41,14 @@ export default function Sidebar() {
   return (
     <div className="w-64 bg-card border-r border-border flex flex-col">
       {/* Logo */}
-      <div className="p-6">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-gradient-to-r from-primary to-accent rounded-lg flex items-center justify-center">
-            <i className="fas fa-robot text-white text-sm"></i>
+          <div className="p-6">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-gradient-to-r from-primary to-accent rounded-lg flex items-center justify-center neon-glow">
+                <i className="fas fa-robot text-white text-sm"></i>
+              </div>
+              <span className="font-bold text-xl text-foreground neon-text animate-neon-pulse">AIFlow</span>
+            </div>
           </div>
-          <span className="font-bold text-xl text-foreground">AIFlow</span>
-        </div>
-      </div>
       
       {/* Navigation */}
       <nav className="flex-1 px-4 pb-4">
@@ -60,19 +60,19 @@ export default function Sidebar() {
               <li key={item.name}>
                 <Link href={item.href}>
                   <a 
-                    className={cn(
-                      "flex items-center gap-3 px-3 py-2 rounded-lg transition-colors",
-                      isActive 
-                        ? "bg-primary text-primary-foreground" 
-                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                    )}
+                        className={cn(
+                          "flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-300",
+                          isActive
+                            ? "bg-primary text-primary-foreground neon-glow"
+                            : "text-muted-foreground hover:bg-muted hover:text-foreground hover:shadow-lg hover:shadow-primary/20"
+                        )}
                     data-testid={`nav-${item.name.toLowerCase().replace(' ', '-')}`}
                   >
                     <i className={`${item.icon} w-5`}></i>
                     <span className="font-medium">{item.name}</span>
-                    {item.hasNotification && (
-                      <div className="ml-auto w-2 h-2 bg-accent rounded-full animate-pulse" data-testid="notification-dot"></div>
-                    )}
+                        {item.hasNotification && (
+                          <div className="ml-auto w-2 h-2 bg-accent rounded-full animate-neon-pulse neon-glow" data-testid="notification-dot"></div>
+                        )}
                   </a>
                 </Link>
               </li>
@@ -83,15 +83,15 @@ export default function Sidebar() {
       
       <Separator />
       
-      {/* User Profile */}
-      <div className="p-4">
-        <div className="flex items-center gap-3">
-          <Avatar className="w-10 h-10">
-            <AvatarImage src={user?.photoURL || undefined} alt={user?.displayName || 'User'} />
-            <AvatarFallback>
-              {user?.displayName?.split(' ').map(n => n[0]).join('') || user?.email?.[0]?.toUpperCase() || 'U'}
-            </AvatarFallback>
-          </Avatar>
+          {/* User Profile */}
+          <div className="p-4">
+            <div className="flex items-center gap-3">
+              <Avatar className="w-10 h-10 border border-primary/30">
+                <AvatarImage src={user?.photoURL || undefined} alt={user?.displayName || 'User'} />
+                <AvatarFallback className="bg-primary/20 text-primary">
+                  {user?.displayName?.split(' ').map(n => n[0]).join('') || user?.email?.[0]?.toUpperCase() || 'U'}
+                </AvatarFallback>
+              </Avatar>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-foreground truncate" data-testid="text-user-name">
               {user?.displayName || user?.email || 'User'}
@@ -100,15 +100,16 @@ export default function Sidebar() {
               {user?.email || 'user@example.com'}
             </p>
           </div>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={handleSignOut}
-            data-testid="button-sign-out"
-            title="Sign Out"
-          >
-            <i className="fas fa-sign-out-alt"></i>
-          </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleSignOut}
+                data-testid="button-sign-out"
+                title="Sign Out"
+                className="hover:bg-primary/20 hover:text-primary transition-all duration-300"
+              >
+                <i className="fas fa-sign-out-alt"></i>
+              </Button>
         </div>
       </div>
     </div>

@@ -3,106 +3,130 @@
 @tailwind utilities;
 
 :root {
-  --background: hsl(222, 84%, 97%);
-  --foreground: hsl(222, 17%, 14%);
-  --card: hsl(0, 0%, 100%);
-  --card-foreground: hsl(222, 17%, 14%);
-  --popover: hsl(0, 0%, 100%);
-  --popover-foreground: hsl(222, 17%, 14%);
-  --primary: hsl(262, 83%, 58%);
-  --primary-foreground: hsl(210, 40%, 98%);
-  --secondary: hsl(210, 40%, 96%);
-  --secondary-foreground: hsl(222, 17%, 14%);
-  --muted: hsl(210, 40%, 96%);
-  --muted-foreground: hsl(215, 13%, 65%);
-  --accent: hsl(43, 96%, 56%);
-  --accent-foreground: hsl(222, 17%, 14%);
-  --destructive: hsl(0, 84%, 60%);
-  --destructive-foreground: hsl(210, 40%, 98%);
-  --border: hsl(214, 32%, 91%);
-  --input: hsl(214, 32%, 91%);
-  --ring: hsl(262, 83%, 58%);
-  --chart-1: hsl(262, 83%, 58%);
-  --chart-2: hsl(159, 78%, 36%);
-  --chart-3: hsl(43, 96%, 56%);
-  --chart-4: hsl(147, 78%, 42%);
-  --chart-5: hsl(341, 75%, 51%);
-  --sidebar: hsl(0, 0%, 100%);
-  --sidebar-foreground: hsl(222, 17%, 14%);
-  --sidebar-primary: hsl(262, 83%, 58%);
-  --sidebar-primary-foreground: hsl(210, 40%, 98%);
-  --sidebar-accent: hsl(210, 40%, 96%);
-  --sidebar-accent-foreground: hsl(222, 17%, 14%);
-  --sidebar-border: hsl(214, 32%, 91%);
-  --sidebar-ring: hsl(262, 83%, 58%);
-  --font-sans: 'Inter', system-ui, sans-serif;
-  --font-serif: Georgia, serif;
-  --font-mono: 'JetBrains Mono', monospace;
-  --radius: 1.25rem;
-  --shadow-2xs: 0px 1px 2px 0px hsl(0, 0%, 0%, 0.05);
-  --shadow-xs: 0px 1px 2px 0px hsl(0, 0%, 0%, 0.05);
-  --shadow-sm: 0px 1px 2px 0px hsl(0, 0%, 0%, 0.05), 0px 1px 3px 0px hsl(0, 0%, 0%, 0.10);
-  --shadow: 0px 1px 3px 0px hsl(0, 0%, 0%, 0.10), 0px 1px 2px 0px hsl(0, 0%, 0%, 0.06);
-  --shadow-md: 0px 4px 6px -1px hsl(0, 0%, 0%, 0.10), 0px 2px 4px -1px hsl(0, 0%, 0%, 0.06);
-  --shadow-lg: 0px 10px 15px -3px hsl(0, 0%, 0%, 0.10), 0px 4px 6px -2px hsl(0, 0%, 0%, 0.05);
-  --shadow-xl: 0px 20px 25px -5px hsl(0, 0%, 0%, 0.10), 0px 10px 10px -5px hsl(0, 0%, 0%, 0.04);
-  --shadow-2xl: 0px 25px 50px -12px hsl(0, 0%, 0%, 0.25);
-  --tracking-normal: 0em;
-  --spacing: 0.25rem;
+  /* AuraOS Ultra Neon & Cyberpunk Theme */
+  --background: hsl(0, 0%, 2%); /* Ultra deep void black */
+  --foreground: hsl(120, 100%, 85%); /* Brilliant neon green */
+  --card: hsl(0, 0%, 4%); /* Deep carbon card */
+  --card-foreground: hsl(120, 100%, 85%);
+  --popover: hsl(0, 0%, 4%);
+  --popover-foreground: hsl(120, 100%, 85%);
+  --primary: hsl(120, 100%, 60%); /* Electric neon green */
+  --primary-foreground: hsl(0, 0%, 2%);
+  --secondary: hsl(0, 0%, 8%); /* Dark carbon */
+  --secondary-foreground: hsl(120, 90%, 80%);
+  --muted: hsl(0, 0%, 8%);
+  --muted-foreground: hsl(120, 50%, 60%);
+  --accent: hsl(180, 100%, 60%); /* Cyan accent */
+  --accent-foreground: hsl(0, 0%, 2%);
+  --destructive: hsl(0, 90%, 65%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --border: hsl(120, 40%, 15%); /* Subtle neon border */
+  --input: hsl(0, 0%, 8%);
+  --ring: hsl(120, 100%, 60%); /* Electric neon ring */
+  --chart-1: hsl(120, 100%, 60%);
+  --chart-2: hsl(180, 100%, 60%);
+  --chart-3: hsl(240, 100%, 60%);
+  --chart-4: hsl(300, 100%, 60%);
+  --chart-5: hsl(60, 100%, 60%);
+  --sidebar: hsl(0, 0%, 4%);
+  --sidebar-foreground: hsl(120, 100%, 85%);
+  --sidebar-primary: hsl(120, 100%, 60%);
+  --sidebar-primary-foreground: hsl(0, 0%, 2%);
+  --sidebar-accent: hsl(0, 0%, 8%);
+  --sidebar-accent-foreground: hsl(120, 90%, 80%);
+  --sidebar-border: hsl(120, 40%, 15%);
+  --sidebar-ring: hsl(120, 100%, 60%);
+  --font-sans: 'Inter', 'SF Pro Display', system-ui, sans-serif;
+  --font-serif: 'Playfair Display', Georgia, serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', monospace;
+  --radius: 1rem;
   
-  /* iOS Glass & Bubble design tokens */
-  --glass: 240 10% 95%;
-  --glass-border: 240 5% 85%;
-  --bubble-glow: 262 83% 58%;
-  --ios-blue: 211 100% 50%;
-  --ios-purple: 280 100% 70%;
-  --ios-green: 142 76% 36%;
-  --ios-orange: 28 100% 74%;
-  --ios-red: 5 78% 57%;
+  /* Enhanced Neon Shadows */
+  --shadow-2xs: 0px 1px 2px 0px hsla(120, 100%, 60%, 0.2);
+  --shadow-xs: 0px 1px 2px 0px hsla(120, 100%, 60%, 0.2);
+  --shadow-sm: 0px 1px 2px 0px hsla(120, 100%, 60%, 0.2), 0px 1px 3px 0px hsla(120, 100%, 60%, 0.3);
+  --shadow: 0px 1px 3px 0px hsla(120, 100%, 60%, 0.3), 0px 1px 2px 0px hsla(120, 100%, 60%, 0.2);
+  --shadow-md: 0px 4px 6px -1px hsla(120, 100%, 60%, 0.3), 0px 2px 4px -1px hsla(120, 100%, 60%, 0.2);
+  --shadow-lg: 0px 10px 15px -3px hsla(120, 100%, 60%, 0.3), 0px 4px 6px -2px hsla(120, 100%, 60%, 0.2);
+  --shadow-xl: 0px 20px 25px -5px hsla(120, 100%, 60%, 0.3), 0px 10px 10px -5px hsla(120, 100%, 60%, 0.15);
+  --shadow-2xl: 0px 25px 50px -12px hsla(120, 100%, 60%, 0.5);
+  
+  /* Neon Glow Effects */
+  --neon-glow-sm: 0 0 5px hsla(120, 100%, 60%, 0.5), 0 0 10px hsla(120, 100%, 60%, 0.3);
+  --neon-glow-md: 0 0 10px hsla(120, 100%, 60%, 0.6), 0 0 20px hsla(120, 100%, 60%, 0.4);
+  --neon-glow-lg: 0 0 15px hsla(120, 100%, 60%, 0.7), 0 0 30px hsla(120, 100%, 60%, 0.5);
+  --neon-glow-xl: 0 0 20px hsla(120, 100%, 60%, 0.8), 0 0 40px hsla(120, 100%, 60%, 0.6);
+  
+  /* Cyberpunk Color Palette */
+  --cyber-green: hsl(120, 100%, 60%);
+  --cyber-cyan: hsl(180, 100%, 60%);
+  --cyber-blue: hsl(240, 100%, 60%);
+  --cyber-purple: hsl(300, 100%, 60%);
+  --cyber-pink: hsl(320, 100%, 60%);
+  --cyber-orange: hsl(30, 100%, 60%);
+  --cyber-yellow: hsl(60, 100%, 60%);
+  
+  /* Glass Morphism */
+  --glass-bg: hsla(0, 0%, 4%, 0.8);
+  --glass-border: hsla(120, 40%, 15%, 0.3);
+  --glass-blur: blur(20px);
+  
+  /* Carbon Texture */
+  --carbon-900: hsl(0, 0%, 2%);
+  --carbon-800: hsl(0, 0%, 4%);
+  --carbon-700: hsl(0, 0%, 8%);
+  --carbon-600: hsl(0, 0%, 12%);
+  --carbon-500: hsl(0, 0%, 16%);
 }
 
 .dark {
-  --background: hsl(222, 47%, 11%);
-  --foreground: hsl(213, 31%, 91%);
-  --card: hsl(222, 47%, 14%);
-  --card-foreground: hsl(213, 31%, 91%);
-  --popover: hsl(222, 47%, 14%);
-  --popover-foreground: hsl(213, 31%, 91%);
-  --primary: hsl(262, 83%, 58%);
-  --primary-foreground: hsl(210, 40%, 98%);
-  --secondary: hsl(222, 47%, 19%);
-  --secondary-foreground: hsl(213, 31%, 91%);
-  --muted: hsl(222, 47%, 19%);
-  --muted-foreground: hsl(215, 20%, 65%);
-  --accent: hsl(43, 96%, 56%);
-  --accent-foreground: hsl(222, 17%, 14%);
-  --destructive: hsl(0, 63%, 31%);
-  --destructive-foreground: hsl(210, 40%, 98%);
-  --border: hsl(222, 47%, 19%);
-  --input: hsl(222, 47%, 19%);
-  --ring: hsl(262, 83%, 58%);
-  --chart-1: hsl(262, 83%, 58%);
-  --chart-2: hsl(159, 78%, 36%);
-  --chart-3: hsl(43, 96%, 56%);
-  --chart-4: hsl(147, 78%, 42%);
-  --chart-5: hsl(341, 75%, 51%);
-  --sidebar: hsl(222, 47%, 14%);
-  --sidebar-foreground: hsl(213, 31%, 91%);
-  --sidebar-primary: hsl(262, 83%, 58%);
-  --sidebar-primary-foreground: hsl(210, 40%, 98%);
-  --sidebar-accent: hsl(222, 47%, 19%);
-  --sidebar-accent-foreground: hsl(213, 31%, 91%);
-  --sidebar-border: hsl(222, 47%, 19%);
-  --sidebar-ring: hsl(262, 83%, 58%);
+  /* Enhanced ultra dark mode for neon theme */
+  --background: hsl(0, 0%, 3%); /* Ultra dark carbon */
+  --foreground: hsl(120, 100%, 80%); /* Bright neon green */
+  --card: hsl(0, 0%, 6%);
+  --card-foreground: hsl(120, 100%, 80%);
+  --popover: hsl(0, 0%, 6%);
+  --popover-foreground: hsl(120, 100%, 80%);
+  --primary: hsl(120, 100%, 55%); /* Vibrant neon green */
+  --primary-foreground: hsl(0, 0%, 3%);
+  --secondary: hsl(0, 0%, 10%);
+  --secondary-foreground: hsl(120, 90%, 75%);
+  --muted: hsl(0, 0%, 10%);
+  --muted-foreground: hsl(120, 50%, 55%);
+  --accent: hsl(120, 100%, 55%);
+  --accent-foreground: hsl(0, 0%, 3%);
+  --destructive: hsl(0, 75%, 55%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --border: hsl(120, 25%, 15%);
+  --input: hsl(0, 0%, 10%);
+  --ring: hsl(120, 100%, 55%);
+  --chart-1: hsl(120, 100%, 55%);
+  --chart-2: hsl(120, 85%, 45%);
+  --chart-3: hsl(120, 70%, 35%);
+  --chart-4: hsl(120, 55%, 65%);
+  --chart-5: hsl(120, 95%, 50%);
+  --sidebar: hsl(0, 0%, 6%);
+  --sidebar-foreground: hsl(120, 100%, 80%);
+  --sidebar-primary: hsl(120, 100%, 55%);
+  --sidebar-primary-foreground: hsl(0, 0%, 3%);
+  --sidebar-accent: hsl(0, 0%, 10%);
+  --sidebar-accent-foreground: hsl(120, 90%, 75%);
+  --sidebar-border: hsl(120, 25%, 15%);
+  --sidebar-ring: hsl(120, 100%, 55%);
   --font-sans: 'Inter', system-ui, sans-serif;
   --font-serif: Georgia, serif;
   --font-mono: 'JetBrains Mono', monospace;
   --radius: 1.25rem;
   
-  /* Dark mode iOS Glass & Bubble tokens */
-  --glass: 222 47% 8%;
-  --glass-border: 222 47% 25%;
-  --bubble-glow: 262 83% 58%;
+  /* Ultra dark neon & carbon tokens */
+  --glass: 0 0% 6%;
+  --glass-border: 120 25% 15%;
+  --bubble-glow: 120 100% 55%;
+  --neon-primary: 120 100% 55%;
+  --neon-secondary: 120 85% 45%;
+  --carbon-900: 0 0% 3%;
+  --carbon-800: 0 0% 6%;
+  --carbon-700: 0 0% 10%;
 }
 
 @layer base {
@@ -144,19 +168,49 @@
     }
   }
 
+  /* Neon glow effects */
+  .neon-glow {
+    box-shadow: 0 0 10px hsl(var(--primary)), 0 0 20px hsl(var(--primary)), 0 0 30px hsl(var(--primary));
+  }
+
+  .neon-text {
+    text-shadow: 0 0 10px hsl(var(--primary)), 0 0 20px hsl(var(--primary));
+    color: hsl(var(--primary));
+  }
+
+  .carbon-texture {
+    background: 
+      radial-gradient(circle at 20% 50%, transparent 20%, rgba(0,255,65,0.02) 21%, rgba(0,255,65,0.02) 34%, transparent 35%, transparent),
+      linear-gradient(0deg, rgba(0,0,0,0.8) 50%, transparent 50%);
+  }
+
+  /* Cyberpunk animations */
+  @keyframes neon-pulse {
+    0%, 100% { 
+      text-shadow: 0 0 5px hsl(var(--primary)), 0 0 10px hsl(var(--primary));
+    }
+    50% { 
+      text-shadow: 0 0 10px hsl(var(--primary)), 0 0 20px hsl(var(--primary)), 0 0 30px hsl(var(--primary));
+    }
+  }
+
+  .animate-neon-pulse {
+    animation: neon-pulse 2s ease-in-out infinite;
+  }
+
   .gradient-primary {
-    background: linear-gradient(135deg, hsl(262, 83%, 58%), hsl(43, 96%, 56%));
+    background: linear-gradient(135deg, hsl(120, 100%, 50%), hsl(120, 80%, 40%));
   }
 
   .gradient-content {
-    background: linear-gradient(135deg, hsl(200, 100%, 60%), hsl(280, 100%, 70%));
+    background: linear-gradient(135deg, hsl(120, 90%, 45%), hsl(120, 70%, 35%));
   }
 
   .gradient-engagement {
-    background: linear-gradient(135deg, hsl(160, 100%, 40%), hsl(180, 100%, 50%));
+    background: linear-gradient(135deg, hsl(120, 80%, 40%), hsl(120, 60%, 30%));
   }
 
   .gradient-analytics {
-    background: linear-gradient(135deg, hsl(20, 100%, 60%), hsl(0, 100%, 60%));
+    background: linear-gradient(135deg, hsl(120, 100%, 55%), hsl(120, 85%, 45%));
   }
 }
