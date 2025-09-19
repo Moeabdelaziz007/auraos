@@ -86,25 +86,70 @@ export async function registerRoutes(app: Express): Promise<Server> {
   }
 
   // WebSocket server for real-time updates
-  const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
+  const wss = new WebSocketServer({ 
+    server: httpServer, 
+    path: '/ws',
+    perMessageDeflate: true
+  });
   
   const clients = new Set<WebSocket>();
 
-  wss.on('connection', (ws) => {
+  wss.on('connection', (ws, request) => {
+    console.log('🔗 New WebSocket connection from:', request.headers.origin || request.socket.remoteAddress);
     clients.add(ws);
     
-    ws.on('close', () => {
+    // Send welcome message
+    ws.send(JSON.stringify({
+      type: 'connection',
+      message: 'Connected to AuraOS WebSocket',
+      timestamp: new Date().toISOString()
+    }));
+
+    // Handle ping/pong for heartbeat
+    ws.on('message', (data) => {
+      try {
+        const message = JSON.parse(data.toString());
+        if (message.type === 'ping') {
+          ws.send(JSON.stringify({ type: 'pong', timestamp: Date.now() }));
+        }
+      } catch (error) {
+        console.error('Error parsing WebSocket message:', error);
+      }
+    });
+    
+    ws.on('close', (code, reason) => {
+      console.log('🔌 WebSocket disconnected:', code, reason.toString());
+      clients.delete(ws);
+    });
+
+    ws.on('error', (error) => {
+      console.error('❌ WebSocket error:', error);
       clients.delete(ws);
     });
   });
 
   function broadcast(data: any) {
+    const message = JSON.stringify(data);
     clients.forEach(client => {
       if (client.readyState === WebSocket.OPEN) {
-        client.send(JSON.stringify(data));
+        try {
+          client.send(message);
+        } catch (error) {
+          console.error('Error sending message to client:', error);
+          clients.delete(client);
+        }
       }
     });
   }
+
+  // Heartbeat to keep connections alive
+  setInterval(() => {
+    broadcast({
+      type: 'heartbeat',
+      timestamp: Date.now(),
+      activeConnections: clients.size
+    });
+  }, 30000); // Every 30 seconds
 
   // User routes
   app.get('/api/users/current', async (req, res) => {

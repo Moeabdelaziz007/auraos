@@ -16,9 +16,22 @@ export default function ChatWidget() {
   const [messages, setMessages] = useState<Array<{ id: string; type: 'user' | 'ai'; content: string; timestamp: Date }>>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
-  useWebSocket('/ws', (data: any) => {
+  const { isConnected } = useWebSocket('/ws', (data: any) => {
     // Handle real-time updates if needed
     console.log('WebSocket message:', data);
+    
+    // Handle real-time chat messages
+    if (data.type === 'chat_message') {
+      setMessages(prev => [
+        ...prev,
+        { 
+          id: data.id, 
+          type: 'ai', 
+          content: data.content, 
+          timestamp: new Date(data.timestamp) 
+        }
+      ]);
+    }
   });
 
   const { data: chatHistory } = useQuery<ChatMessage[]>({
@@ -107,8 +120,11 @@ export default function ChatWidget() {
                 </Avatar>
                 <div className="flex-1">
                   <h4 className="font-medium text-foreground">AI Assistant</h4>
-                  <Badge variant="secondary" className="text-xs bg-green-500/10 text-green-600">
-                    Online
+                  <Badge 
+                    variant="secondary" 
+                    className={`text-xs ${isConnected ? 'bg-green-500/10 text-green-600' : 'bg-red-500/10 text-red-600'}`}
+                  >
+                    {isConnected ? 'Online' : 'Offline'}
                   </Badge>
                 </div>
                 <Button 
