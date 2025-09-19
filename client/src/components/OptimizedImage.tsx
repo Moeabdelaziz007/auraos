@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 interface OptimizedImageProps {
   src: string;
@@ -14,8 +14,32 @@ const IMAGE_OPTIMIZATION_BASE_URL = 'https://firebasestorage.googleapis.com/v0/b
 const OptimizedImage: React.FC<OptimizedImageProps> = ({ src, alt, width, height, className }) => {
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState(false);
+  const [isInView, setIsInView] = useState(false);
+  const imgRef = useRef<HTMLImageElement>(null);
 
   const optimizedSrc = `${IMAGE_OPTIMIZATION_BASE_URL}${encodeURIComponent(src)}?alt=media`;
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsInView(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '100px' } // Load image 100px before it enters the viewport
+    );
+
+    if (imgRef.current) {
+      observer.observe(imgRef.current);
+    }
+
+    return () => {
+      if (imgRef.current) {
+        observer.unobserve(imgRef.current);
+      }
+    };
+  }, []);
 
   const handleLoad = () => {
     setLoaded(true);
@@ -27,6 +51,7 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({ src, alt, width, height
 
   return (
     <div
+      ref={imgRef}
       className={`relative ${className}`}
       style={{ width: `${width}px`, height: `${height}px` }}
     >
@@ -44,16 +69,17 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({ src, alt, width, height
           Image not available
         </div>
       )}
-      <img
-        src={optimizedSrc}
-        alt={alt}
-        width={width}
-        height={height}
-        loading="lazy"
-        onLoad={handleLoad}
-        onError={handleError}
-        className={`transition-opacity duration-300 ${loaded ? 'opacity-100' : 'opacity-0'} ${error ? 'hidden' : ''}`}
-      />
+      {isInView && (
+        <img
+          src={optimizedSrc}
+          alt={alt}
+          width={width}
+          height={height}
+          onLoad={handleLoad}
+          onError={handleError}
+          className={`transition-opacity duration-300 ${loaded ? 'opacity-100' : 'opacity-0'} ${error ? 'hidden' : ''}`}
+        />
+      )}
     </div>
   );
 };
