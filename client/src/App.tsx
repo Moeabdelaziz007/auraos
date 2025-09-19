@@ -15,6 +15,7 @@ import SmartLearningPage from "@/pages/smart-learning";
 import AdvancedAIToolsPage from "@/pages/advanced-ai-tools";
 import NotFound from "@/pages/not-found";
 import DebugView from "@/pages/DebugView";
+import Workspace from "@/pages/Workspace";
 
 function Router() {
   return (
@@ -28,6 +29,7 @@ function Router() {
         <Route path="/smart-learning" component={SmartLearningPage} />
         <Route path="/advanced-ai-tools" component={AdvancedAIToolsPage} />
         <Route path="/debug" component={DebugView} />
+        <Route path="/workspace" component={Workspace} />
         <Route component={NotFound} />
       </Switch>
     </ProtectedRoute>
