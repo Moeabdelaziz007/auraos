@@ -2,6 +2,7 @@ import { EventEmitter } from 'events';
 import { WebSocket, WebSocketServer } from 'ws';
 import { v4 as uuidv4 } from 'uuid';
 import { getMultiModalAIEngine, MultiModalInput, MultiModalOutput } from './multi-modal-ai.js';
+import { Server as HttpServer } from 'http';
 
 export interface StreamingConnection {
   id: string;
@@ -23,7 +24,6 @@ export interface StreamingMessage {
 }
 
 export interface StreamingConfig {
-  port: number;
   maxConnections: number;
   heartbeatInterval: number;
   connectionTimeout: number;
@@ -45,11 +45,11 @@ export class RealTimeAIStreaming extends EventEmitter {
     this.setupAIEngineListeners();
   }
 
-  async start(): Promise<void> {
+  async start(server: HttpServer): Promise<void> {
     return new Promise((resolve, reject) => {
       try {
         this.wss = new WebSocketServer({
-          port: this.config.port,
+          server,
           perMessageDeflate: this.config.enableCompression
         });
 
@@ -65,7 +65,7 @@ export class RealTimeAIStreaming extends EventEmitter {
         this.startHeartbeat();
         this.startCleanup();
 
-        console.log(`🚀 Real-Time AI Streaming started on port ${this.config.port}`);
+        console.log(`🚀 Real-Time AI Streaming started and attached to the main server`);
         this.emit('started');
         resolve();
 
@@ -487,22 +487,23 @@ export class RealTimeAIStreaming extends EventEmitter {
 // Singleton instance
 let realTimeAIStreaming: RealTimeAIStreaming | null = null;
 
-export function getRealTimeAIStreaming(): RealTimeAIStreaming {
+export function initializeRealTimeAIStreaming(server: HttpServer): RealTimeAIStreaming {
   if (!realTimeAIStreaming) {
     const config: StreamingConfig = {
-      port: 8080,
       maxConnections: 1000,
       heartbeatInterval: 30000, // 30 seconds
       connectionTimeout: 300000, // 5 minutes
       enableCompression: true
     };
     realTimeAIStreaming = new RealTimeAIStreaming(config);
+    realTimeAIStreaming.start(server);
   }
   return realTimeAIStreaming;
 }
 
-export function initializeRealTimeAIStreaming(): RealTimeAIStreaming {
-  const streaming = getRealTimeAIStreaming();
-  console.log('🚀 Real-Time AI Streaming initialized successfully');
-  return streaming;
+export function getRealTimeAIStreaming(): RealTimeAIStreaming {
+  if (!realTimeAIStreaming) {
+    throw new Error('RealTimeAIStreaming is not initialized. Call initializeRealTimeAIStreaming first.');
+  }
+  return realTimeAIStreaming;
 }
