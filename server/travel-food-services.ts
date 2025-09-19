@@ -1,4 +1,8 @@
+
+import { User, users } from '@/shared/schema';
+import { UserPersona } from '@/shared/personas';
 import { storage } from './storage.js';
+import { eq } from 'drizzle-orm';
 
 interface TravelService {
   id: string;
@@ -45,6 +49,42 @@ interface SmartShoppingAgent {
   integrations: string[];
   automationRules: string[];
 }
+
+// Helper function to calculate AI score based on persona
+const calculateAIScore = (service: TravelService | FoodService, persona: UserPersona | null): number => {
+  if (!persona) {
+    return Math.random() * 2 + 8; // Default score if no persona
+  }
+
+  let score = 8.0;
+
+  // Travel persona scoring
+  if ('travelStyle' in persona && persona.travel) {
+    const travelPersona = persona.travel;
+    if (service.type === 'hotel' && travelPersona.preferredHotelChains.some(chain => service.name.includes(chain))) {
+      score += 1.5;
+    }
+    if (service.type === 'flight' && travelPersona.preferredAirlines.some(airline => service.name.includes(airline))) {
+      score += 1.5;
+    }
+    if (('interests' in service) && service.interests.some(interest => travelPersona.interests.includes(interest))) {
+      score += 1.0;
+    }
+  }
+
+  // Foodie persona scoring
+  if ('favoriteCuisines' in persona && persona.foodie) {
+    const foodiePersona = persona.foodie;
+    if ('cuisine' in service && service.cuisine.some(c => foodiePersona.favoriteCuisines.includes(c))) {
+      score += 1.5;
+    }
+    if ('diningStyle' in service && foodiePersona.diningStyle === service.diningStyle) {
+      score += 1.0;
+    }
+  }
+
+  return Math.min(10, score + Math.random() * 0.5); // Add a small random factor
+};
 
 export class TravelFoodServiceManager {
   private travelServices: Map<string, TravelService> = new Map();
@@ -542,6 +582,7 @@ export class TravelFoodServiceManager {
 
   // Generate AI-powered recommendations
   async generateTravelRecommendations(
+    userId: string,
     destination: string,
     budget: number,
     preferences: any
@@ -551,6 +592,8 @@ export class TravelFoodServiceManager {
     activities: any[];
     packages: any[];
   }> {
+    const user = await storage.select().from(users).where(eq(users.id, userId)).first();
+    const persona = user?.persona ?? null;
     const allTravelServices = this.getTravelServices();
 
     const flights = allTravelServices
@@ -562,7 +605,7 @@ export class TravelFoodServiceManager {
         stops: Math.floor(Math.random() * 2), // Placeholder
         departure: '2024-01-15 08:00', // Placeholder
         arrival: '2024-01-15 13:30', // Placeholder
-        aiScore: Math.random() * 2 + 8 // 8.0-10.0
+        aiScore: calculateAIScore(service, persona)
       }));
 
     const hotels = allTravelServices
@@ -573,7 +616,7 @@ export class TravelFoodServiceManager {
         rating: Math.random() * 1 + 4, // 4.0-5.0
         location: 'City Center', // Placeholder
         amenities: service.features.slice(0, 4),
-        aiScore: Math.random() * 2 + 8
+        aiScore: calculateAIScore(service, persona)
       }));
 
     const activities = allTravelServices
@@ -583,7 +626,7 @@ export class TravelFoodServiceManager {
         price: service.priceRange.min + Math.random() * (service.priceRange.max - service.priceRange.min),
         duration: '3 hours', // Placeholder
         rating: Math.random() * 1 + 4, // 4.0-5.0
-        aiScore: Math.random() * 2 + 8
+        aiScore: calculateAIScore(service, persona)
       }));
 
     const packages = allTravelServices
@@ -593,7 +636,7 @@ export class TravelFoodServiceManager {
           price: service.priceRange.min + Math.random() * (service.priceRange.max - service.priceRange.min),
           savings: (service.priceRange.min + Math.random() * (service.priceRange.max - service.priceRange.min)) * 0.2,
           includes: service.features.slice(0,4),
-          aiScore: Math.random() * 2 + 8
+          aiScore: calculateAIScore(service, persona)
       }));
 
 
@@ -602,6 +645,7 @@ export class TravelFoodServiceManager {
 
   // Generate AI-powered food recommendations
   async generateFoodRecommendations(
+    userId: string,
     location: string,
     budget: number,
     preferences: any
@@ -611,6 +655,8 @@ export class TravelFoodServiceManager {
     groceries: any[];
     mealPlans: any[];
   }> {
+      const user = await storage.select().from(users).where(eq(users.id, userId)).first();
+      const persona = user?.persona ?? null;
       const allFoodServices = this.getFoodServices();
 
       const restaurants = allFoodServices
@@ -621,7 +667,7 @@ export class TravelFoodServiceManager {
               price: service.priceRange.min + Math.random() * (service.priceRange.max - service.priceRange.min),
               rating: Math.random() * 1 + 4, // 4.0-5.0
               distance: `${(Math.random() * 5).toFixed(1)} miles`, // Placeholder
-              aiScore: Math.random() * 2 + 8
+              aiScore: calculateAIScore(service, persona)
           }));
 
       const delivery = allFoodServices
@@ -632,7 +678,7 @@ export class TravelFoodServiceManager {
               price: service.priceRange.min + Math.random() * (service.priceRange.max - service.priceRange.min),
               deliveryTime: `${Math.floor(Math.random() * 30 + 15)} min`, // 15-45 min
               rating: Math.random() * 1 + 4, // 4.0-5.0
-              aiScore: Math.random() * 2 + 8
+              aiScore: calculateAIScore(service, persona)
           }));
 
       const groceries = allFoodServices
@@ -642,7 +688,7 @@ export class TravelFoodServiceManager {
               items: service.features.slice(0, 3),
               price: service.priceRange.min + Math.random() * (service.priceRange.max - service.priceRange.min),
               savings: (service.priceRange.min + Math.random() * (service.priceRange.max - service.priceRange.min)) * 0.1,
-              aiScore: Math.random() * 2 + 8
+              aiScore: calculateAIScore(service, persona)
           }));
 
       const mealPlans = allFoodServices
@@ -653,7 +699,7 @@ export class TravelFoodServiceManager {
               price: service.priceRange.min + Math.random() * (service.priceRange.max - service.priceRange.min),
               meals: 21, // Placeholder
               nutritionScore: Math.random() + 9, // 9.0-10.0
-              aiScore: Math.random() * 2 + 8
+              aiScore: calculateAIScore(service, persona)
           }));
 
     return { restaurants, delivery, groceries, mealPlans };
