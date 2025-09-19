@@ -1,19 +1,3 @@
-<<<<<<< HEAD
-
-import { useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
-import { trackEvent } from './lib/firebase';
-import AllRoutes from './routes'; 
-
-function App() {
-  const location = useLocation();
-
-  useEffect(() => {
-    trackEvent('page_view', { page_path: location.pathname });
-  }, [location]);
-
-  return <AllRoutes />;
-=======
 import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -77,7 +61,6 @@ function App() {
       </AuthProvider>
     </ErrorBoundary>
   );
->>>>>>> f79a26e9910eb921bec988cfaf88d8cad31c6121
 }
 
 export default App;

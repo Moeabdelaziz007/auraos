@@ -1,9 +1,8 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { AlertTriangle, RefreshCw, Home, Bug } from 'lucide-react';
-import { ErrorHandler } from '@/lib/error-handling'; // Import the centralized error handler
-import { cn } from '@/lib/utils';
+import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
+import { ErrorHandler } from '@/lib/error-handling';
 
 interface Props {
   children: ReactNode;
@@ -27,10 +26,9 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    // Use the centralized error handler
     ErrorHandler.getInstance().handleError(error, {
-      logToConsole: true, // Already logs with context
-      reportToService: true, // Or based on environment
+      logToConsole: true,
+      reportToService: true,
     });
 
     this.setState({ error });
@@ -39,6 +37,10 @@ export class ErrorBoundary extends Component<Props, State> {
       this.props.onError(error, errorInfo);
     }
   }
+
+  private handleReset = () => {
+    this.setState({ hasError: false, error: null });
+  };
 
   private handleReload = () => {
     window.location.reload();
@@ -80,11 +82,15 @@ export class ErrorBoundary extends Component<Props, State> {
               )}
 
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                <Button onClick={this.handleReload} variant="default" className="neon-button">
+                <Button onClick={this.handleReset} variant="default" className="neon-button">
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Try Again
+                </Button>
+                <Button onClick={this.handleReload} variant="outline" className="neon-glow-sm">
                   <RefreshCw className="h-4 w-4 mr-2" />
                   Reload Page
                 </Button>
-                <Button onClick={this.handleGoHome} variant="outline" className="neon-glow-sm">
+                <Button onClick={this.handleGoHome} variant="ghost">
                   <Home className="h-4 w-4 mr-2" />
                   Go Home
                 </Button>
@@ -103,8 +109,6 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 }
 
-
-// Higher-order component for error boundaries
 export function withErrorBoundary<P extends object>(
   Component: React.ComponentType<P>,
   fallback?: ReactNode
