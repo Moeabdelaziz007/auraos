@@ -5,6 +5,7 @@ import { generateContent, generatePostContent, chatWithAssistant, analyzeWorkflo
 import { storage } from "./storage";
 import { insertPostSchema, insertWorkflowSchema, insertUserAgentSchema, insertChatMessageSchema } from "@shared/schema";
 import { initializeTelegramBot, getTelegramService } from "./telegram.js";
+import { initializeSmartTelegramBot, getSmartTelegramBot } from "./smart-telegram-bot.js";
 import { getTravelFoodServiceManager } from "./travel-food-services.js";
 import { getSmartLearningAI } from "./smart-learning-ai.js";
 import { getMCPProtocol, initializeMCP } from "./mcp-protocol.js";
@@ -16,14 +17,17 @@ import { getIntelligentWorkflowOrchestrator } from "./intelligent-workflow.js";
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
 
-  // Initialize Telegram Bot
+  // Initialize Smart Learning Telegram Bot
   const telegramToken = process.env.TELEGRAM_BOT_TOKEN;
   if (telegramToken) {
     try {
+      // Initialize both basic and smart Telegram bots
       initializeTelegramBot(telegramToken);
-      console.log('🤖 Telegram bot initialized successfully');
+      const smartBot = initializeSmartTelegramBot(telegramToken);
+      await smartBot.launch();
+      console.log('🤖 Smart Learning Telegram bot initialized successfully');
     } catch (error) {
-      console.error('❌ Failed to initialize Telegram bot:', error);
+      console.error('❌ Failed to initialize Smart Telegram bot:', error);
     }
   } else {
     console.warn('⚠️ TELEGRAM_BOT_TOKEN not found in environment variables');
@@ -1121,6 +1125,222 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Predictive analytics error:', error);
       res.status(500).json({ message: 'Failed to generate predictions' });
+    }
+  });
+
+  // Smart Telegram Bot API Routes
+  app.get('/api/telegram/smart/status', async (req, res) => {
+    try {
+      const smartBot = getSmartTelegramBot();
+      if (!smartBot) {
+        return res.status(404).json({ message: 'Smart Telegram bot not initialized' });
+      }
+
+      const userContexts = smartBot.getAllUserContexts();
+      const learningData = smartBot.getLearningData();
+
+      res.json({
+        connected: true,
+        activeUsers: userContexts.length,
+        learningData: {
+          conversationPatterns: Array.from(learningData.get('conversation_patterns')?.keys() || []),
+          userPreferences: Array.from(learningData.get('user_preferences')?.keys() || []),
+          responseEffectiveness: Array.from(learningData.get('response_effectiveness')?.keys() || [])
+        },
+        botInfo: {
+          name: 'Smart Learning Bot',
+          capabilities: ['learning', 'ai_tools', 'personalization', 'continuous_improvement']
+        }
+      });
+    } catch (error) {
+      console.error('Smart Telegram status error:', error);
+      res.status(500).json({ message: 'Failed to get smart Telegram bot status' });
+    }
+  });
+
+  app.get('/api/telegram/smart/users', async (req, res) => {
+    try {
+      const smartBot = getSmartTelegramBot();
+      if (!smartBot) {
+        return res.status(404).json({ message: 'Smart Telegram bot not initialized' });
+      }
+
+      const userContexts = smartBot.getAllUserContexts();
+      const users = userContexts.map(context => ({
+        userId: context.userId,
+        username: context.username,
+        firstName: context.firstName,
+        chatId: context.chatId,
+        experienceLevel: context.learningProfile.experienceLevel,
+        learningStyle: context.learningProfile.learningStyle,
+        communicationStyle: context.preferences.communicationStyle,
+        totalMessages: context.conversationHistory.length,
+        lastInteraction: context.lastInteraction,
+        topics: context.preferences.topics,
+        goals: context.learningProfile.goals
+      }));
+
+      res.json(users);
+    } catch (error) {
+      console.error('Smart Telegram users error:', error);
+      res.status(500).json({ message: 'Failed to get smart Telegram users' });
+    }
+  });
+
+  app.get('/api/telegram/smart/users/:chatId', async (req, res) => {
+    try {
+      const { chatId } = req.params;
+      const smartBot = getSmartTelegramBot();
+      
+      if (!smartBot) {
+        return res.status(404).json({ message: 'Smart Telegram bot not initialized' });
+      }
+
+      const userContext = smartBot.getUserContext(parseInt(chatId));
+      if (!userContext) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      res.json({
+        userId: userContext.userId,
+        username: userContext.username,
+        firstName: userContext.firstName,
+        chatId: userContext.chatId,
+        experienceLevel: userContext.learningProfile.experienceLevel,
+        learningStyle: userContext.learningProfile.learningStyle,
+        communicationStyle: userContext.preferences.communicationStyle,
+        responseLength: userContext.preferences.responseLength,
+        topics: userContext.preferences.topics,
+        interests: userContext.preferences.interests,
+        goals: userContext.learningProfile.goals,
+        progress: Object.fromEntries(userContext.learningProfile.progress),
+        strengths: userContext.learningProfile.strengths,
+        weaknesses: userContext.learningProfile.weaknesses,
+        conversationHistory: userContext.conversationHistory.slice(-10), // Last 10 messages
+        lastInteraction: userContext.lastInteraction
+      });
+    } catch (error) {
+      console.error('Smart Telegram user error:', error);
+      res.status(500).json({ message: 'Failed to get smart Telegram user' });
+    }
+  });
+
+  app.post('/api/telegram/smart/learn', async (req, res) => {
+    try {
+      const { chatId, message, context } = req.body;
+      
+      if (!chatId || !message) {
+        return res.status(400).json({ message: 'chatId and message are required' });
+      }
+
+      const smartBot = getSmartTelegramBot();
+      if (!smartBot) {
+        return res.status(404).json({ message: 'Smart Telegram bot not initialized' });
+      }
+
+      const userContext = smartBot.getUserContext(chatId);
+      if (!userContext) {
+        return res.status(404).json({ message: 'User not found. Please start the bot first.' });
+      }
+
+      // Process message with smart learning
+      const response = await smartBot.processMessageWithAI(userContext, message);
+      
+      res.json({
+        success: true,
+        response: response.text,
+        confidence: response.confidence,
+        keyboard: response.keyboard,
+        learningInsights: {
+          experienceLevel: userContext.learningProfile.experienceLevel,
+          topics: userContext.preferences.topics,
+          communicationStyle: userContext.preferences.communicationStyle
+        }
+      });
+    } catch (error) {
+      console.error('Smart Telegram learn error:', error);
+      res.status(500).json({ message: 'Failed to process learning request' });
+    }
+  });
+
+  app.post('/api/telegram/smart/feedback', async (req, res) => {
+    try {
+      const { chatId, messageId, feedback, rating } = req.body;
+      
+      if (!chatId || !messageId || feedback === undefined) {
+        return res.status(400).json({ message: 'chatId, messageId, and feedback are required' });
+      }
+
+      const smartBot = getSmartTelegramBot();
+      if (!smartBot) {
+        return res.status(404).json({ message: 'Smart Telegram bot not initialized' });
+      }
+
+      const userContext = smartBot.getUserContext(chatId);
+      if (!userContext) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      // Update conversation history with feedback
+      const message = userContext.conversationHistory.find(m => m.id === messageId);
+      if (message) {
+        message.satisfaction = rating || (feedback === 'positive' ? 1 : feedback === 'negative' ? -1 : 0);
+      }
+
+      res.json({ success: true, message: 'Feedback recorded successfully' });
+    } catch (error) {
+      console.error('Smart Telegram feedback error:', error);
+      res.status(500).json({ message: 'Failed to record feedback' });
+    }
+  });
+
+  app.get('/api/telegram/smart/analytics', async (req, res) => {
+    try {
+      const smartBot = getSmartTelegramBot();
+      if (!smartBot) {
+        return res.status(404).json({ message: 'Smart Telegram bot not initialized' });
+      }
+
+      const userContexts = smartBot.getAllUserContexts();
+      const learningData = smartBot.getLearningData();
+
+      // Calculate analytics
+      const totalUsers = userContexts.length;
+      const totalMessages = userContexts.reduce((sum, user) => sum + user.conversationHistory.length, 0);
+      const avgMessagesPerUser = totalUsers > 0 ? totalMessages / totalUsers : 0;
+      
+      const experienceLevels = userContexts.reduce((acc, user) => {
+        acc[user.learningProfile.experienceLevel] = (acc[user.learningProfile.experienceLevel] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+
+      const communicationStyles = userContexts.reduce((acc, user) => {
+        acc[user.preferences.communicationStyle] = (acc[user.preferences.communicationStyle] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+
+      const allTopics = userContexts.flatMap(user => user.preferences.topics);
+      const topicFrequency = allTopics.reduce((acc, topic) => {
+        acc[topic] = (acc[topic] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+
+      res.json({
+        totalUsers,
+        totalMessages,
+        avgMessagesPerUser,
+        experienceLevels,
+        communicationStyles,
+        topicFrequency,
+        learningData: {
+          conversationPatterns: learningData.get('conversation_patterns')?.size || 0,
+          userPreferences: learningData.get('user_preferences')?.size || 0,
+          responseEffectiveness: learningData.get('response_effectiveness')?.size || 0
+        }
+      });
+    } catch (error) {
+      console.error('Smart Telegram analytics error:', error);
+      res.status(500).json({ message: 'Failed to get smart Telegram analytics' });
     }
   });
 
