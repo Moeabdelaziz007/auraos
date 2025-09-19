@@ -1,0 +1,45 @@
+
+/* ======================================================================
+   MOBILE & RESPONSIVE STYLES
+   ====================================================================== */
+
+@media (max-width: 768px) {
+  /* Reduce font sizes for better readability on small screens */
+  body {
+    font-size: 14px;
+  }
+
+  /* Adjust padding and margins to save space */
+  .p-4 {
+    padding: 1rem;
+  }
+
+  .m-4 {
+    margin: 1rem;
+  }
+
+  /* Hide the sidebar by default and show a toggle button */
+  .sidebar {
+    display: none;
+  }
+
+  .sidebar-toggle {
+    display: block;
+  }
+
+  /* Make the main content area full-width */
+  .main-content {
+    width: 100%;
+    padding: 1rem;
+  }
+
+  /* Stack grid items vertically */
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Adjust dialogs and popovers for smaller screens */
+  .dialog-content {
+    width: 90vw;
+  }
+}

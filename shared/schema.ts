@@ -2,6 +2,7 @@ import { sql } from "drizzle-orm";
 import { pgTable, text, varchar, timestamp, integer, boolean, jsonb } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+import { UserPersona } from './personas';
 
 export const tenants = pgTable("tenants", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -19,6 +20,7 @@ export const users = pgTable("users", {
   identityIcon: text("identity_icon"),
   identityType: text("identity_type").default("personal").notNull(), // personal, business, organization
   verified: boolean("verified").default(false).notNull(),
+  persona: jsonb("persona").$type<UserPersona>(),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
