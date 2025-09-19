@@ -551,48 +551,53 @@ export class TravelFoodServiceManager {
     activities: any[];
     packages: any[];
   }> {
-    // Simulate AI-powered travel recommendations
-    return {
-      flights: [
-        {
-          airline: 'AI Airlines',
-          price: budget * 0.3,
-          duration: '5h 30m',
-          stops: 0,
-          departure: '2024-01-15 08:00',
-          arrival: '2024-01-15 13:30',
-          aiScore: 9.2
-        }
-      ],
-      hotels: [
-        {
-          name: 'AI Smart Hotel',
-          price: budget * 0.4,
-          rating: 4.8,
-          location: 'City Center',
-          amenities: ['WiFi', 'Pool', 'Gym', 'Restaurant'],
-          aiScore: 9.5
-        }
-      ],
-      activities: [
-        {
-          name: 'AI-Guided City Tour',
-          price: budget * 0.1,
-          duration: '3 hours',
-          rating: 4.9,
-          aiScore: 9.7
-        }
-      ],
-      packages: [
-        {
-          name: 'Complete AI Travel Package',
-          price: budget * 0.8,
-          savings: budget * 0.2,
-          includes: ['Flight', 'Hotel', 'Activities', 'Transportation'],
-          aiScore: 9.8
-        }
-      ]
-    };
+    const allTravelServices = this.getTravelServices();
+
+    const flights = allTravelServices
+      .filter(service => service.type === 'flight' && service.priceRange.max <= budget * 0.4)
+      .map(service => ({
+        airline: service.name,
+        price: service.priceRange.min + Math.random() * (service.priceRange.max - service.priceRange.min),
+        duration: '5h 30m', // Placeholder
+        stops: Math.floor(Math.random() * 2), // Placeholder
+        departure: '2024-01-15 08:00', // Placeholder
+        arrival: '2024-01-15 13:30', // Placeholder
+        aiScore: Math.random() * 2 + 8 // 8.0-10.0
+      }));
+
+    const hotels = allTravelServices
+      .filter(service => service.type === 'hotel' && service.priceRange.max <= budget * 0.5)
+      .map(service => ({
+        name: service.name,
+        price: service.priceRange.min + Math.random() * (service.priceRange.max - service.priceRange.min),
+        rating: Math.random() * 1 + 4, // 4.0-5.0
+        location: 'City Center', // Placeholder
+        amenities: service.features.slice(0, 4),
+        aiScore: Math.random() * 2 + 8
+      }));
+
+    const activities = allTravelServices
+      .filter(service => service.type === 'activity' && service.priceRange.max <= budget * 0.1)
+      .map(service => ({
+        name: service.name,
+        price: service.priceRange.min + Math.random() * (service.priceRange.max - service.priceRange.min),
+        duration: '3 hours', // Placeholder
+        rating: Math.random() * 1 + 4, // 4.0-5.0
+        aiScore: Math.random() * 2 + 8
+      }));
+
+    const packages = allTravelServices
+      .filter(service => service.type === 'package_deal' && service.priceRange.max <= budget)
+      .map(service => ({
+          name: service.name,
+          price: service.priceRange.min + Math.random() * (service.priceRange.max - service.priceRange.min),
+          savings: (service.priceRange.min + Math.random() * (service.priceRange.max - service.priceRange.min)) * 0.2,
+          includes: service.features.slice(0,4),
+          aiScore: Math.random() * 2 + 8
+      }));
+
+
+    return { flights, hotels, activities, packages };
   }
 
   // Generate AI-powered food recommendations
@@ -606,48 +611,52 @@ export class TravelFoodServiceManager {
     groceries: any[];
     mealPlans: any[];
   }> {
-    // Simulate AI-powered food recommendations
-    return {
-      restaurants: [
-        {
-          name: 'AI Gourmet Restaurant',
-          cuisine: 'Fusion',
-          price: budget * 0.3,
-          rating: 4.9,
-          distance: '0.5 miles',
-          aiScore: 9.6
-        }
-      ],
-      delivery: [
-        {
-          name: 'AI Fast Delivery',
-          cuisine: 'Asian Fusion',
-          price: budget * 0.2,
-          deliveryTime: '25 min',
-          rating: 4.8,
-          aiScore: 9.3
-        }
-      ],
-      groceries: [
-        {
-          name: 'AI Smart Grocery',
-          items: ['Fresh vegetables', 'Organic meat', 'Artisan bread'],
-          price: budget * 0.4,
-          savings: budget * 0.1,
-          aiScore: 9.4
-        }
-      ],
-      mealPlans: [
-        {
-          name: 'AI Meal Plan Pro',
-          duration: '7 days',
-          price: budget * 0.5,
-          meals: 21,
-          nutritionScore: 9.5,
-          aiScore: 9.7
-        }
-      ]
-    };
+      const allFoodServices = this.getFoodServices();
+
+      const restaurants = allFoodServices
+          .filter(service => service.type === 'restaurant' && service.priceRange.max <= budget * 0.3)
+          .map(service => ({
+              name: service.name,
+              cuisine: service.cuisine.join(', '),
+              price: service.priceRange.min + Math.random() * (service.priceRange.max - service.priceRange.min),
+              rating: Math.random() * 1 + 4, // 4.0-5.0
+              distance: `${(Math.random() * 5).toFixed(1)} miles`, // Placeholder
+              aiScore: Math.random() * 2 + 8
+          }));
+
+      const delivery = allFoodServices
+          .filter(service => service.type === 'delivery' && service.priceRange.max <= budget * 0.2)
+          .map(service => ({
+              name: service.name,
+              cuisine: service.cuisine.join(', '),
+              price: service.priceRange.min + Math.random() * (service.priceRange.max - service.priceRange.min),
+              deliveryTime: `${Math.floor(Math.random() * 30 + 15)} min`, // 15-45 min
+              rating: Math.random() * 1 + 4, // 4.0-5.0
+              aiScore: Math.random() * 2 + 8
+          }));
+
+      const groceries = allFoodServices
+          .filter(service => service.type === 'grocery' && service.priceRange.max <= budget * 0.4)
+          .map(service => ({
+              name: service.name,
+              items: service.features.slice(0, 3),
+              price: service.priceRange.min + Math.random() * (service.priceRange.max - service.priceRange.min),
+              savings: (service.priceRange.min + Math.random() * (service.priceRange.max - service.priceRange.min)) * 0.1,
+              aiScore: Math.random() * 2 + 8
+          }));
+
+      const mealPlans = allFoodServices
+          .filter(service => service.type === 'meal_plan' && service.priceRange.max <= budget * 0.5)
+          .map(service => ({
+              name: service.name,
+              duration: '7 days', // Placeholder
+              price: service.priceRange.min + Math.random() * (service.priceRange.max - service.priceRange.min),
+              meals: 21, // Placeholder
+              nutritionScore: Math.random() + 9, // 9.0-10.0
+              aiScore: Math.random() * 2 + 8
+          }));
+
+    return { restaurants, delivery, groceries, mealPlans };
   }
 }
 
