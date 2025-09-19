@@ -501,6 +501,7 @@ function HistoryTab({ history }: HistoryTabProps) {
             value={filter}
             onChange={(e) => setFilter(e.target.value as any)}
             className="px-3 py-1 border rounded-md text-sm"
+            aria-label="Filter action categories"
           >
             <option value="all">All</option>
             <option value="authentication">Authentication</option>

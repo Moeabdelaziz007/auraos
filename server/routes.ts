@@ -188,6 +188,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
+  // Autopilot System Integration with WebSocket
+  const automationEngine = getAdvancedAutomationEngine();
+  const orchestrator = getIntelligentWorkflowOrchestrator();
+  
+  // Subscribe to autopilot updates and broadcast them
+  automationEngine.subscribeToUpdates((status) => {
+    broadcast({
+      type: 'autopilot_update',
+      data: status,
+      timestamp: Date.now()
+    });
+  });
+
+  orchestrator.subscribeToWorkflowUpdates((status) => {
+    broadcast({
+      type: 'workflow_update',
+      data: status,
+      timestamp: Date.now()
+    });
+  });
+
   // User routes
   app.get('/api/users/current', async (req, res) => {
     try {
@@ -1107,6 +1128,176 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Create automation rule error:', error);
       res.status(500).json({ message: 'Failed to create automation rule' });
+    }
+  });
+
+  // Live Autopilot Control API Routes
+  app.get('/api/autopilot/live/status', async (req, res) => {
+    try {
+      const automationEngine = getAdvancedAutomationEngine();
+      const orchestrator = getIntelligentWorkflowOrchestrator();
+      
+      const liveStatus = {
+        automation: automationEngine.getLiveStatus(),
+        workflows: orchestrator.getLiveStatus(),
+        timestamp: new Date().toISOString()
+      };
+      
+      res.json(liveStatus);
+    } catch (error) {
+      console.error('Get live status error:', error);
+      res.status(500).json({ message: 'Failed to get live status' });
+    }
+  });
+
+  app.post('/api/autopilot/emergency-stop', async (req, res) => {
+    try {
+      const { stop } = req.body;
+      
+      if (typeof stop !== 'boolean') {
+        return res.status(400).json({ message: 'stop parameter must be a boolean' });
+      }
+
+      const automationEngine = getAdvancedAutomationEngine();
+      automationEngine.setEmergencyStop(stop);
+      
+      res.json({ 
+        success: true, 
+        emergencyStop: stop,
+        message: `Autopilot ${stop ? 'stopped' : 'resumed'}` 
+      });
+    } catch (error) {
+      console.error('Emergency stop error:', error);
+      res.status(500).json({ message: 'Failed to set emergency stop' });
+    }
+  });
+
+  app.post('/api/autopilot/rule/:ruleId/toggle', async (req, res) => {
+    try {
+      const { ruleId } = req.params;
+      const { enabled } = req.body;
+      
+      if (typeof enabled !== 'boolean') {
+        return res.status(400).json({ message: 'enabled parameter must be a boolean' });
+      }
+
+      const automationEngine = getAdvancedAutomationEngine();
+      const success = automationEngine.toggleRule(ruleId, enabled);
+      
+      if (success) {
+        res.json({ 
+          success: true, 
+          ruleId, 
+          enabled,
+          message: `Rule ${enabled ? 'enabled' : 'disabled'}` 
+        });
+      } else {
+        res.status(404).json({ message: 'Rule not found' });
+      }
+    } catch (error) {
+      console.error('Toggle rule error:', error);
+      res.status(500).json({ message: 'Failed to toggle rule' });
+    }
+  });
+
+  app.post('/api/autopilot/rule/:ruleId/override', async (req, res) => {
+    try {
+      const { ruleId } = req.params;
+      const { override } = req.body;
+      
+      const automationEngine = getAdvancedAutomationEngine();
+      automationEngine.setUserOverride(ruleId, override);
+      
+      res.json({ 
+        success: true, 
+        ruleId, 
+        override,
+        message: 'User override set successfully' 
+      });
+    } catch (error) {
+      console.error('Set override error:', error);
+      res.status(500).json({ message: 'Failed to set override' });
+    }
+  });
+
+  app.delete('/api/autopilot/rule/:ruleId/override', async (req, res) => {
+    try {
+      const { ruleId } = req.params;
+      
+      const automationEngine = getAdvancedAutomationEngine();
+      automationEngine.clearUserOverride(ruleId);
+      
+      res.json({ 
+        success: true, 
+        ruleId,
+        message: 'User override cleared successfully' 
+      });
+    } catch (error) {
+      console.error('Clear override error:', error);
+      res.status(500).json({ message: 'Failed to clear override' });
+    }
+  });
+
+  // Workflow Control API Routes
+  app.post('/api/workflows/:workflowId/pause', async (req, res) => {
+    try {
+      const { workflowId } = req.params;
+      
+      const orchestrator = getIntelligentWorkflowOrchestrator();
+      const success = orchestrator.pauseWorkflow(workflowId);
+      
+      if (success) {
+        res.json({ 
+          success: true, 
+          workflowId,
+          message: 'Workflow paused successfully' 
+        });
+      } else {
+        res.status(404).json({ message: 'Workflow not found' });
+      }
+    } catch (error) {
+      console.error('Pause workflow error:', error);
+      res.status(500).json({ message: 'Failed to pause workflow' });
+    }
+  });
+
+  app.post('/api/workflows/:workflowId/resume', async (req, res) => {
+    try {
+      const { workflowId } = req.params;
+      
+      const orchestrator = getIntelligentWorkflowOrchestrator();
+      const success = orchestrator.resumeWorkflow(workflowId);
+      
+      if (success) {
+        res.json({ 
+          success: true, 
+          workflowId,
+          message: 'Workflow resumed successfully' 
+        });
+      } else {
+        res.status(404).json({ message: 'Workflow not found' });
+      }
+    } catch (error) {
+      console.error('Resume workflow error:', error);
+      res.status(500).json({ message: 'Failed to resume workflow' });
+    }
+  });
+
+  app.get('/api/workflows/:workflowId/status', async (req, res) => {
+    try {
+      const { workflowId } = req.params;
+      
+      const orchestrator = getIntelligentWorkflowOrchestrator();
+      const status = orchestrator.getWorkflowStatus(workflowId);
+      
+      if (status) {
+        res.json(status);
+      } else {
+        res.status(404).json({ message: 'Workflow not found' });
+      }
+    } catch (error) {
+      console.error('Get workflow status error:', error);
+      res.status(500).json({ message: 'Failed to get workflow status' });
     }
   });
 

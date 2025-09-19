@@ -241,7 +241,7 @@ export class FirestoreService {
         id: doc.id,
         ...doc.data()
       }));
-    } catch.error {
+    } catch (error) {
       console.error('Error getting agents:', error);
       throw error;
     }

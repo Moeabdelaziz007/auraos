@@ -481,7 +481,7 @@ export class IntelligentWorkflowOrchestrator {
       return now.getHours() === hours && now.getMinutes() === minutes;
     } else if (schedule === 'weekly') {
       const day = parameters.day;
-      const dayMap = { sunday: 0, monday: 1, tuesday: 2, wednesday: 3, thursday: 4, friday: 5, saturday: 6 };
+      const dayMap: Record<string, number> = { sunday: 0, monday: 1, tuesday: 2, wednesday: 3, thursday: 4, friday: 5, saturday: 6 };
       const [hours, minutes] = time.split(':').map(Number);
       return now.getDay() === dayMap[day] && now.getHours() === hours && now.getMinutes() === minutes;
     }
@@ -616,7 +616,7 @@ export class IntelligentWorkflowOrchestrator {
       }
       
       const response = await generateContent(prompt);
-      const success = response && response.length > 0;
+      const success = Boolean(response && response.length > 0);
       
       return { 
         success, 
@@ -629,7 +629,7 @@ export class IntelligentWorkflowOrchestrator {
       };
     } catch (error) {
       console.error(`Step execution error: ${step.name}`, error);
-      return { success: false, data: error.message };
+      return { success: false, data: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
 
@@ -699,16 +699,16 @@ export class IntelligentWorkflowOrchestrator {
         stepId: failedStep.id,
         timestamp: new Date(),
         recoveryStrategy: recoveryResponse,
-        success: recoveryResponse && recoveryResponse.length > 0
+        success: Boolean(recoveryResponse && recoveryResponse.length > 0)
       });
       
       return { 
-        success: recoveryResponse && recoveryResponse.length > 0, 
+        success: Boolean(recoveryResponse && recoveryResponse.length > 0), 
         data: recoveryResponse 
       };
     } catch (error) {
       console.error('Error recovery failed:', error);
-      return { success: false, data: error.message };
+      return { success: false, data: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
 
@@ -716,7 +716,7 @@ export class IntelligentWorkflowOrchestrator {
   private async optimizeWorkflows() {
     console.log('🧠 Optimizing workflows with AI...');
     
-    for (const workflow of this.workflows.values()) {
+    for (const workflow of Array.from(this.workflows.values())) {
       if (workflow.aiEnhancement.optimizationEnabled) {
         await this.optimizeWorkflow(workflow);
       }

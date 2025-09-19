@@ -192,7 +192,7 @@ export class AdvancedAutomationEngine {
         parameters: { metric: 'response_time', threshold: 2000 }
       },
       action: {
-        type: 'system_action',
+        type: 'ai_action',
         parameters: { action: 'optimize_performance', autoApply: true },
         priority: 'high'
       },
@@ -382,14 +382,11 @@ export class AdvancedAutomationEngine {
         case 'ai_action':
           return await this.executeAIAction(action.parameters);
         
-        case 'system_action':
-          return await this.executeSystemAction(action.parameters);
-        
         default:
           return { success: false };
       }
     } catch (error) {
-      return { success: false, data: error.message };
+      return { success: false, data: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
 
@@ -452,7 +449,7 @@ export class AdvancedAutomationEngine {
       };
     } catch (error) {
       console.error('AI Action execution error:', error);
-      return { success: false, data: error.message };
+      return { success: false, data: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
 
@@ -470,20 +467,20 @@ export class AdvancedAutomationEngine {
       
       // Real AI-powered predictive analytics
       const analyticsPrompts = [
-        {
-          type: 'demand_forecasting',
+      {
+        type: 'demand_forecasting',
           prompt: `Analyze current trends and predict demand for travel services over the next 7 days.
           Consider factors like seasonality, current bookings, and market trends.
           Provide confidence score and specific recommendations.`
-        },
-        {
-          type: 'user_behavior',
+      },
+      {
+        type: 'user_behavior',
           prompt: `Predict user behavior patterns for the next week.
           Analyze current user interactions, preferences, and activity patterns.
           Focus on food delivery vs restaurant dining preferences and shopping patterns.`
-        },
-        {
-          type: 'system_performance',
+      },
+      {
+        type: 'system_performance',
           prompt: `Predict system performance and load for the next 24 hours.
           Consider current usage patterns, time of day, and historical data.
           Provide scaling recommendations and performance optimizations.`
@@ -775,7 +772,7 @@ export class AdvancedAutomationEngine {
         this.executionHistory.push({
           ruleId: rule.id,
           timestamp: new Date(),
-          result: { success: false, error: error.message },
+          result: { success: false, error: error instanceof Error ? error.message : 'Unknown error' },
           performance: rule.successRate
         });
       }
