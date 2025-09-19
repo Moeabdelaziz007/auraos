@@ -10,10 +10,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import UserHistoryAnalytics from "@/components/analytics/user-history-analytics";
+import AIPersonalizationDashboard from "@/components/ai/ai-personalization-dashboard";
+import WorkflowMarketplace from "@/components/workflow/workflow-marketplace";
 import type { PostWithAuthor, AgentTemplate, UserAgent } from "@shared/schema";
 
 export default function Dashboard() {
   const [showAnalytics, setShowAnalytics] = useState(false);
+  const [showAIFeatures, setShowAIFeatures] = useState(false);
+  const [showWorkflows, setShowWorkflows] = useState(false);
 
   const { data: posts, isLoading: postsLoading } = useQuery<PostWithAuthor[]>({
     queryKey: ['/api/posts'],
@@ -50,6 +54,34 @@ export default function Dashboard() {
                   </Button>
                 </div>
                 <UserHistoryAnalytics />
+              </div>
+            ) : showAIFeatures ? (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <h1 className="text-2xl font-bold neon-text">AI Personalization</h1>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setShowAIFeatures(false)}
+                    className="neon-glow-sm"
+                  >
+                    Back to Dashboard
+                  </Button>
+                </div>
+                <AIPersonalizationDashboard />
+              </div>
+            ) : showWorkflows ? (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <h1 className="text-2xl font-bold neon-text">Workflow Marketplace</h1>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setShowWorkflows(false)}
+                    className="neon-glow-sm"
+                  >
+                    Back to Dashboard
+                  </Button>
+                </div>
+                <WorkflowMarketplace />
               </div>
             ) : (
               <>
@@ -282,9 +314,14 @@ export default function Dashboard() {
                         <span className="text-sm font-medium">Schedule Post</span>
                       </Button>
                       
-                      <Button variant="ghost" className="p-4 bg-gradient-to-br from-accent/20 to-accent/10 text-accent hover:from-accent/30 hover:to-accent/20 h-auto flex-col neon-glow-sm hover:neon-glow-md transition-all duration-300" data-testid="button-ai-generate">
-                        <i className="fas fa-sparkles text-xl mb-2"></i>
-                        <span className="text-sm font-medium">AI Generate</span>
+                      <Button 
+                        variant="ghost" 
+                        className="p-4 bg-gradient-to-br from-purple-500/20 to-purple-500/10 text-purple-400 hover:from-purple-500/30 hover:to-purple-500/20 h-auto flex-col neon-glow-sm hover:neon-glow-md transition-all duration-300" 
+                        data-testid="button-ai-personalization"
+                        onClick={() => setShowAIFeatures(true)}
+                      >
+                        <i className="fas fa-brain text-xl mb-2"></i>
+                        <span className="text-sm font-medium">AI Personalization</span>
                       </Button>
                       
                       <Button 
@@ -297,9 +334,14 @@ export default function Dashboard() {
                         <span className="text-sm font-medium">Analytics</span>
                       </Button>
                       
-                      <Button variant="ghost" className="p-4 bg-gradient-to-br from-green-500/20 to-green-500/10 text-green-400 hover:from-green-500/30 hover:to-green-500/20 h-auto flex-col neon-glow-sm hover:neon-glow-md transition-all duration-300" data-testid="button-create-workflow">
-                        <i className="fas fa-plus text-xl mb-2"></i>
-                        <span className="text-sm font-medium">New Agent</span>
+                      <Button 
+                        variant="ghost" 
+                        className="p-4 bg-gradient-to-br from-orange-500/20 to-orange-500/10 text-orange-400 hover:from-orange-500/30 hover:to-orange-500/20 h-auto flex-col neon-glow-sm hover:neon-glow-md transition-all duration-300" 
+                        data-testid="button-workflow-marketplace"
+                        onClick={() => setShowWorkflows(true)}
+                      >
+                        <i className="fas fa-cogs text-xl mb-2"></i>
+                        <span className="text-sm font-medium">Workflows</span>
                       </Button>
                     </div>
                   </CardContent>
