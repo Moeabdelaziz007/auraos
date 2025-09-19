@@ -183,7 +183,7 @@ export class N8nNodeSystem {
   private initializeDefaultNodeTypes() {
     // Trigger Nodes
     this.registerNodeType({
-      name: 'auraos.trigger.schedule',
+      name: 'amrikyy.trigger.schedule',
       displayName: 'Schedule Trigger',
       description: 'Triggers workflow execution on a schedule',
       version: 1,
@@ -228,7 +228,7 @@ export class N8nNodeSystem {
 
     // AI Nodes
     this.registerNodeType({
-      name: 'auraos.ai.gemini',
+      name: 'amrikyy.ai.gemini',
       displayName: 'Gemini AI',
       description: 'Execute AI tasks using Google Gemini',
       version: 1,
@@ -281,7 +281,7 @@ export class N8nNodeSystem {
 
     // Social Media Nodes
     this.registerNodeType({
-      name: 'auraos.social.telegram',
+      name: 'amrikyy.social.telegram',
       displayName: 'Telegram',
       description: 'Send messages and interact with Telegram',
       version: 1,
@@ -337,7 +337,7 @@ export class N8nNodeSystem {
 
     // Data Processing Nodes
     this.registerNodeType({
-      name: 'auraos.data.set',
+      name: 'amrikyy.data.set',
       displayName: 'Set Data',
       description: 'Set data values for the workflow',
       version: 1,
@@ -381,7 +381,7 @@ export class N8nNodeSystem {
 
     // Conditional Logic Nodes
     this.registerNodeType({
-      name: 'auraos.logic.if',
+      name: 'amrikyy.logic.if',
       displayName: 'If',
       description: 'Conditional logic node',
       version: 1,
@@ -438,7 +438,7 @@ export class N8nNodeSystem {
 
     // HTTP Request Node
     this.registerNodeType({
-      name: 'auraos.http.request',
+      name: 'amrikyy.http.request',
       displayName: 'HTTP Request',
       description: 'Make HTTP requests',
       version: 1,
@@ -509,7 +509,7 @@ export class N8nNodeSystem {
         {
           id: 'schedule_trigger',
           name: 'Daily Schedule',
-          type: 'auraos.trigger.schedule',
+          type: 'amrikyy.trigger.schedule',
           typeVersion: 1,
           position: [0, 0],
           parameters: {
@@ -520,7 +520,7 @@ export class N8nNodeSystem {
         {
           id: 'set_topic',
           name: 'Set Topic',
-          type: 'auraos.data.set',
+          type: 'amrikyy.data.set',
           typeVersion: 1,
           position: [300, 0],
           parameters: {
@@ -535,7 +535,7 @@ export class N8nNodeSystem {
         {
           id: 'ai_generate',
           name: 'AI Content Generation',
-          type: 'auraos.ai.gemini',
+          type: 'amrikyy.ai.gemini',
           typeVersion: 1,
           position: [600, 0],
           parameters: {
@@ -547,7 +547,7 @@ export class N8nNodeSystem {
         {
           id: 'telegram_send',
           name: 'Send to Telegram',
-          type: 'auraos.social.telegram',
+          type: 'amrikyy.social.telegram',
           typeVersion: 1,
           position: [900, 0],
           parameters: {
@@ -591,7 +591,7 @@ export class N8nNodeSystem {
     
     for (const workflow of activeWorkflows) {
       for (const node of workflow.nodes) {
-        if (node.type === 'auraos.trigger.schedule') {
+        if (node.type === 'amrikyy.trigger.schedule') {
           if (await this.evaluateScheduleTrigger(node.parameters)) {
             await this.executeWorkflow(workflow.id);
           }
@@ -714,27 +714,27 @@ export class N8nNodeSystem {
       let result: any[] = [];
       
       switch (node.type) {
-        case 'auraos.trigger.schedule':
+        case 'amrikyy.trigger.schedule':
           result = [{}]; // Trigger nodes provide initial data
           break;
           
-        case 'auraos.data.set':
+        case 'amrikyy.data.set':
           result = this.executeSetDataNode(node, nodeData);
           break;
           
-        case 'auraos.ai.gemini':
+        case 'amrikyy.ai.gemini':
           result = await this.executeGeminiNode(node, nodeData);
           break;
           
-        case 'auraos.social.telegram':
+        case 'amrikyy.social.telegram':
           result = await this.executeTelegramNode(node, nodeData);
           break;
           
-        case 'auraos.logic.if':
+        case 'amrikyy.logic.if':
           result = this.executeIfNode(node, nodeData);
           break;
           
-        case 'auraos.http.request':
+        case 'amrikyy.http.request':
           result = await this.executeHttpRequestNode(node, nodeData);
           break;
           

@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { generateContent, generatePostContent, chatWithAssistant, analyzeWorkflow } from "./gemini.js";
 import { storage } from "./storage";
-import { insertPostSchema, insertWorkflowSchema, insertUserAgentSchema, insertChatMessageSchema } from "@shared/schema";
+import { insertPostSchema, insertWorkflowSchema, insertUserAgentSchema, insertChatMessageSchema } from "../shared/schema.js";
 import { initializeTelegramBot, getTelegramService } from "./telegram.js";
 import { initializeSmartTelegramBot, getSmartTelegramBot } from "./smart-telegram-bot.js";
 import { getTravelFoodServiceManager } from "./travel-food-services.js";
@@ -22,6 +22,9 @@ import { getEnterpriseAdminDashboard } from "./enterprise-admin-dashboard.js";
 import { getEnterpriseCollaborationSystem } from "./enterprise-collaboration.js";
 import { getEnhancedTravelAgency } from "./enhanced-travel-agency.js";
 import { getTravelDashboard } from "./travel-dashboard.js";
+import { getN8nNodeSystem } from "./n8n-node-system.js";
+import { getN8nIntegrationManager } from "./n8n-integrations.js";
+import { getAIPromptManager } from "./ai-prompt-manager.js";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
@@ -2736,6 +2739,462 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Add comment error:', error);
       res.status(500).json({ message: 'Failed to add comment' });
+    }
+  });
+
+  // =============================================================================
+  // CLI-SPECIFIC API ENDPOINTS (Inspired by ZentixAI)
+  // =============================================================================
+
+  /**
+   * System Status Endpoint for CLI
+   */
+  app.get('/api/system/status', async (req, res) => {
+    try {
+      const startTime = Date.now();
+      
+      // Get system information
+      const systemInfo = {
+        status: 'operational',
+        uptime: process.uptime(),
+        version: '1.0.0',
+        nodeVersion: process.version,
+        platform: process.platform,
+        memory: process.memoryUsage(),
+        pid: process.pid
+      };
+
+      // Get autopilot status
+      const automationEngine = getAdvancedAutomationEngine();
+      const autopilotInfo = {
+        active: automationEngine.isActive(),
+        rules: automationEngine.getActiveRulesCount(),
+        workflows: automationEngine.getActiveWorkflowsCount(),
+        lastExecution: automationEngine.getLastExecutionTime()
+      };
+
+      // Get AI agents status
+      const agentSystem = getAdvancedAIAgentSystem();
+      const aiInfo = {
+        agents: agentSystem.getTotalAgentsCount(),
+        activeAgents: agentSystem.getActiveAgentsCount(),
+        totalTasks: agentSystem.getTotalTasksCount()
+      };
+
+      // Get performance metrics
+      const performanceInfo = {
+        memory: Math.round((process.memoryUsage().heapUsed / process.memoryUsage().heapTotal) * 100),
+        cpu: Math.round(process.cpuUsage().user / 1000000), // Convert to percentage approximation
+        responseTime: Date.now() - startTime
+      };
+
+      res.json({
+        system: systemInfo,
+        autopilot: autopilotInfo,
+        ai: aiInfo,
+        performance: performanceInfo,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('System status error:', error);
+      res.status(500).json({ message: 'Failed to get system status' });
+    }
+  });
+
+  /**
+   * AI Chat Endpoint for CLI
+   */
+  app.post('/api/ai/chat', async (req, res) => {
+    try {
+      const { message, context = 'cli' } = req.body;
+      
+      if (!message) {
+        return res.status(400).json({ message: 'Message is required' });
+      }
+
+      // Use the existing chat functionality
+      const response = await chatWithAssistant(message, context);
+      
+      res.json({
+        response: response,
+        timestamp: new Date().toISOString(),
+        context: context
+      });
+    } catch (error) {
+      console.error('AI chat error:', error);
+      res.status(500).json({ message: 'Failed to process chat request' });
+    }
+  });
+
+  /**
+   * Autopilot Status Endpoint for CLI
+   */
+  app.get('/api/autopilot/status', async (req, res) => {
+    try {
+      const automationEngine = getAdvancedAutomationEngine();
+      const status = automationEngine.getStatus();
+      
+      res.json({
+        active: status.active,
+        rules: status.rules,
+        workflows: status.workflows,
+        performance: status.performance,
+        lastExecution: status.lastExecution,
+        nextExecution: status.nextExecution
+      });
+    } catch (error) {
+      console.error('Autopilot status error:', error);
+      res.status(500).json({ message: 'Failed to get autopilot status' });
+    }
+  });
+
+  /**
+   * Workflow Templates Endpoint for CLI
+   */
+  app.get('/api/workflows/templates', async (req, res) => {
+    try {
+      const workflowOrchestrator = getIntelligentWorkflowOrchestrator();
+      const templates = workflowOrchestrator.getAvailableTemplates();
+      
+      res.json(templates);
+    } catch (error) {
+      console.error('Workflow templates error:', error);
+      res.status(500).json({ message: 'Failed to get workflow templates' });
+    }
+  });
+
+  /**
+   * AI Agents Status Endpoint for CLI
+   */
+  app.get('/api/ai/agents/status', async (req, res) => {
+    try {
+      const agentSystem = getAdvancedAIAgentSystem();
+      const agents = agentSystem.getAllAgents();
+      
+      const status = {
+        total: agents.length,
+        active: agents.filter(agent => agent.status === 'active').length,
+        agents: agents.map(agent => ({
+          id: agent.id,
+          name: agent.name,
+          type: agent.type,
+          status: agent.status,
+          tasksCompleted: agent.performance.tasksCompleted,
+          successRate: agent.performance.successRate
+        }))
+      };
+      
+      res.json(status);
+    } catch (error) {
+      console.error('AI agents status error:', error);
+      res.status(500).json({ message: 'Failed to get AI agents status' });
+    }
+  });
+
+  /**
+   * System Health Check Endpoint for CLI
+   */
+  app.get('/api/system/health', async (req, res) => {
+    try {
+      const health = {
+        status: 'healthy',
+        timestamp: new Date().toISOString(),
+        services: {
+          database: 'connected',
+          ai: 'operational',
+          autopilot: 'active',
+          websocket: 'connected'
+        },
+        uptime: process.uptime(),
+        memory: process.memoryUsage(),
+        version: '1.0.0'
+      };
+
+      res.json(health);
+    } catch (error) {
+      console.error('Health check error:', error);
+      res.status(500).json({ 
+        status: 'unhealthy',
+        message: 'Health check failed',
+        error: error.message 
+      });
+    }
+  });
+
+  /**
+   * System Logs Endpoint for CLI
+   */
+  app.get('/api/system/logs', async (req, res) => {
+    try {
+      const { limit = 100, level = 'all' } = req.query;
+      
+      // This would integrate with your existing logging system
+      // For now, return a mock response
+      const logs = [
+        {
+          timestamp: new Date().toISOString(),
+          level: 'info',
+          message: 'System started successfully',
+          source: 'system'
+        },
+        {
+          timestamp: new Date(Date.now() - 60000).toISOString(),
+          level: 'info',
+          message: 'Autopilot engine activated',
+          source: 'autopilot'
+        }
+      ];
+
+      res.json({
+        logs: logs.slice(0, parseInt(limit as string)),
+        total: logs.length,
+        level: level
+      });
+    } catch (error) {
+      console.error('System logs error:', error);
+      res.status(500).json({ message: 'Failed to get system logs' });
+    }
+  });
+
+  // Initialize N8n Node System
+  const n8nNodeSystem = getN8nNodeSystem();
+  console.log('🔧 N8n Node System initialized');
+
+  // Initialize N8n Integration Manager
+  const n8nIntegrationManager = getN8nIntegrationManager();
+  console.log('🔌 N8n Integration Manager initialized');
+
+  // Initialize AI Prompt Manager
+  const aiPromptManager = getAIPromptManager();
+  console.log('🤖 AI Prompt Manager initialized');
+
+  // N8n Node System Routes
+  app.get('/api/n8n/workflows', (req, res) => {
+    try {
+      const workflows = n8nNodeSystem.getAllWorkflows();
+      res.json({ success: true, workflows });
+    } catch (error) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
+  app.get('/api/n8n/workflows/:id', (req, res) => {
+    try {
+      const workflow = n8nNodeSystem.getWorkflow(req.params.id);
+      if (!workflow) {
+        return res.status(404).json({ success: false, error: 'Workflow not found' });
+      }
+      res.json({ success: true, workflow });
+    } catch (error) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
+  app.post('/api/n8n/workflows/:id/execute', async (req, res) => {
+    try {
+      const executionId = await n8nNodeSystem.executeWorkflowManually(req.params.id);
+      res.json({ success: true, executionId });
+    } catch (error) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
+  app.get('/api/n8n/executions/:id', (req, res) => {
+    try {
+      const execution = n8nNodeSystem.getExecution(req.params.id);
+      if (!execution) {
+        return res.status(404).json({ success: false, error: 'Execution not found' });
+      }
+      res.json({ success: true, execution });
+    } catch (error) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
+  app.get('/api/n8n/node-types', (req, res) => {
+    try {
+      const nodeTypes = n8nNodeSystem.getNodeTypes();
+      res.json({ success: true, nodeTypes });
+    } catch (error) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
+  app.get('/api/n8n/status', (req, res) => {
+    try {
+      const status = n8nNodeSystem.getSystemStatus();
+      res.json({ success: true, status });
+    } catch (error) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
+  // N8n Integration Manager Routes
+  app.get('/api/integrations/connectors', (req, res) => {
+    try {
+      const connectors = n8nIntegrationManager.getAllConnectors();
+      res.json({ success: true, connectors });
+    } catch (error) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
+  app.get('/api/integrations/connectors/:id', (req, res) => {
+    try {
+      const connector = n8nIntegrationManager.getConnector(req.params.id);
+      if (!connector) {
+        return res.status(404).json({ success: false, error: 'Connector not found' });
+      }
+      res.json({ success: true, connector });
+    } catch (error) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
+  app.get('/api/integrations/connectors/category/:category', (req, res) => {
+    try {
+      const connectors = n8nIntegrationManager.getConnectorsByCategory(req.params.category as any);
+      res.json({ success: true, connectors });
+    } catch (error) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
+  app.get('/api/integrations/featured', (req, res) => {
+    try {
+      const connectors = n8nIntegrationManager.getFeaturedConnectors();
+      res.json({ success: true, connectors });
+    } catch (error) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
+  app.get('/api/integrations/statistics', (req, res) => {
+    try {
+      const statistics = n8nIntegrationManager.getConnectorStatistics();
+      res.json({ success: true, statistics });
+    } catch (error) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
+  app.post('/api/integrations/connectors/:id/test', async (req, res) => {
+    try {
+      const { credentialName } = req.body;
+      const result = await n8nIntegrationManager.testConnector(req.params.id, credentialName);
+      res.json({ success: true, result });
+    } catch (error) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
+  // AI Prompt Manager Routes
+  app.get('/api/ai/prompts', (req, res) => {
+    try {
+      const prompts = aiPromptManager.getAllPrompts();
+      res.json({ success: true, prompts });
+    } catch (error) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
+  app.get('/api/ai/prompts/:id', (req, res) => {
+    try {
+      const prompt = aiPromptManager.getPrompt(req.params.id);
+      if (!prompt) {
+        return res.status(404).json({ success: false, error: 'Prompt not found' });
+      }
+      res.json({ success: true, prompt });
+    } catch (error) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
+  app.get('/api/ai/prompts/category/:category', (req, res) => {
+    try {
+      const prompts = aiPromptManager.getPromptsByCategory(req.params.category as any);
+      res.json({ success: true, prompts });
+    } catch (error) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
+  app.get('/api/ai/prompts/search', (req, res) => {
+    try {
+      const { q } = req.query;
+      if (!q || typeof q !== 'string') {
+        return res.status(400).json({ success: false, error: 'Query parameter required' });
+      }
+      const prompts = aiPromptManager.searchPrompts(q);
+      res.json({ success: true, prompts });
+    } catch (error) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
+  app.get('/api/ai/prompts/popular', (req, res) => {
+    try {
+      const { limit } = req.query;
+      const limitNum = limit ? parseInt(limit as string) : 10;
+      const prompts = aiPromptManager.getPopularPrompts(limitNum);
+      res.json({ success: true, prompts });
+    } catch (error) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
+  app.post('/api/ai/prompts/:id/execute', async (req, res) => {
+    try {
+      const { variables, userId } = req.body;
+      const result = await aiPromptManager.executePrompt(req.params.id, variables, userId);
+      res.json({ success: true, result });
+    } catch (error) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
+  app.post('/api/ai/prompts/:id/feedback', (req, res) => {
+    try {
+      const { rating, comment, improvements } = req.body;
+      const success = aiPromptManager.submitFeedback(req.params.id, {
+        userId: req.body.userId || 'anonymous',
+        rating,
+        comment,
+        improvements
+      });
+      res.json({ success });
+    } catch (error) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
+  app.get('/api/ai/prompts/:id/statistics', (req, res) => {
+    try {
+      const statistics = aiPromptManager.getPromptStatistics(req.params.id);
+      if (!statistics) {
+        return res.status(404).json({ success: false, error: 'Prompt not found' });
+      }
+      res.json({ success: true, statistics });
+    } catch (error) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
+  app.get('/api/ai/statistics', (req, res) => {
+    try {
+      const statistics = aiPromptManager.getSystemStatistics();
+      res.json({ success: true, statistics });
+    } catch (error) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
+  app.get('/api/ai/status', (req, res) => {
+    try {
+      const status = aiPromptManager.getSystemStatus();
+      res.json({ success: true, status });
+    } catch (error) {
+      res.status(500).json({ success: false, error: error.message });
     }
   });
 

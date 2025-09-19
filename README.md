@@ -1,19 +1,22 @@
-# AuraOS: Your Personal AI-Powered Operating System
+# Amrikyy: Advanced AI-Powered Automation & Workflow Platform
 
 ## Overview
 
-AuraOS is a next-generation, AI-powered web application designed to act as a personal operating system, streamlining workflows, automating complex tasks, and supercharging productivity. It leverages a sophisticated tech stack including React, TypeScript, Vite, and Firebase, combined with a powerful backend of custom AI agents and automation engines.
+Amrikyy is a next-generation, AI-powered automation platform designed to streamline workflows, automate complex tasks, and supercharge productivity. It leverages a sophisticated tech stack including React, TypeScript, Vite, and Firebase, combined with a powerful backend of custom AI agents, n8n-style workflow automation, and curated AI prompts.
 
 ## Core Features
 
-- **Autopilot System:** A Level 2 autonomous agent that can observe the user's screen and execute multi-step tasks based on natural language commands. This is the core of the AuraOS experience, enabling a new level of human-computer interaction.
-- **Advanced Automation & Workflows:** Go beyond simple automation. Create complex, multi-step workflows that integrate with various services, triggered by events, schedules, or even AI-driven insights.
-- **Self-Improving AI:** Our AI systems are designed to learn from your interactions, becoming more efficient and personalized over time. The more you use AuraOS, the smarter it gets.
-- **AI-Powered Assistance:** Integrates with multiple cutting-edge AI models to provide intelligent features and assistance throughout the application, from content creation to data analysis.
-- **Secure Authentication:** Utilizes Firebase Authentication for secure and easy user login with Google.
-- **Real-time Data and Streaming:** A robust real-time architecture, powered by WebSockets and Firestore, ensures that the AI is always responsive and that your data is always up-to-date.
-- **Master Control Program (MCP):** A sophisticated backend protocol that governs all AI agents, ensuring they work together in a coordinated and efficient manner.
-- **Intuitive UI/UX:** Built with a stunning, neon-infused cyberpunk theme, providing an immersive and visually appealing user experience.
+- **🤖 N8n-Style Workflow Automation:** Advanced visual workflow builder with 400+ integration connectors, inspired by n8n's powerful automation platform
+- **🧠 AI Prompt Management:** Curated collection of professional AI prompts from awesome-chatgpt-prompts, with intelligent prompt execution and analytics
+- **🚀 Autopilot System:** Level 2 autonomous agent that can execute multi-step tasks based on natural language commands
+- **⚡ Advanced Automation & Workflows:** Create complex, multi-step workflows that integrate with various services, triggered by events, schedules, or AI-driven insights
+- **🧬 Self-Improving AI:** AI systems that learn from your interactions, becoming more efficient and personalized over time
+- **🔌 400+ Integration Connectors:** Pre-built connectors for popular services including Telegram, OpenAI, Google Services, Social Media, and more
+- **🎯 Professional AI Prompts:** 7+ curated prompts across categories like DevOps, Content Creation, SEO, Health, and Technical Development
+- **🔐 Secure Authentication:** Firebase Authentication with Google OAuth integration
+- **📡 Real-time Data Streaming:** WebSocket-powered real-time architecture ensuring responsive AI and up-to-date data
+- **🎮 Master Control Program (MCP):** Sophisticated backend protocol governing all AI agents for coordinated operation
+- **🎨 Modern UI/UX:** Stunning cyberpunk-themed interface with responsive design and dark mode support
 
 ### Implemented Features
 

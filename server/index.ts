@@ -7,6 +7,7 @@ import { autopilotAgent } from "./autopilot-agent";
 import { getSelfImprovingAISystem } from "./self-improving-ai";
 import { getDebugStream } from "./debug-stream";
 import { initializeFirebase } from "./firebase";
+import { enhancedLogger } from "./enhanced-logger.js";
 
 const app = express();
 const server = createServer(app);
@@ -14,6 +15,13 @@ const debugStream = getDebugStream();
 
 // Initialize Firebase
 initializeFirebase();
+
+// Initialize Enhanced Logger
+enhancedLogger.info('AuraOS Server starting up', 'server', {
+  nodeVersion: process.version,
+  platform: process.platform,
+  pid: process.pid
+});
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -56,6 +64,9 @@ app.use((req, res, next) => {
 
       log(logLine);
 
+      // Enhanced logging
+      enhancedLogger.logRequest(req.method, path, res.statusCode, duration, req.headers['user-id'] as string);
+
       // Also send the log to the debug stream
       debugStream.broadcast({ 
         timestamp: new Date().toISOString(), 
@@ -68,22 +79,43 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  await registerRoutes(app);
-  initializeRealTimeAIStreaming(server);
-  autopilotAgent.start();
+  try {
+    enhancedLogger.info('Registering API routes', 'server');
+    await registerRoutes(app);
+    
+    enhancedLogger.info('Initializing real-time AI streaming', 'server');
+    initializeRealTimeAIStreaming(server);
+    
+    enhancedLogger.info('Starting autopilot agent', 'autopilot');
+    autopilotAgent.start();
 
-  const selfImprovingSystem = getSelfImprovingAISystem();
-  selfImprovingSystem.start();
+    const selfImprovingSystem = getSelfImprovingAISystem();
+    enhancedLogger.info('Starting self-improving AI system', 'ai');
+    selfImprovingSystem.start();
 
-  // Run a self-improvement cycle shortly after startup
-  setTimeout(() => {
-    selfImprovingSystem.runImprovementCycle();
-  }, 10000);
+    // Run a self-improvement cycle shortly after startup
+    setTimeout(() => {
+      enhancedLogger.info('Running initial self-improvement cycle', 'ai');
+      selfImprovingSystem.runImprovementCycle();
+    }, 10000);
 
+
+    enhancedLogger.info('Server initialization completed successfully', 'server');
+  } catch (error) {
+    enhancedLogger.error('Failed to initialize server', 'server', undefined, error as Error);
+    process.exit(1);
+  }
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
+
+    // Enhanced error logging
+    enhancedLogger.error(`HTTP Error ${status}: ${message}`, 'http', {
+      status,
+      url: _req.url,
+      method: _req.method
+    }, err);
 
     // Also send the error to the debug stream
     debugStream.broadcast({ 
@@ -108,7 +140,12 @@ app.use((req, res, next) => {
     host: "0.0.0.0",
     reusePort: true,
   }, async () => {
-    log(`serving on port ${port}`);
+    log(`🚀 Amrikyy server running on port ${port}`);
+    enhancedLogger.info(`Amrikyy Server started on port ${port}`, 'server', {
+      port,
+      host: '0.0.0.0',
+      environment: app.get('env')
+    });
     
     // Initialize real-time AI streaming
     try {
@@ -118,8 +155,10 @@ app.use((req, res, next) => {
         enableCompression: true
       });
       log('✅ Real-time AI streaming initialized');
+      enhancedLogger.info('Real-time AI streaming initialized successfully', 'streaming');
     } catch (error) {
       log(`❌ Failed to initialize real-time AI streaming: ${error}`);
+      enhancedLogger.error('Failed to initialize real-time AI streaming', 'streaming', undefined, error as Error);
     }
   });
 })();

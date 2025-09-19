@@ -7,11 +7,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, Play, CheckCircle, XCircle, Info, Zap, Globe, Code, Brain, Search, FileText, Languages, Link, BarChart3 } from "lucide-react";
+import { Loader2, Play, CheckCircle, XCircle, Info, Zap, Globe, Code, Brain, Search, FileText, Languages, Link, BarChart3, Settings } from "lucide-react";
 import CursorCLIApp from "@/apps/mcp-tools/cursor-cli-app";
 import CometChromeApp from "@/apps/mcp-tools/comet-chrome-app";
 import WebScraperApp from "@/apps/mcp-tools/web-scraper-app";
 import DataAnalyzerApp from "@/apps/mcp-tools/data-analyzer-app";
+import MultilingualAssistantApp from "@/apps/mcp-tools/multilingual-assistant-app";
+import SystemDesignerApp from "@/apps/mcp-tools/system-designer-app";
 
 interface MCPTool {
   id: string;
