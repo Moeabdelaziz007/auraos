@@ -429,6 +429,128 @@ export class AuraOSMCPServer {
         required: ['action'],
       },
     });
+
+    // 16. Multilingual Assistant (ZentixAI-inspired)
+    this.tools.set('multilingual_assistant', {
+      name: 'multilingual_assistant',
+      description: 'Advanced multilingual AI assistant with Arabic and English support for technical creativity, education, and wellness',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          message: {
+            type: 'string',
+            description: 'The message or request to process',
+          },
+          language: {
+            type: 'string',
+            enum: ['auto', 'arabic', 'english'],
+            description: 'Language preference (auto-detect if not specified)',
+            default: 'auto'
+          },
+          user_profile: {
+            type: 'object',
+            description: 'User profile information for personalized responses',
+          },
+          context: {
+            type: 'string',
+            description: 'Additional context for the conversation',
+          },
+        },
+        required: ['message'],
+      },
+    });
+
+    // 17. System Designer (ZentixAI-inspired)
+    this.tools.set('system_designer', {
+      name: 'system_designer',
+      description: 'AI-powered system architecture designer for technical creativity and solution planning',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          requirements: {
+            type: 'string',
+            description: 'System requirements and specifications',
+          },
+          technology_stack: {
+            type: 'object',
+            description: 'Preferred technology stack (frontend, backend, database)',
+          },
+          complexity: {
+            type: 'string',
+            enum: ['simple', 'medium', 'complex', 'enterprise'],
+            description: 'System complexity level',
+            default: 'medium'
+          },
+          context: {
+            type: 'string',
+            description: 'Additional context for system design',
+          },
+        },
+        required: ['requirements'],
+      },
+    });
+
+    // 18. Educational Tutor (ZentixAI-inspired)
+    this.tools.set('educational_tutor', {
+      name: 'educational_tutor',
+      description: 'Adaptive educational tutor for personalized learning content generation',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          topic: {
+            type: 'string',
+            description: 'The topic or subject to learn about',
+          },
+          difficulty_level: {
+            type: 'string',
+            enum: ['beginner', 'intermediate', 'advanced'],
+            description: 'Learning difficulty level',
+            default: 'beginner'
+          },
+          learning_style: {
+            type: 'string',
+            enum: ['visual', 'auditory', 'kinesthetic', 'reading'],
+            description: 'Preferred learning style',
+            default: 'visual'
+          },
+          context: {
+            type: 'string',
+            description: 'Additional context for learning content',
+          },
+        },
+        required: ['topic'],
+      },
+    });
+
+    // 19. Wellness Coach (ZentixAI-inspired)
+    this.tools.set('wellness_coach', {
+      name: 'wellness_coach',
+      description: 'AI wellness coach for mental health support and personal development',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          mood: {
+            type: 'string',
+            description: 'Current mood or emotional state',
+          },
+          stress_level: {
+            type: 'string',
+            enum: ['low', 'medium', 'high'],
+            description: 'Current stress level',
+            default: 'medium'
+          },
+          goals: {
+            type: 'array',
+            description: 'Wellness and personal development goals',
+          },
+          context: {
+            type: 'string',
+            description: 'Additional context for wellness planning',
+          },
+        },
+        required: ['mood'],
+      },
+    });
   }
 
   private setupHandlers() {

@@ -14,7 +14,8 @@ export class AutopilotAgent {
   private automationEngine: any;
   private workflowOrchestrator: any;
   private selfImprovingSystem: any;
-  private mainLoopInterval: NodeJS.Timeout | null = null;
+  private mainLoopTimeout: NodeJS.Timeout | null = null;
+  private isRunning: boolean = false;
 
   constructor(debug = false) {
     this.debug = debug;
@@ -80,22 +81,28 @@ export class AutopilotAgent {
   }
   
   public start() {
-    if (this.mainLoopInterval) {
-      this.stop();
+    if (this.isRunning) {
+      return;
     }
+    this.isRunning = true;
     enhancedLogger.info('Autopilot Agent started.', 'autopilot');
-    this.mainLoopInterval = setInterval(() => this.runCycle(), 60000); // Run every minute
+    // Use a self-scheduling timeout to prevent overlapping runs
+    this.runCycle();
   }
 
   public stop() {
-    if (this.mainLoopInterval) {
-      clearInterval(this.mainLoopInterval);
-      this.mainLoopInterval = null;
+    this.isRunning = false;
+    if (this.mainLoopTimeout) {
+      clearTimeout(this.mainLoopTimeout);
+      this.mainLoopTimeout = null;
       enhancedLogger.info('Autopilot Agent stopped.', 'autopilot');
     }
   }
 
   private async runCycle() {
+    if (!this.isRunning) {
+      return;
+    }
     enhancedLogger.info('Autopilot Agent running cycle.', 'autopilot');
     try {
       const health = await this.monitorSystemHealth();
@@ -112,6 +119,11 @@ export class AutopilotAgent {
       this.agentSystem.updateAgent(this.agent.id, { lastActive: new Date() });
     } catch (error) {
       enhancedLogger.error('Autopilot cycle failed', 'autopilot', undefined, error as Error);
+    } finally {
+      // Schedule the next cycle if the agent is still running
+      if (this.isRunning) {
+        this.mainLoopTimeout = setTimeout(() => this.runCycle(), 60000); // Run again in 1 minute
+      }
     }
   }
 

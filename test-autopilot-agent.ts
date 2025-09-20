@@ -1,73 +1,122 @@
 
 import { AutopilotAgent } from './server/autopilot-agent.js';
-import { vi, expect, test, afterEach } from 'vitest';
+import { vi, expect, test, describe, beforeEach, afterEach } from 'vitest';
 
-class AutopilotAgentTestSuite {
-  private agent: AutopilotAgent;
+// Mock external dependencies to isolate the AutopilotAgent during tests.
+vi.mock('./server/advanced-ai-agents.js', () => ({
+  getAdvancedAIAgentSystem: vi.fn(() => ({
+    createAgent: vi.fn(() => ({ id: 'test-agent', name: 'Autopilot Agent' })),
+    updateAgent: vi.fn(),
+  })),
+}));
 
-  constructor() {
+const mockAutomationEngine = {
+  getAutomationStats: vi.fn(),
+};
+vi.mock('./server/advanced-automation.js', () => ({
+  getAdvancedAutomationEngine: vi.fn(() => mockAutomationEngine),
+}));
+
+const mockWorkflowOrchestrator = {
+  getWorkflowStats: vi.fn(),
+};
+vi.mock('./server/intelligent-workflow.js', () => ({
+  getIntelligentWorkflowOrchestrator: vi.fn(() => mockWorkflowOrchestrator),
+}));
+
+const mockSelfImprovingSystem = {
+  runImprovementCycle: vi.fn(),
+};
+vi.mock('./server/self-improving-ai.js', () => ({
+  getSelfImprovingAISystem: vi.fn(() => mockSelfImprovingSystem),
+}));
+
+vi.mock('firebase-admin/firestore', () => ({
+  getFirestore: vi.fn(() => ({})),
+}));
+
+describe('AutopilotAgent', () => {
+  let agent: AutopilotAgent;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
     // Initialize the agent in debug mode for testing
-    this.agent = new AutopilotAgent(true);
-  }
+    // The agent starts its main loop in the constructor, so we stop it immediately
+    // to isolate our tests.
+    agent = new AutopilotAgent(true);
+    agent.stop();
+  });
 
-  async runTests() {
-    console.log('🚀 Starting Autopilot Agent Test Suite...');
-    
-    await this.testInitialization();
-    await this.testStartAndStop();
-    
-    console.log('✅ Autopilot Agent tests completed!');
-  }
+  afterEach(() => {
+    // Ensure the agent is stopped and timers are cleared after each test
+    agent.stop();
+    vi.clearAllTimers();
+  });
 
-  private async testInitialization() {
-    console.log('🧪 Testing Agent Initialization...');
-    // We can't directly check console output, but we can ensure
-    // the agent runs without errors in debug mode.
-    try {
-      // const task = {
-      //   id: 'test-task-1',
-      //   agentId: this.agent.agent.id,
-      //   type: 'test',
-      //   description: 'A test task for dry run mode',
-      //   parameters: { dryRun: true },
-      //   priority: 'high',
-      //   status: 'pending',
-      //   createdAt: new Date(),
-      // };
-      expect(this.agent).toBeDefined();
-      expect(this.agent.agent.name).toBe('Autopilot Agent');
-      console.log('✅ Initialization test passed.');
-    } catch (error) {
-      console.error('❌ Initialization test failed:', error);
-    }
-  }
+  test('should initialize correctly', () => {
+    expect(agent).toBeDefined();
+    expect(agent.agent.name).toBe('Autopilot Agent');
+    // @ts-ignore - Accessing private property for testing
+    expect(agent.mainLoopInterval).toBeNull();
+    // @ts-ignore - Accessing private properties for testing
+    expect(agent.isRunning).toBe(false);
+    expect(agent.mainLoopTimeout).toBeNull();
+  });
 
-  private async testStartAndStop() {
-    console.log('🧪 Testing Agent Start and Stop...');
-    try {
-      // It starts in constructor, so stop it first.
-      this.agent.stop();
-      // @ts-ignore
-      expect(this.agent.mainLoopInterval).toBeNull();
+  test('should start and stop the main loop', () => {
+    // Check initial state
+    // @ts-ignore - Accessing private property for testing
+    expect(agent.mainLoopInterval).toBeNull();
+    // @ts-ignore - Accessing private properties for testing
+    expect(agent.isRunning).toBe(false);
+    expect(agent.mainLoopTimeout).toBeNull();
 
-      this.agent.start();
-      // @ts-ignore
-      expect(this.agent.mainLoopInterval).toBeDefined();
-      
-      this.agent.stop();
-      // @ts-ignore
-      expect(this.agent.mainLoopInterval).toBeNull();
-      console.log('✅ Start and Stop test passed.');
-    } catch (error) {
-      console.error('❌ Start and Stop test failed:', error);
-    }
-  }
-}
+    agent.start();
+    // @ts-ignore - Accessing private property for testing
+    expect(agent.mainLoopInterval).toBeDefined();
+    // @ts-ignore - Accessing private properties for testing
+    expect(agent.isRunning).toBe(true);
 
-const testSuite = new AutopilotAgentTestSuite();
-testSuite.runTests();
+    agent.stop();
+    // @ts-ignore - Accessing private property for testing
+    expect(agent.mainLoopInterval).toBeNull();
+    // @ts-ignore - Accessing private properties for testing
+    expect(agent.isRunning).toBe(false);
+    expect(agent.mainLoopTimeout).toBeNull();
+  });
 
-afterEach(() => {
-  // Clean up any timers
-  vi.clearAllTimers();
+  test('should run a cycle on a healthy system', async () => {
+    // Setup mocks for a "healthy" system
+    mockAutomationEngine.getAutomationStats.mockReturnValue({ averageSuccessRate: 0.95 });
+    mockWorkflowOrchestrator.getWorkflowStats.mockReturnValue({ averageSuccessRate: 0.95 });
+
+    // @ts-ignore - Accessing private method for testing
+    const suggestOptimizationsSpy = vi.spyOn(agent, 'suggestOptimizations');
+
+    // @ts-ignore - Accessing private method for testing
+    await agent.runCycle();
+
+    // Verify core monitoring functions were called
+    expect(mockAutomationEngine.getAutomationStats).toHaveBeenCalled();
+    expect(mockWorkflowOrchestrator.getWorkflowStats).toHaveBeenCalled();
+    expect(mockSelfImprovingSystem.runImprovementCycle).toHaveBeenCalled();
+
+    // Verify that no optimizations were suggested for a healthy system
+    expect(suggestOptimizationsSpy).not.toHaveBeenCalled();
+  });
+
+  test('should suggest optimizations for an unhealthy system', async () => {
+    // Setup mocks for an "unhealthy" system
+    mockAutomationEngine.getAutomationStats.mockReturnValue({ averageSuccessRate: 0.8 }); // Below threshold
+    mockWorkflowOrchestrator.getWorkflowStats.mockReturnValue({ averageSuccessRate: 0.95 });
+
+    // @ts-ignore - Accessing private method for testing
+    const suggestOptimizationsSpy = vi.spyOn(agent, 'suggestOptimizations');
+
+    // @ts-ignore - Accessing private method for testing
+    await agent.runCycle();
+
+    // Verify that optimizations were suggested for an unhealthy system
+    expect(suggestOptimizationsSpy).toHaveBeenCalled();
+  });
 });

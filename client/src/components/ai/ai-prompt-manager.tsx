@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
+import { useToast } from '@/components/ui/use-toast';
 import { AlertCircle, Brain, Search, Star, Clock, Users, TrendingUp, Play, Copy, ThumbsUp, ThumbsDown } from 'lucide-react';
 
 interface AIPrompt {
@@ -62,6 +63,7 @@ export default function AIPromptManager() {
   const [isExecuting, setIsExecuting] = useState(false);
   const [showExecutionDialog, setShowExecutionDialog] = useState(false);
   const [activeTab, setActiveTab] = useState('prompts');
+  const { toast } = useToast();
 
   // Mock data - in real implementation, this would come from API
   const mockPrompts: AIPrompt[] = [
@@ -260,9 +262,22 @@ export default function AIPromptManager() {
     }
   }, [selectedPrompt, promptVariables]);
 
-  const copyToClipboard = useCallback((text: string) => {
-    navigator.clipboard.writeText(text);
-  }, []);
+  const copyToClipboard = useCallback(async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast({
+        title: 'Copied to clipboard!',
+        description: 'The execution result has been copied.',
+      });
+    } catch (err) {
+      toast({
+        title: 'Failed to copy',
+        description: 'Could not copy text to clipboard. Please check your browser permissions.',
+        variant: 'destructive',
+      });
+      console.error('Failed to copy text: ', err);
+    }
+  }, [toast]);
 
   const getComplexityColor = (complexity: string) => {
     switch (complexity) {

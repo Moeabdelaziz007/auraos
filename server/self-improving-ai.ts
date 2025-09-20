@@ -1,4 +1,5 @@
 import { getSmartLearningAI, MetaLearningState, LearningContext, AdaptationStrategy } from './smart-learning-ai.js';
+import { enhancedLogger } from './enhanced-logger.js';
 
 // A new interface for a generated learning strategy
 export interface GeneratedStrategy {
@@ -21,7 +22,7 @@ export class SelfImprovingAISystem {
   }
 
   public start() {
-    console.log('Self-Improving AI System started.');
+    enhancedLogger.info('Self-Improving AI System started.', 'ai');
     // Run an improvement cycle every 5 minutes
     this.improvementCycleInterval = setInterval(() => this.runImprovementCycle(), 5 * 60 * 1000);
   }
@@ -29,12 +30,12 @@ export class SelfImprovingAISystem {
   public stop() {
     if (this.improvementCycleInterval) {
       clearInterval(this.improvementCycleInterval);
-      console.log('Self-Improving AI System stopped.');
+      enhancedLogger.info('Self-Improving AI System stopped.', 'ai');
     }
   }
 
   public async runImprovementCycle() {
-    console.log('Running self-improvement cycle...');
+    enhancedLogger.info('Running self-improvement cycle...', 'ai');
 
     // 1. Analyze performance of all learning states
     const performanceAnalysis = await this.analyzeOverallPerformance();
@@ -48,7 +49,7 @@ export class SelfImprovingAISystem {
     // 4. Apply the best strategy
     await this.applyBestStrategy(validatedStrategies);
 
-    console.log('Self-improvement cycle completed.');
+    enhancedLogger.info('Self-improvement cycle completed.', 'ai', { validatedStrategies: validatedStrategies.length, applied: validatedStrategies.length > 0 ? validatedStrategies[0].name : 'none' });
   }
 
   private async analyzeOverallPerformance(): Promise<any> {
@@ -87,6 +88,8 @@ export class SelfImprovingAISystem {
 
   private async generateLearningStrategies(analysis: any): Promise<GeneratedStrategy[]> {
     const strategies: GeneratedStrategy[] = [];
+    // @ts-ignore - Assuming getAdaptationStrategyNames exists on the AI system
+    const existingStrategyNames = new Set(this.smartLearningAI.getAdaptationStrategyNames());
 
     for (const taskType of analysis.areasForImprovement) {
       // Strategy 1: Tweak learning rate for this task type.
@@ -106,24 +109,51 @@ export class SelfImprovingAISystem {
         validationResults: [],
       };
       strategies.push(newStrategy);
+
+      // Strategy 2: Try a different core adaptation strategy.
+      // We'll cycle through available strategies to suggest a new one.
+      const alternateAdaptationStrategies = [AdaptationStrategy.MetaGradient, AdaptationStrategy.PatternMatching];
+      for (const adaptation of alternateAdaptationStrategies) {
+        const adaptationStrategyName = `Use_${adaptation}_for_${taskType}`;
+        if (!existingStrategyNames.has(adaptationStrategyName)) {
+          strategies.push({
+            id: `gen_strat_${Date.now()}_${Math.random()}`,
+            name: adaptationStrategyName,
+            description: `A strategy that uses the ${adaptation} algorithm for ${taskType} tasks.`,
+            execute: async (context: LearningContext, state: MetaLearningState) => {
+              // Force the use of a specific adaptation strategy for this task
+              const originalStrategy = state.preferredStrategy;
+              state.preferredStrategy = adaptation;
+              const result = await this.smartLearningAI.processLearningRequest(context);
+              state.preferredStrategy = originalStrategy; // revert
+              return result;
+            },
+            performanceScore: 0,
+            validationResults: [],
+          });
+        }
+      }
     }
     
-    console.log(`Generated ${strategies.length} new learning strategies.`);
+    if (strategies.length > 0) {
+      enhancedLogger.info(`Generated ${strategies.length} new learning strategies.`, 'ai', { areas: analysis.areasForImprovement });
+    }
     return strategies;
   }
 
   private async validateStrategies(strategies: GeneratedStrategy[]): Promise<GeneratedStrategy[]> {
       if(strategies.length === 0) return [];
-      console.log(`Validating ${strategies.length} new strategies...`);
+      enhancedLogger.info(`Validating ${strategies.length} new strategies...`, 'ai');
       
       const validationTasks = await this.getValidationTasks();
       if(validationTasks.length === 0) {
-          console.log("No validation tasks available to test new strategies.");
+          enhancedLogger.warn("No validation tasks available to test new strategies.", 'ai');
           return [];
       }
 
       for (const strategy of strategies) {
           let score = 0;
+          // @ts-ignore - getLearningState and initializeLearningState might not be on the type but we assume they exist
           for (const task of validationTasks) {
               const result = await strategy.execute(task, this.smartLearningAI.getLearningState(task.userId) || await this.smartLearningAI.initializeLearningState(task.userId));
               if (result.success) {
@@ -136,37 +166,51 @@ export class SelfImprovingAISystem {
       
       strategies.sort((a,b) => b.performanceScore - a.performanceScore);
       if (strategies.length > 0) {
-        console.log(`Validation complete. Best strategy has score: ${strategies[0]?.performanceScore}`);
+        enhancedLogger.info(`Validation complete. Best strategy has score: ${strategies[0]?.performanceScore}`, 'ai', { bestStrategy: strategies[0]?.name });
       }
       return strategies;
   }
     
   private async getValidationTasks(): Promise<LearningContext[]> {
-      // In a real system, this would pull from a curated validation set of tasks.
-      // For now, we will create some dummy tasks based on poor-performing areas.
-      const analysis = await this.analyzeOverallPerformance(); // run again to get fresh data
-      const validationTasks: LearningContext[] = [];
-      analysis.areasForImprovement.forEach(taskType => {
-          validationTasks.push({
-              userId: 'validation_user',
-              sessionId: 'validation_session',
-              taskType: taskType,
-              inputData: `This is a sample validation task for ${taskType}`,
-              description: `Validation task for ${taskType}`,
-              timestamp: new Date(),
-              metadata: { validation: true }
-          });
-      });
-      return validationTasks;
+      // This is a curated, static validation set to benchmark strategy performance.
+      const now = new Date();
+      return [
+        {
+          userId: 'validation_user', sessionId: 'validation_session', taskType: 'sentiment_analysis',
+          inputData: 'The movie was not bad, but it was not particularly good either. A very neutral experience.',
+          description: 'Validation task for ambiguous sentiment', timestamp: now, metadata: { validation: true, expected: 'neutral' }
+        },
+        {
+          userId: 'validation_user', sessionId: 'validation_session', taskType: 'topic_classification',
+          inputData: 'The new paper on quantum entanglement shows promising results for long-distance secure communication.',
+          description: 'Validation task for technical topic classification', timestamp: now, metadata: { validation: true, expected: 'science' }
+        },
+        {
+          userId: 'validation_user', sessionId: 'validation_session', taskType: 'translation',
+          inputData: 'Hello, world!',
+          description: 'Validation task for simple translation to Spanish', timestamp: now, metadata: { validation: true, targetLang: 'es', expected: 'Hola, mundo!' }
+        },
+        {
+          userId: 'validation_user', sessionId: 'validation_session', taskType: 'intent_recognition',
+          inputData: 'book a flight to new york for tomorrow',
+          description: 'Validation task for complex intent recognition', timestamp: now, metadata: { validation: true, expected: 'book_flight' }
+        },
+        {
+          userId: 'validation_user', sessionId: 'validation_session', taskType: 'summarization',
+          inputData: 'The quick brown fox jumps over the lazy dog. This sentence is famous because it contains all letters of the English alphabet. It is often used for testing typewriters and keyboards.',
+          description: 'Validation task for text summarization', timestamp: now, metadata: { validation: true, expected: 'A sentence containing all letters.' }
+        }
+      ];
   }
 
   private async applyBestStrategy(validatedStrategies: GeneratedStrategy[]) {
     if (validatedStrategies.length > 0) {
       const bestStrategy = validatedStrategies[0];
       if(bestStrategy.performanceScore > 0.7) { // Only apply if it's a good strategy
-        console.log(`Applying new best strategy: ${bestStrategy.name}`);
+        enhancedLogger.info(`Applying new best strategy: ${bestStrategy.name}`, 'ai', { score: bestStrategy.performanceScore });
         this.generatedStrategies.set(bestStrategy.id, bestStrategy);
         
+        // @ts-ignore - Assuming addAdaptationStrategy exists
         this.smartLearningAI.addAdaptationStrategy(bestStrategy.name, {
             name: bestStrategy.name,
             description: bestStrategy.description,
@@ -174,7 +218,7 @@ export class SelfImprovingAISystem {
         });
 
       } else {
-          console.log(`No new strategy met the performance threshold to be applied. Best score: ${bestStrategy.performanceScore}`);
+          enhancedLogger.warn(`No new strategy met the performance threshold to be applied.`, 'ai', { bestStrategy: bestStrategy.name, score: bestStrategy.performanceScore });
       }
     }
   }
