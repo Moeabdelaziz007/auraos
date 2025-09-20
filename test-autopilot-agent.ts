@@ -1,13 +1,17 @@
 
 import { AutopilotAgent } from './server/autopilot-agent.js';
 import { vi, expect, test, describe, beforeEach, afterEach } from 'vitest';
+import { AIAgent } from './server/advanced-ai-agents.js';
 
 // Mock external dependencies to isolate the AutopilotAgent during tests.
+const mockAgentSystem = {
+  createAgent: vi.fn(() => ({ id: 'autopilot-agent-id', name: 'Autopilot Agent' })),
+  updateAgent: vi.fn(),
+  getAgentsByType: vi.fn(),
+  assignTask: vi.fn(),
+};
 vi.mock('./server/advanced-ai-agents.js', () => ({
-  getAdvancedAIAgentSystem: vi.fn(() => ({
-    createAgent: vi.fn(() => ({ id: 'test-agent', name: 'Autopilot Agent' })),
-    updateAgent: vi.fn(),
-  })),
+  getAdvancedAIAgentSystem: vi.fn(() => mockAgentSystem),
 }));
 
 const mockAutomationEngine = {
@@ -56,8 +60,6 @@ describe('AutopilotAgent', () => {
   test('should initialize correctly', () => {
     expect(agent).toBeDefined();
     expect(agent.agent.name).toBe('Autopilot Agent');
-    // @ts-ignore - Accessing private property for testing
-    expect(agent.mainLoopInterval).toBeNull();
     // @ts-ignore - Accessing private properties for testing
     expect(agent.isRunning).toBe(false);
     expect(agent.mainLoopTimeout).toBeNull();
@@ -65,21 +67,15 @@ describe('AutopilotAgent', () => {
 
   test('should start and stop the main loop', () => {
     // Check initial state
-    // @ts-ignore - Accessing private property for testing
-    expect(agent.mainLoopInterval).toBeNull();
     // @ts-ignore - Accessing private properties for testing
     expect(agent.isRunning).toBe(false);
     expect(agent.mainLoopTimeout).toBeNull();
 
     agent.start();
-    // @ts-ignore - Accessing private property for testing
-    expect(agent.mainLoopInterval).toBeDefined();
     // @ts-ignore - Accessing private properties for testing
     expect(agent.isRunning).toBe(true);
 
     agent.stop();
-    // @ts-ignore - Accessing private property for testing
-    expect(agent.mainLoopInterval).toBeNull();
     // @ts-ignore - Accessing private properties for testing
     expect(agent.isRunning).toBe(false);
     expect(agent.mainLoopTimeout).toBeNull();
@@ -107,16 +103,29 @@ describe('AutopilotAgent', () => {
 
   test('should suggest optimizations for an unhealthy system', async () => {
     // Setup mocks for an "unhealthy" system
+    const unhealthyHealthReport = { status: 'warning', automation: { averageSuccessRate: 0.8 }, workflows: { averageSuccessRate: 0.95 } };
     mockAutomationEngine.getAutomationStats.mockReturnValue({ averageSuccessRate: 0.8 }); // Below threshold
     mockWorkflowOrchestrator.getWorkflowStats.mockReturnValue({ averageSuccessRate: 0.95 });
 
-    // @ts-ignore - Accessing private method for testing
-    const suggestOptimizationsSpy = vi.spyOn(agent, 'suggestOptimizations');
+    // Mock the agent system to return an analysis agent
+    const mockAnalysisAgent = { id: 'analysis-agent-123', name: 'Data Insights Expert' } as AIAgent;
+    mockAgentSystem.getAgentsByType.mockReturnValue([mockAnalysisAgent]);
+    mockAgentSystem.assignTask.mockResolvedValue({ id: 'task-456', status: 'pending' });
 
     // @ts-ignore - Accessing private method for testing
     await agent.runCycle();
 
-    // Verify that optimizations were suggested for an unhealthy system
-    expect(suggestOptimizationsSpy).toHaveBeenCalled();
+    // Verify that an optimization task was created and assigned
+    expect(mockAgentSystem.getAgentsByType).toHaveBeenCalledWith('specialist');
+    expect(mockAgentSystem.assignTask).toHaveBeenCalledWith(
+      mockAnalysisAgent.id,
+      expect.objectContaining({
+        type: 'system_health_analysis',
+        priority: 'high',
+        parameters: expect.objectContaining({
+          healthReport: expect.objectContaining(unhealthyHealthReport),
+        }),
+      })
+    );
   });
 });

@@ -108,7 +108,7 @@ export class AutopilotAgent {
       const health = await this.monitorSystemHealth();
       if (health.status !== 'healthy') {
         enhancedLogger.warn('System health is not optimal.', 'autopilot', health);
-        await this.suggestOptimizations();
+        await this.suggestOptimizations(health);
       }
 
       await this.optimizeWorkflows();
@@ -149,10 +149,33 @@ export class AutopilotAgent {
     return { success: true, message: 'Workflow optimization cycle completed.' };
   }
 
-  public async suggestOptimizations() {
+  public async suggestOptimizations(healthReport: any) {
     enhancedLogger.info('Suggesting system optimizations...', 'autopilot');
-    // In a real implementation, this would generate and apply optimizations.
-    return { success: true, suggestions: ['Increase cache size', 'Optimize database queries'] };
+
+    // Find a suitable agent to handle the analysis.
+    const analysisAgent = this.agentSystem.getAgentsByType('specialist').find(
+        (agent: AIAgent) => agent.name === 'Data Insights Expert'
+    );
+
+    if (!analysisAgent) {
+        enhancedLogger.error('No suitable agent found for optimization analysis.', 'autopilot');
+        return { success: false, message: 'No analysis agent available.' };
+    }
+
+    // Create and assign a task to the analysis agent.
+    const optimizationTask: Omit<AgentTask, 'id' | 'agentId' | 'status' | 'createdAt'> = {
+        type: 'system_health_analysis',
+        description: `System health is suboptimal. Analyze the following health report and suggest concrete optimizations: ${JSON.stringify(healthReport)}`,
+        parameters: {
+            healthReport,
+            goal: 'Identify root cause of performance degradation and propose solutions.'
+        },
+        priority: 'high',
+    };
+
+    const assignedTask = await this.agentSystem.assignTask(analysisAgent.id, optimizationTask);
+    enhancedLogger.info(`Assigned optimization task ${assignedTask.id} to agent ${analysisAgent.name}.`, 'autopilot');
+    return { success: true, taskId: assignedTask.id };
   }
 }
 
