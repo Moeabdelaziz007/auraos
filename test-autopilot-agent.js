@@ -36,7 +36,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var autopilot_agent_js_1 = require("./server/autopilot-agent.js");
+const autopilot_agent_js_1 = require("./server/autopilot-agent.js");
 var AutopilotAgentTestSuite = /** @class */ (function () {
     function AutopilotAgentTestSuite() {
         // Initialize the agent in debug mode for testing

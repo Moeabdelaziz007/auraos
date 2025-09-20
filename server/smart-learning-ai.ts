@@ -49,6 +49,10 @@ export class SmartLearningAIMetaLoop {
     return this.learningStates;
   }
 
+  public getAllLearningStates(): Map<string, MetaLearningState> {
+    return this.learningStates;
+  }
+
   private calculateReward(context: LearningContext, result: LearningResult): Reward {
     let value = 0;
     let confidence = 0.5;

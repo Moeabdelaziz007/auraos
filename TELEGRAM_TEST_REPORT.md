@@ -1,7 +1,7 @@
 # Telegram Bot Test Report
 
 ## Test Summary
-**Bot Token:** `8310343758:AAFLtyqdQ5PE8YtyChwJ4uGfAgy4s5qMYi0`  
+**Bot Token:** `[REDACTED FOR SECURITY]`  
 **Bot Username:** @Amrikyyybot  
 **Bot Name:** AIOS  
 **Test Date:** ${new Date().toLocaleString()}
@@ -72,7 +72,7 @@
 ### 1. Start the Server
 ```bash
 cd /Users/cryptojoker710/Downloads/AuraOS
-TELEGRAM_BOT_TOKEN=8310343758:AAFLtyqdQ5PE8YtyChwJ4uGfAgy4s5qMYi0 npm run dev
+TELEGRAM_BOT_TOKEN="your_bot_token_here" npm run dev
 ```
 
 ### 2. Test with Real Chat
