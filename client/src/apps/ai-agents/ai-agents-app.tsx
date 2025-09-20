@@ -9,6 +9,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, Play, CheckCircle, XCircle, Bot, Zap, Brain, Settings, Plug } from "lucide-react";
 import { availableAgents, availablePlugins, Agent, AgentExecution, AgentStep } from "./data";
+import { availableAgents, availablePlugins, Agent, AgentExecution, AgentStep, codeAssistantAgent } from "./data";
 
 export default function AIAgentsApp() {
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
@@ -16,6 +17,10 @@ export default function AIAgentsApp() {
   const [isExecuting, setIsExecuting] = useState(false);
   const [executions, setExecutions] = useState<AgentExecution[]>([]);
   const [activeTab, setActiveTab] = useState('agents');
+  // State for the new Code Assistant agent
+  const [selectedRole, setSelectedRole] = useState('Code_Explainer');
+
+  const allAgents = [...availableAgents, codeAssistantAgent];
 
   const handleAgentExecution = async () => {
     if (!selectedAgent || !task.trim()) return;
@@ -25,6 +30,9 @@ export default function AIAgentsApp() {
       id: executionId,
       agentId: selectedAgent.id,
       task,
+      task: selectedAgent.id === 'code-assistant' 
+        ? `Role: ${selectedRole} - Task: ${task}` 
+        : task,
       status: 'running',
       steps: [],
       timestamp: new Date().toISOString()
@@ -36,6 +44,14 @@ export default function AIAgentsApp() {
     try {
       // Simulate agent execution with multiple plugin steps
       const steps = await simulateAgentExecution(selectedAgent, task);
+      let steps: AgentStep[];
+      if (selectedAgent.id === 'code-assistant') {
+        // Simulate execution for the new Code Assistant agent
+        steps = await simulateCodeAssistantExecution(selectedRole, task);
+      } else {
+        // Simulate agent execution with multiple plugin steps
+        steps = await simulateAgentExecution(selectedAgent, task);
+      }
       
       const completedExecution: AgentExecution = {
         ...newExecution,
@@ -91,6 +107,32 @@ export default function AIAgentsApp() {
     }
     
     return steps;
+  };
+
+  const simulateCodeAssistantExecution = async (role: string, task: string): Promise<AgentStep[]> => {
+    const roleToOperation = {
+      'Code_Explainer': 'explain',
+      'Code_Generator': 'generate',
+      'Code_Fixer': 'debug',
+      'Test_Generator': 'test',
+      'Refactor_Assistant': 'refactor',
+      'Knowledge_Advisor': 'review', // Using 'review' as a proxy for knowledge
+    };
+
+    const step: AgentStep = {
+      id: `step-${Date.now()}-0`,
+      plugin: 'code_assistant',
+      action: roleToOperation[role] || 'explain',
+      input: { role, task },
+      status: 'running',
+      timestamp: new Date().toISOString()
+    };
+
+    await new Promise(resolve => setTimeout(resolve, Math.random() * 1500 + 500));
+
+    step.status = 'completed';
+    step.output = generatePluginOutput('cursor_cli', `Task: ${task} with role ${role}`);
+    return [step];
   };
 
   const getPluginAction = (plugin: string, task: string): string => {
@@ -208,6 +250,7 @@ export default function AIAgentsApp() {
         <TabsContent value="agents" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {availableAgents.map(agent => (
+            {allAgents.map(agent => (
               <Card 
                 key={agent.id} 
                 className={`glass-card cursor-pointer transition-all hover:scale-105 ${
@@ -291,6 +334,26 @@ export default function AIAgentsApp() {
                     />
                   </div>
 
+                  {selectedAgent.id === 'code-assistant' && (
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">
+                        Select Role <span className="text-red-500">*</span>
+                      </label>
+                      <Select value={selectedRole} onValueChange={setSelectedRole}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a role" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Code_Explainer">Code Explainer (مفسر الكود)</SelectItem>
+                          <SelectItem value="Code_Generator">Code Generator (مولد الكود)</SelectItem>
+                          <SelectItem value="Code_Fixer">Code Fixer (مصلح الكود)</SelectItem>
+                          <SelectItem value="Test_Generator">Test Generator (مولد الاختبارات)</SelectItem>
+                          <SelectItem value="Refactor_Assistant">Refactor Assistant (مساعد إعادة الهيكلة)</SelectItem>
+                          <SelectItem value="Knowledge_Advisor">Knowledge Advisor (مستشار المعرفة)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Available Plugins:</label>
                     <div className="flex flex-wrap gap-2">
@@ -393,6 +456,7 @@ export default function AIAgentsApp() {
             ) : (
               executions.map(execution => {
                 const agent = availableAgents.find(a => a.id === execution.agentId);
+                const agent = allAgents.find(a => a.id === execution.agentId);
                 return (
                   <Card key={execution.id} className="glass-card">
                     <CardHeader>
