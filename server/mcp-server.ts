@@ -1,4 +1,4 @@
-// MCP Server Configuration for AuraOS - Zero Cost Powerful Tools
+no// MCP Server Configuration for AuraOS - Zero Cost Powerful Tools
 // This file configures various free MCP tools for enhanced functionality
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
