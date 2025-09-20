@@ -86,9 +86,6 @@ app.use((req, res, next) => {
     enhancedLogger.info('Initializing real-time AI streaming', 'server');
     initializeRealTimeAIStreaming(server);
     
-    enhancedLogger.info('Starting autopilot agent', 'autopilot');
-    autopilotAgent.start();
-
     const selfImprovingSystem = getSelfImprovingAISystem();
     enhancedLogger.info('Starting self-improving AI system', 'ai');
     selfImprovingSystem.start();
@@ -146,19 +143,5 @@ app.use((req, res, next) => {
       host: '0.0.0.0',
       environment: app.get('env')
     });
-    
-    // Initialize real-time AI streaming
-    try {
-      const streaming = await initializeRealTimeAIStreaming({
-        port: port,
-        path: '/ws',
-        enableCompression: true
-      });
-      log('✅ Real-time AI streaming initialized');
-      enhancedLogger.info('Real-time AI streaming initialized successfully', 'streaming');
-    } catch (error) {
-      log(`❌ Failed to initialize real-time AI streaming: ${error}`);
-      enhancedLogger.error('Failed to initialize real-time AI streaming', 'streaming', undefined, error as Error);
-    }
   });
 })();

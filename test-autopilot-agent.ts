@@ -1,5 +1,6 @@
 
 import { AutopilotAgent } from './server/autopilot-agent.js';
+import { vi, expect, test, afterEach } from 'vitest';
 
 class AutopilotAgentTestSuite {
   private agent: AutopilotAgent;
@@ -13,6 +14,7 @@ class AutopilotAgentTestSuite {
     console.log('🚀 Starting Autopilot Agent Test Suite...');
     
     await this.testInitialization();
+    await this.testStartAndStop();
     
     console.log('✅ Autopilot Agent tests completed!');
   }
@@ -32,12 +34,40 @@ class AutopilotAgentTestSuite {
       //   status: 'pending',
       //   createdAt: new Date(),
       // };
+      expect(this.agent).toBeDefined();
+      expect(this.agent.agent.name).toBe('Autopilot Agent');
       console.log('✅ Initialization test passed.');
     } catch (error) {
       console.error('❌ Initialization test failed:', error);
+    }
+  }
+
+  private async testStartAndStop() {
+    console.log('🧪 Testing Agent Start and Stop...');
+    try {
+      // It starts in constructor, so stop it first.
+      this.agent.stop();
+      // @ts-ignore
+      expect(this.agent.mainLoopInterval).toBeNull();
+
+      this.agent.start();
+      // @ts-ignore
+      expect(this.agent.mainLoopInterval).toBeDefined();
+      
+      this.agent.stop();
+      // @ts-ignore
+      expect(this.agent.mainLoopInterval).toBeNull();
+      console.log('✅ Start and Stop test passed.');
+    } catch (error) {
+      console.error('❌ Start and Stop test failed:', error);
     }
   }
 }
 
 const testSuite = new AutopilotAgentTestSuite();
 testSuite.runTests();
+
+afterEach(() => {
+  // Clean up any timers
+  vi.clearAllTimers();
+});

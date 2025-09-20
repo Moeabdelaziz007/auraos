@@ -1,12 +1,20 @@
 
 import { getAdvancedAIAgentSystem, AIAgent, AgentTask } from './advanced-ai-agents.js';
 import { getFirestore, Firestore } from 'firebase-admin/firestore';
+import { getAdvancedAutomationEngine } from './advanced-automation.js';
+import { getIntelligentWorkflowOrchestrator } from './intelligent-workflow.js';
+import { getSelfImprovingAISystem } from './self-improving-ai.js';
+import { enhancedLogger } from './enhanced-logger.js';
 
 export class AutopilotAgent {
   private agentSystem: any;
-  private agent: AIAgent;
+  public agent: AIAgent;
   private db!: Firestore;
   private debug: boolean;
+  private automationEngine: any;
+  private workflowOrchestrator: any;
+  private selfImprovingSystem: any;
+  private mainLoopInterval: NodeJS.Timeout | null = null;
 
   constructor(debug = false) {
     this.debug = debug;
@@ -14,7 +22,41 @@ export class AutopilotAgent {
     this.agent = this.agentSystem.createAgent({
       name: 'Autopilot Agent',
       description: 'An advanced AI agent that autonomously manages and optimizes complex projects.',
-      // ... (rest of the agent configuration)
+      type: 'coordinator',
+      capabilities: [
+        'system_monitoring',
+        'performance_analysis',
+        'workflow_optimization',
+        'self_improvement',
+        'automated_decision_making'
+      ],
+      tools: ['system_info', 'data_analyzer', 'automation_tool'],
+      personality: {
+        tone: 'professional',
+        communicationStyle: 'concise',
+        expertise: ['system_optimization', 'workflow_management', 'ai_strategy'],
+        limitations: ['direct_user_interaction'],
+        preferences: {
+          optimization_goal: 'efficiency'
+        }
+      },
+      knowledge: {
+        domains: ['system_architecture', 'automation_best_practices', 'performance_metrics'],
+        skills: ['monitoring', 'analysis', 'optimization', 'coordination'],
+        experience: 95,
+        certifications: ['Certified AI Architect', 'Automation Professional'],
+        specializations: ['system_health', 'workflow_efficiency']
+      },
+      memory: {
+        shortTerm: new Map(),
+        longTerm: new Map(),
+        episodic: [],
+        semantic: new Map()
+      },
+      performance: {
+        tasksCompleted: 0, successRate: 0, averageResponseTime: 0,
+        userSatisfaction: 0, learningProgress: 0, efficiency: 0
+      }
     });
 
     try {
@@ -26,12 +68,80 @@ export class AutopilotAgent {
       console.error('Error initializing Firestore:', error);
     }
 
+    this.automationEngine = getAdvancedAutomationEngine();
+    this.workflowOrchestrator = getIntelligentWorkflowOrchestrator();
+    this.selfImprovingSystem = getSelfImprovingAISystem();
+
     if (this.debug) {
       console.log('Autopilot Agent initialized in debug mode.');
     }
+
+    this.start();
   }
   
-  // ... (rest of the AutopilotAgent class)
+  public start() {
+    if (this.mainLoopInterval) {
+      this.stop();
+    }
+    enhancedLogger.info('Autopilot Agent started.', 'autopilot');
+    this.mainLoopInterval = setInterval(() => this.runCycle(), 60000); // Run every minute
+  }
+
+  public stop() {
+    if (this.mainLoopInterval) {
+      clearInterval(this.mainLoopInterval);
+      this.mainLoopInterval = null;
+      enhancedLogger.info('Autopilot Agent stopped.', 'autopilot');
+    }
+  }
+
+  private async runCycle() {
+    enhancedLogger.info('Autopilot Agent running cycle.', 'autopilot');
+    try {
+      const health = await this.monitorSystemHealth();
+      if (health.status !== 'healthy') {
+        enhancedLogger.warn('System health is not optimal.', 'autopilot', health);
+        await this.suggestOptimizations();
+      }
+
+      await this.optimizeWorkflows();
+
+      // Interact with the self-improving system
+      await this.selfImprovingSystem.runImprovementCycle();
+
+      this.agentSystem.updateAgent(this.agent.id, { lastActive: new Date() });
+    } catch (error) {
+      enhancedLogger.error('Autopilot cycle failed', 'autopilot', undefined, error as Error);
+    }
+  }
+
+  public async monitorSystemHealth(): Promise<any> {
+    enhancedLogger.info('Monitoring system health...', 'autopilot');
+    const automationStats = this.automationEngine.getAutomationStats();
+    const workflowStats = this.workflowOrchestrator.getWorkflowStats();
+
+    const health = {
+      status: automationStats.averageSuccessRate > 0.9 && workflowStats.averageSuccessRate > 0.9 ? 'healthy' : 'warning',
+      automation: automationStats,
+      workflows: workflowStats,
+      timestamp: new Date()
+    };
+
+    return health;
+  }
+
+  public async optimizeWorkflows() {
+    enhancedLogger.info('Optimizing workflows...', 'autopilot');
+    // In a real implementation, this would analyze and optimize workflows.
+    // For now, we just log the action.
+    return { success: true, message: 'Workflow optimization cycle completed.' };
+  }
+
+  public async suggestOptimizations() {
+    enhancedLogger.info('Suggesting system optimizations...', 'autopilot');
+    // In a real implementation, this would generate and apply optimizations.
+    return { success: true, suggestions: ['Increase cache size', 'Optimize database queries'] };
+  }
 }
 
 export const autopilotAgent = new AutopilotAgent(process.env.NODE_ENV === 'development');

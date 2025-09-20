@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, Workflow, Play, Save, Plus, Trash2, ArrowRight, Bot, Zap } from "lucide-react";
+import { availableAgents, availablePlugins } from "./data";
 
 interface WorkflowStep {
   id: string;
@@ -27,34 +28,6 @@ interface Workflow {
   createdAt: string;
   lastRun?: string;
 }
-
-const availableAgents = [
-  { id: 'research-agent', name: 'Research Agent', icon: '🔍', color: 'blue' },
-  { id: 'development-agent', name: 'Development Agent', icon: '💻', color: 'green' },
-  { id: 'content-agent', name: 'Content Agent', icon: '📝', color: 'purple' },
-  { id: 'analytics-agent', name: 'Analytics Agent', icon: '📊', color: 'orange' },
-  { id: 'automation-agent', name: 'Automation Agent', icon: '⚙️', color: 'red' },
-  { id: 'super-agent', name: 'Super Agent', icon: '🚀', color: 'gradient' }
-];
-
-const availablePlugins = [
-  { id: 'cursor_cli', name: 'Cursor CLI', category: 'Development' },
-  { id: 'comet_chrome', name: 'Comet Chrome', category: 'Web' },
-  { id: 'web_scraper', name: 'Web Scraper', category: 'Web' },
-  { id: 'data_analyzer', name: 'Data Analyzer', category: 'Analytics' },
-  { id: 'text_processor', name: 'Text Processor', category: 'Text' },
-  { id: 'ai_generation_tool', name: 'AI Generator', category: 'AI' },
-  { id: 'file_operations', name: 'File Operations', category: 'System' },
-  { id: 'image_processor', name: 'Image Processor', category: 'Media' },
-  { id: 'database_operations', name: 'Database Operations', category: 'Data' },
-  { id: 'api_tester', name: 'API Tester', category: 'Development' },
-  { id: 'code_generator', name: 'Code Generator', category: 'Development' },
-  { id: 'data_visualizer', name: 'Data Visualizer', category: 'Analytics' },
-  { id: 'automation', name: 'Automation', category: 'System' },
-  { id: 'knowledge_base', name: 'Knowledge Base', category: 'AI' },
-  { id: 'system_info', name: 'System Info', category: 'System' },
-  { id: 'code_formatter', name: 'Code Formatter', category: 'Development' }
-];
 
 export default function WorkflowBuilderApp() {
   const [workflows, setWorkflows] = useState<Workflow[]>([]);
@@ -254,7 +227,7 @@ export default function WorkflowBuilderApp() {
                       <label className="text-sm font-medium">Status</label>
                       <Select 
                         value={selectedWorkflow.status} 
-                        onValueChange={(value: any) => setSelectedWorkflow({
+                        onValueChange={(value: Workflow['status']) => setSelectedWorkflow({
                           ...selectedWorkflow,
                           status: value
                         })}
