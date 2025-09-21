@@ -43,7 +43,7 @@ export default function Sidebar() {
   };
 
   return (
-    <div className="w-64 glass-card border-r border-border/50 flex flex-col backdrop-blur-xl cyber-scrollbar">
+    <div className="sidebar w-64 glass-card border-r border-border/50 flex flex-col backdrop-blur-xl cyber-scrollbar">
       {/* Logo */}
       <div className="p-6">
         <div className="flex items-center gap-3">

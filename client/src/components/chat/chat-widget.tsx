@@ -91,24 +91,21 @@ export default function ChatWidget() {
   }, [messages]);
 
   useEffect(() => {
-    if (isOpen && messages.length === 0 && chatHistory) {
-      const welcomeMessage = {
-        id: 'welcome',
-        type: 'ai' as const,
-        content: "Hi! I'm your AI assistant. How can I help you today?",
-        timestamp: new Date()
-      };
-      const history = chatHistory.map(m => ({...m, type: m.role, timestamp: new Date(m.timestamp)}));
-      setMessages([welcomeMessage, ...history]);
-    } else if (isOpen && messages.length === 0) {
-        setMessages([{
-            id: 'welcome',
-            type: 'ai',
-            content: "Hi! I'm your AI assistant. I can help you create content, set up automations, or analyze your social media performance. What would you like to do?",
-            timestamp: new Date()
-        }]);
+    if (isOpen) {
+      if (messages.length === 0) {
+          setMessages([{
+              id: 'welcome',
+              type: 'ai',
+              content: "Hi! I'm your AI assistant. I can help you create content, set up automations, or analyze your social media performance. What would you like to do?",
+              timestamp: new Date()
+          }]);
+      }
+      if (chatHistory && messages.length <= 1) { // Only load history once
+        const history = chatHistory.map(m => ({ id: m.id, type: m.role as 'user' | 'ai', content: m.message, timestamp: new Date(m.timestamp) }));
+        setMessages(prev => [prev[0], ...history]);
+      }
     }
-  }, [isOpen, chatHistory]);
+  }, [isOpen, chatHistory, messages.length]);
 
   return (
     <div className="fixed bottom-6 right-6 z-50">

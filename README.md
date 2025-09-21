@@ -73,3 +73,16 @@ This project is set up for easy deployment to Firebase Hosting. To deploy the ap
 ```sh
 npm run deploy:hosting
 ```
+
+## Continuous Learning Loop
+
+AuraOS includes an optional background learning loop that keeps the system improving by recording lightweight heartbeat events and refreshing recommendations/metrics.
+
+- Configure in `.env`:
+  - ENABLE_CONTINUOUS_LEARNING=true
+  - LEARNING_LOOP_INTERVAL_MS=30000
+  - LEARNING_LOOP_USER_SAMPLE=demo-user
+- Run locally:
+```sh
+npm run learning:loop
+```

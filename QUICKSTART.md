@@ -82,8 +82,10 @@ npm run start            # Start production server
 npm run db:push          # Update database schema
 
 # Deployment
-npm run deploy           # Deploy to Firebase
 firebase deploy          # Deploy everything
+
+# Continuous Learning Loop (optional)
+npm run learning:loop    # Start background learning loop
 ```
 
 ---

@@ -3198,5 +3198,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Minimal Synapse Summarize endpoint (placeholder)
+  app.post('/api/synapse/summarize', async (req, res) => {
+    try {
+      const { text = '', noteId, attachments = [] } = req.body || {};
+      const provider = process.env.OPENAI_API_KEY ? 'openai' : (process.env.GOOGLE_GEMINI_API_KEY ? 'gemini' : 'none');
+      const summary = text ? (text.length > 200 ? text.slice(0, 197) + '...' : text) : 'No content provided';
+      res.json({ success: true, summary, model: provider, noteId, attachmentsCount: attachments.length });
+    } catch (error) {
+      res.status(500).json({ success: false, error: (error as Error).message });
+    }
+  });
+
+  // Minimal Chronos create-event endpoint (placeholder)
+  app.post('/api/chronos/create-event', async (req, res) => {
+    try {
+      const { title, start, end, reminder = true } = req.body || {};
+      if (!title || !start) {
+        return res.status(400).json({ success: false, error: 'title and start are required' });
+      }
+      const id = 'evt_' + Math.random().toString(36).slice(2, 10);
+      res.json({ success: true, id, status: 'created', event: { title, start, end, reminder } });
+    } catch (error) {
+      res.status(500).json({ success: false, error: (error as Error).message });
+    }
+  });
+
+  // Minimal Chronos from-action endpoint (placeholder)
+  app.post('/api/chronos/from-action', async (req, res) => {
+    try {
+      const { title, timeHint } = req.body || {};
+      if (!title) {
+        return res.status(400).json({ success: false, error: 'title is required' });
+      }
+      const start = timeHint || new Date().toISOString();
+      const id = 'evt_' + Math.random().toString(36).slice(2, 10);
+      res.json({ success: true, id, status: 'scheduled', event: { title, start } });
+    } catch (error) {
+      res.status(500).json({ success: false, error: (error as Error).message });
+    }
+  });
+
   return httpServer;
 }

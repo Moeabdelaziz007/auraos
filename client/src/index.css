@@ -1,11 +1,7 @@
-<<<<<<< HEAD
-
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css');
 @import url('./mobile.css');
 
-=======
->>>>>>> f79a26e9910eb921bec988cfaf88d8cad31c6121
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -393,6 +389,10 @@
   
   .animate-hologram-flicker {
     animation: hologram-flicker 0.5s ease-in-out infinite;
+  }
+  
+  .animate-neon-flicker {
+    animation: neon-flicker 2s ease-in-out infinite alternate;
   }
   
   /* Green-Focused Cyberpunk Gradients */

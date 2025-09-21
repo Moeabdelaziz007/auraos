@@ -6,6 +6,7 @@ import { getEnhancedChatPersona } from './enhanced-persona.js';
 export class TelegramService {
   private bot: TelegramBot;
   private isConnected: boolean = false;
+  private enhancedPersona = getEnhancedChatPersona();
   private smartMenuService = getSmartMenuService();
 
   constructor(token: string) {
@@ -122,7 +123,7 @@ export class TelegramService {
 
   // Handle smart menu callbacks
   private async handleSmartMenuCallback(chatId: number, callbackData: string) {
-    const username = 'User'; // In a real app, you'd get this from user context
+    const username = this.smartMenuService.getUserContext(chatId)?.username || 'User';
     
     switch (callbackData) {
       case 'posts_menu':

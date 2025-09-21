@@ -1,0 +1,182 @@
+{
+  "reportVersion": "1.0",
+  "generatedAt": "2025-09-21T00:00:00Z",
+  "sections": {
+    "missingPages": [
+      {"page": "Synapse Dashboard & Flows", "purpose": "Data synchronization & AI orchestration across apps", "status": "❌ Missing"},
+      {"page": "Vault Encryption & Key Management UI", "purpose": "Encryption controls, key lifecycle UI", "status": "🟡 Partially implemented"},
+      {"page": "Chronos Travel & Alarms UI", "purpose": "Event scheduling, timezone handling UI", "status": "❌ Missing"},
+      {"page": "Atlas Cross-App Orchestrator", "purpose": "Global scheduling across Core/Synapse/Vault/Chronos", "status": "❌ Missing"},
+      {"page": "Core Navigation & State UI", "purpose": "Foundation navigation, session state persistence", "status": "🟡 Partially implemented"}
+    ],
+    "appsAgentsCoverage": {
+      "Core": {
+        "status": "🟡 Partially implemented",
+        "gaps": ["Missing advanced navigation flows", "Session persistence", "Error handling"],
+        "mvpNextSteps": ["Implement basic navigation skeleton", "Add session storage hooks", "Add global error boundary"]
+      },
+      "Synapse": {
+        "status": "❌ Missing",
+        "gaps": ["No Synapse app directory", "No integration tests"],
+        "mvpNextSteps": ["Scaffold Synapse module", "Define core API surface", "Add initial unit tests"]
+      },
+      "Vault": {
+        "status": "🟡 Partially implemented",
+        "gaps": ["Encryption wrappers not fully wired", "Key management UI missing"],
+        "mvpNextSteps": ["Add crypto service wrappers", "Create vault page skeleton", "Integrate basic encryption test"]
+      },
+      "Chronos": {
+        "status": "❌ Missing",
+        "gaps": ["Recurring events core logic", "Timezone handling"],
+        "mvpNextSteps": ["Event engine skeleton", "Timezone-aware rendering", "Recurring edge-case tests"]
+      },
+      "Atlas": {
+        "status": "❌ Missing",
+        "gaps": ["Cross-app orchestration not present"],
+        "mvpNextSteps": ["Atlas module scaffold", "APIs for cross-app triggers & actions"]
+      }
+    },
+    "mcpIntegrations": [
+      {"mcp": "GitHub MCP", "status": "Missing", "path": ".cursor/mcp.json"},
+      {"mcp": "Firebase MCP", "status": "Missing", "path": ".cursor/mcp.json"},
+      {"mcp": "Google AI Studio MCP", "status": "Missing", "path": ".cursor/mcp.json"},
+      {"mcp": "Prometheus MCP", "status": "Missing", "path": ".cursor/mcp.json"}
+    ],
+    "aiToolsIntegration": [
+      {"feature": "Summarization API", "status": "🟡 Partially implemented", "notes": "OpenAI/GenAI libs present; end-to-end endpoint absent"},
+      {"feature": "Voice Recognition API", "status": "❌ Missing", "notes": "Plan to integrate Web Speech or Whisper"},
+      {"feature": "Scheduling AI Calendar", "status": "❌ Missing", "notes": "Calendar AI integration not implemented"}
+    ],
+    "debugAndTestCoverage": {
+      "currentTestCoverage": "N/A",
+      "gaps": [
+        "No consolidated coverage report available",
+        "Missing unit tests for Core OS: use-auth, api, user-slice",
+        "Missing E2E tests for Synapse, Vault, Chronos"
+      ],
+      "recommendedTests": [
+        {"area": "Core OS", "files": ["src/hooks/use-auth.ts", "src/lib/api.ts", "src/store/user-slice.ts"], "type": "unit"},
+        {"area": "Synapse", "files": ["src/apps/synapse/..TODO.."], "type": "unit/integration"},
+        {"area": "Vault", "files": ["src/apps/vault/..TODO.."], "type": "unit/integration"},
+        {"area": "Chronos", "files": ["src/apps/chronos/..TODO.."], "type": "unit/integration"},
+        {"area": "Atlas", "files": ["src/apps/atlas/..TODO.."], "type": "unit/integration"}
+      ]
+    },
+    "recommendations": {
+      "sprintPlan": [
+        {"priority": 1, "name": "Core – stable foundation: auth, state, navigation"},
+        {"priority": 2, "name": "Synapse – scaffold MVP, data sync surface"},
+        {"priority": 3, "name": "Vault – encryption, secure storage UX"},
+        {"priority": 4, "name": "Chronos – events/alarms/timezone"},
+        {"priority": 5, "name": "Atlas – cross-app orchestration scaffold"}
+      ],
+      "mcpAiIntegrations": [
+        "GitHub MCP",
+        "Firebase MCP",
+        "Google AI Studio MCP",
+        "Prometheus MCP",
+        "Summarization API",
+        "Voice recognition",
+        "Calendar AI"
+      ],
+      "missingPagesBacklog": [
+        "Synapse Dashboard",
+        "Vault Encryption",
+        "Chronos Travel Sync UI",
+        "Atlas Orchestrator",
+        "Core Navigation UI"
+      ]
+    }
+  }
+}
+{
+  "reportVersion": "1.0",
+  "generatedAt": "2025-09-21T00:00:00Z",
+  "sections": {
+    "missingPages": [
+      {"page": "Synapse Dashboard & Flows", "purpose": "Data synchronization & AI orchestration across apps", "status": "❌ Missing"},
+      {"page": "Vault Encryption & Key Management UI", "purpose": "Encryption controls, key lifecycle UI", "status": "🟡 Partially implemented"},
+      {"page": "Chronos Travel & Alarms UI", "purpose": "Event scheduling, timezone handling UI", "status": "❌ Missing"},
+      {"page": "Atlas Cross-App Orchestrator", "purpose": "Global scheduling across Core/Synapse/Vault/Chronos", "status": "❌ Missing"},
+      {"page": "Core Navigation & State UI", "purpose": "Foundation navigation, session state persistence", "status": "🟡 Partially implemented"}
+    ],
+    "appsAgentsCoverage": {
+      "Core": {
+        "status": "🟡 Partially implemented",
+        "gaps": ["Missing advanced navigation flows", "Session persistence", "Error handling"],
+        "mvpNextSteps": ["Implement basic navigation skeleton", "Add session storage hooks", "Add global error boundary"]
+      },
+      "Synapse": {
+        "status": "❌ Missing",
+        "gaps": ["No Synapse app directory", "No integration tests"],
+        "mvpNextSteps": ["Scaffold Synapse module", "Define core API surface", "Add initial unit tests"]
+      },
+      "Vault": {
+        "status": "🟡 Partially implemented",
+        "gaps": ["Encryption wrappers not fully wired", "Key management UI missing"],
+        "mvpNextSteps": ["Add crypto service wrappers", "Create vault page skeleton", "Integrate basic encryption test"]
+      },
+      "Chronos": {
+        "status": "❌ Missing",
+        "gaps": ["Recurring events core logic", "Timezone handling"],
+        "mvpNextSteps": ["Event engine skeleton", "Timezone-aware rendering", "Recurring edge-case tests"]
+      },
+      "Atlas": {
+        "status": "❌ Missing",
+        "gaps": ["Cross-app orchestration not present"],
+        "mvpNextSteps": ["Atlas module scaffold", "APIs for cross-app triggers & actions"]
+      }
+    },
+    "mcpIntegrations": [
+      {"mcp": "GitHub MCP", "status": "Missing", "path": ".cursor/mcp.json"},
+      {"mcp": "Firebase MCP", "status": "Missing", "path": ".cursor/mcp.json"},
+      {"mcp": "Google AI Studio MCP", "status": "Missing", "path": ".cursor/mcp.json"},
+      {"mcp": "Prometheus MCP", "status": "Missing", "path": ".cursor/mcp.json"}
+    ],
+    "aiToolsIntegration": [
+      {"feature": "Summarization API", "status": "🟡 Partially implemented", "notes": "OpenAI/GenAI libs present; end-to-end endpoint absent"},
+      {"feature": "Voice Recognition API", "status": "❌ Missing", "notes": "Plan to integrate Web Speech or Whisper"},
+      {"feature": "Scheduling AI Calendar", "status": "❌ Missing", "notes": "Calendar AI integration not implemented"}
+    ],
+    "debugAndTestCoverage": {
+      "currentTestCoverage": "N/A",
+      "gaps": [
+        "No consolidated coverage report available",
+        "Missing unit tests for Core OS: use-auth, api, user-slice",
+        "Missing E2E tests for Synapse, Vault, Chronos"
+      ],
+      "recommendedTests": [
+        {"area": "Core OS", "files": ["src/hooks/use-auth.ts", "src/lib/api.ts", "src/store/user-slice.ts"], "type": "unit"},
+        {"area": "Synapse", "files": ["src/apps/synapse/..TODO.."], "type": "unit/integration"},
+        {"area": "Vault", "files": ["src/apps/vault/..TODO.."], "type": "unit/integration"},
+        {"area": "Chronos", "files": ["src/apps/chronos/..TODO.."], "type": "unit/integration"},
+        {"area": "Atlas", "files": ["src/apps/atlas/..TODO.."], "type": "unit/integration"}
+      ]
+    },
+    "recommendations": {
+      "sprintPlan": [
+        {"priority": 1, "name": "Core – stable foundation: auth, state, navigation"},
+        {"priority": 2, "name": "Synapse – scaffold MVP, data sync surface"},
+        {"priority": 3, "name": "Vault – encryption, secure storage UX"},
+        {"priority": 4, "name": "Chronos – events/alarms/timezone"},
+        {"priority": 5, "name": "Atlas – cross-app orchestration scaffold"}
+      ],
+      "mcpAiIntegrations": [
+        "GitHub MCP",
+        "Firebase MCP",
+        "Google AI Studio MCP",
+        "Prometheus MCP",
+        "Summarization API",
+        "Voice recognition",
+        "Calendar AI"
+      ],
+      "missingPagesBacklog": [
+        "Synapse Dashboard",
+        "Vault Encryption",
+        "Chronos Travel Sync UI",
+        "Atlas Orchestrator",
+        "Core Navigation UI"
+      ]
+    }
+  }
+}

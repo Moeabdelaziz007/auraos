@@ -1,0 +1,18 @@
+[INFO] AuraOS Gap Check: started 2025-09-21T00:00:00Z
+[INFO] Section 1: Missing Pages scanned: 5 items
+[WARN] Core: 2/5 MVP gaps identified
+[INFO] Section 2: Apps/Agents Coverage: Core 🟡 Partially implemented, Synapse ❌ Missing, Vault 🟡 Partially implemented, Chronos ❌ Missing, Atlas ❌ Missing
+[INFO] Section 3: MCP Integrations: GitHub MCP ❌ Missing, Firebase MCP ❌ Missing, Google AI Studio MCP ❌ Missing, Prometheus MCP ❌ Missing
+[INFO] Section 4: AI Tools Integration: Summarization 🟡 Partial, Voice Recognition ❌ Missing, Scheduling AI ❌ Missing
+[INFO] Section 5: Debugging & Test Coverage: currentTestCoverage N/A, gaps identified, recommended tests listed
+[INFO] Section 6: Recommendations: Sprint order Core → Synapse → Vault → Chronos → Atlas
+[INFO] Gap report generation completed. See /reports/system-gap-analysis.{md,json} and /logs/system-gap-check.log for details.
+[INFO] AuraOS Gap Check: started 2025-09-21T00:00:00Z
+[INFO] Section 1: Missing Pages scanned: 5 items
+[WARN] Core: 2/5 MVP gaps identified
+[INFO] Section 2: Apps/Agents Coverage: Core 🟡 Partially implemented, Synapse ❌ Missing, Vault 🟡 Partially implemented, Chronos ❌ Missing, Atlas ❌ Missing
+[INFO] Section 3: MCP Integrations: GitHub MCP ❌ Missing, Firebase MCP ❌ Missing, Google AI Studio MCP ❌ Missing, Prometheus MCP ❌ Missing
+[INFO] Section 4: AI Tools Integration: Summarization 🟡 Partial, Voice Recognition ❌ Missing, Scheduling AI ❌ Missing
+[INFO] Section 5: Debugging & Test Coverage: currentTestCoverage N/A, gaps identified, recommended tests listed
+[INFO] Section 6: Recommendations: Sprint order Core → Synapse → Vault → Chronos → Atlas
+[INFO] Gap report generation completed. See /reports/system-gap-analysis.{md,json} and /logs/system-gap-check.log for details.

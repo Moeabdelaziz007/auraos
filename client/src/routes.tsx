@@ -13,6 +13,11 @@ import SocialFeed from './pages/social-feed';
 import Telegram from './pages/telegram';
 import Workflows from './pages/workflows';
 import AITravelAgencyPage from './pages/ai-travel-agency';
+import MCPTools from './pages/mcp-tools';
+import PromptLibrary from './pages/prompt-library';
+import LearningDashboard from './pages/learning-dashboard';
+import Analytics from './pages/analytics';
+import Settings from './pages/settings';
 
 const AllRoutes = () => (
   <BrowserRouter>
@@ -29,6 +34,11 @@ const AllRoutes = () => (
       <Route path="/ai-travel-agency" element={<AITravelAgencyPage />} />
       <Route path="/debug" element={<DebugView />} />
       <Route path="/loading" element={<Loading />} />
+      <Route path="/mcp-tools" element={<MCPTools />} />
+      <Route path="/prompt-library" element={<PromptLibrary />} />
+      <Route path="/learning" element={<LearningDashboard />} />
+      <Route path="/analytics" element={<Analytics />} />
+      <Route path="/settings" element={<Settings />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   </BrowserRouter>
