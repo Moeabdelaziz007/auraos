@@ -1,4 +1,5 @@
 import { Response } from 'express';
+import { enhancedLogger } from './enhanced-logger.js';
 
 interface Client {
   id: string;
@@ -22,10 +23,12 @@ class DebugStream {
     this.clients.push(newClient);
 
     console.log(`[DebugStream] Client ${clientId} connected.`);
+    enhancedLogger.info(`Client connected to debug stream`, 'debug-stream', { clientId });
 
     res.on('close', () => {
       this.removeClient(clientId);
       console.log(`[DebugStream] Client ${clientId} disconnected.`);
+      enhancedLogger.info(`Client disconnected from debug stream`, 'debug-stream', { clientId });
     });
   }
 
@@ -45,6 +48,7 @@ class DebugStream {
         client.res.write(eventString);
       } catch (e) {
         console.error(`[DebugStream] Error writing to client ${client.id}`, e);
+        enhancedLogger.error(`Error writing to debug stream client`, 'debug-stream', { clientId: client.id }, e as Error);
         this.removeClient(client.id);
       }
     });

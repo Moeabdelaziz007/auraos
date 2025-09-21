@@ -1,10 +1,10 @@
 // Comprehensive Test Suite for MCP Tools and Free AI Capabilities
 // Tests all zero-cost MCP tools and free AI functionality
 
-import { AuraOSMCPServer } from './server/mcp-server.js';
-import { FreeAITools } from './server/free-ai-tools.js';
-import { WebScrapingTools } from './server/web-scraping-tools.js';
-import { DataAnalysisTools } from './server/data-analysis-tools.js';
+const { AuraOSMCPServer } = require('./server/mcp-server.js');
+const { FreeAITools } = require('./server/free-ai-tools.js');
+const { WebScrapingTools } = require('./server/web-scraping-tools.js');
+const { DataAnalysisTools } = require('./server/data-analysis-tools.js');
 
 class MCPToolsTestSuite {
   private testResults: TestResult[] = [];
@@ -326,4 +326,4 @@ interface TestResult {
 const testSuite = new MCPToolsTestSuite();
 testSuite.runAllTests().catch(console.error);
 
-export default MCPToolsTestSuite;
+module.exports = MCPToolsTestSuite;

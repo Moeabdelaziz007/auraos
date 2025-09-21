@@ -1,7 +1,7 @@
 
 import { initializeApp } from 'firebase/app';
 import { getAnalytics, logEvent } from "firebase/analytics";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, User } from 'firebase/auth';
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, User, signInAnonymously } from 'firebase/auth';
 import { getFirestore, doc, setDoc, getDoc, collection, addDoc, updateDoc, deleteDoc, query, where, getDocs, orderBy, limit } from 'firebase/firestore';
 
 // Firebase configuration
@@ -37,6 +37,21 @@ export class AuthService {
       return user;
     } catch (error) {
       console.error('Google sign-in error:', error);
+      throw error;
+    }
+  }
+
+  static async signInAnonymously(): Promise<User> {
+    try {
+      const result = await signInAnonymously(auth);
+      const user = result.user;
+      
+      // Save user data to Firestore
+      await this.saveUserToFirestore(user);
+      
+      return user;
+    } catch (error) {
+      console.error('Anonymous sign-in error:', error);
       throw error;
     }
   }
@@ -128,21 +143,16 @@ export class FirestoreService {
 
   static async getPosts(userId?: string, limitCount: number = 10): Promise<any[]> {
     try {
-      let q = query(
-        collection(db, 'posts'),
+      const postsCollection = collection(db, 'posts');
+      const queryConstraints = [
         orderBy('createdAt', 'desc'),
         limit(limitCount)
-      );
+      ];
 
       if (userId) {
-        q = query(
-          collection(db, 'posts'),
-          where('userId', '==', userId),
-          orderBy('createdAt', 'desc'),
-          limit(limitCount)
-        );
+        queryConstraints.unshift(where('userId', '==', userId));
       }
-
+      const q = query(postsCollection, ...queryConstraints);
       const querySnapshot = await getDocs(q);
       return querySnapshot.docs.map(doc => ({
         id: doc.id,
