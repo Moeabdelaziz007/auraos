@@ -7,9 +7,9 @@ const { WebScrapingTools } = require('./server/web-scraping-tools.js');
 const { DataAnalysisTools } = require('./server/data-analysis-tools.js');
 
 class MCPToolsTestSuite {
-  private testResults: TestResult[] = [];
-  private totalTests = 0;
-  private passedTests = 0;
+  testResults = [];
+  totalTests = 0;
+  passedTests = 0;
 
   async runAllTests(): Promise<void> {
     console.log('🚀 Starting MCP Tools and Free AI Test Suite...\n');
@@ -33,7 +33,7 @@ class MCPToolsTestSuite {
     this.generateReport();
   }
 
-  private async testMCPServer(): Promise<void> {
+  async testMCPServer() {
     console.log('📡 Testing MCP Server...');
     
     try {
@@ -60,7 +60,7 @@ class MCPToolsTestSuite {
     }
   }
 
-  private async testFreeAITools(): Promise<void> {
+  async testFreeAITools() {
     console.log('🤖 Testing Free AI Tools...');
     
     try {
@@ -99,7 +99,7 @@ class MCPToolsTestSuite {
     }
   }
 
-  private async testWebScrapingTools(): Promise<void> {
+  async testWebScrapingTools() {
     console.log('🕷️ Testing Web Scraping Tools...');
     
     try {
@@ -139,7 +139,7 @@ class MCPToolsTestSuite {
     }
   }
 
-  private async testDataAnalysisTools(): Promise<void> {
+  async testDataAnalysisTools() {
     console.log('📊 Testing Data Analysis Tools...');
     
     try {
@@ -202,7 +202,7 @@ class MCPToolsTestSuite {
     }
   }
 
-  private async testIntegration(): Promise<void> {
+  async testIntegration() {
     console.log('🔗 Testing Integration...');
     
     try {
@@ -223,7 +223,7 @@ class MCPToolsTestSuite {
     }
   }
 
-  private async testEndToEndWorkflow(): Promise<TestResult> {
+  async testEndToEndWorkflow() {
     try {
       // 1. Scrape data
       const scrapingResult = await WebScrapingTools.scrapeWebsite('https://httpbin.org/html');
@@ -249,7 +249,7 @@ class MCPToolsTestSuite {
     }
   }
 
-  private async testFirestoreIntegration(): Promise<TestResult> {
+  async testFirestoreIntegration() {
     try {
       // This would test actual Firestore integration
       // For now, we'll simulate a successful test
@@ -259,7 +259,7 @@ class MCPToolsTestSuite {
     }
   }
 
-  private addTest(name: string, passed: boolean, message: string): void {
+  addTest(name, passed, message) {
     this.totalTests++;
     if (passed) this.passedTests++;
     
@@ -274,7 +274,7 @@ class MCPToolsTestSuite {
     console.log(`  ${status} ${name}: ${message}`);
   }
 
-  private generateReport(): void {
+  generateReport() {
     const successRate = (this.passedTests / this.totalTests) * 100;
     
     console.log('\n' + '='.repeat(60));
@@ -311,15 +311,6 @@ class MCPToolsTestSuite {
     
     console.log('\n🚀 Ready for Production!');
   }
-}
-
-// Test result interface
-interface TestResult {
-  name: string;
-  passed: boolean;
-  message: string;
-  timestamp: string;
-  error?: string;
 }
 
 // Run the test suite

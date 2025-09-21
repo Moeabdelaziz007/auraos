@@ -47,20 +47,15 @@ export class RealTimeAIStreaming extends EventEmitter {
     this.setupAIEngineListeners();
   }
 
-  async start(server?: HttpServer): Promise<void> {
+  async start(server: HttpServer): Promise<void> {
     // Skip starting if already running or if main WebSocket server is handling connections
     if (this.wss) {
       console.log('⚠️ Real-Time AI Streaming already started');
       return;
     }
 
-    return new Promise((resolve, reject) => {
-      try {
-        // Use a different port to avoid conflicts with main WebSocket server
-        const aiStreamingPort = this.config.port + 1; // Use port 8081 instead of 8080
-        
+    try {
         this.wss = new WebSocketServer({
-          port: aiStreamingPort,
           path: this.config.path, // Use the path from config
           perMessageDeflate: this.config.enableCompression,
           verifyClient: async (info, done) => { // Add client verification
@@ -75,7 +70,8 @@ export class RealTimeAIStreaming extends EventEmitter {
             } catch (error) {
               done(false, 401, 'Unauthorized');
             }
-          }
+          },
+          server // Attach to the existing HTTP server
         });
 
         this.wss.on('connection', (ws: WebSocket, request) => {
@@ -91,16 +87,12 @@ export class RealTimeAIStreaming extends EventEmitter {
         this.startHeartbeat();
         this.startCleanup();
 
-        console.log(`🚀 Real-Time AI Streaming started on port ${aiStreamingPort}`);
+        console.log(`🚀 Real-Time AI Streaming attached to main server at path ${this.config.path}`);
         this.emit('started');
-        resolve();
-
-      } catch (error) {
-        console.warn('⚠️ Real-Time AI Streaming failed to start (likely port conflict):', error.message);
-        // Don't reject - let the main WebSocket server handle connections
-        resolve();
-      }
-    });
+    } catch (error) {
+        console.error('❌ Real-Time AI Streaming failed to start:', error);
+        throw error;
+    }
   }
 
   async stop(): Promise<void> {
