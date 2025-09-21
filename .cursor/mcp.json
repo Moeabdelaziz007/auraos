@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "github": { "command": "gh", "args": ["api"], "enabled": true },
+    "firebase": { "command": "firebase", "args": ["--help"], "enabled": true },
+    "google_ai_studio": { "command": "genai", "args": ["models"], "enabled": true },
+    "prometheus": { "command": "curl", "args": ["http://localhost:9090/api/v1/targets"], "enabled": false }
+  }
+}
