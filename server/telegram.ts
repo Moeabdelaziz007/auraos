@@ -2,6 +2,7 @@ import TelegramBot from 'node-telegram-bot-api';
 import { storage } from './storage.js';
 import { getSmartMenuService } from './smart-menu.js';
 import { getEnhancedChatPersona } from './enhanced-persona.js';
+import { chatWithAssistant } from './gemini.js';
 
 export class TelegramService {
   private bot: TelegramBot;
@@ -80,13 +81,14 @@ export class TelegramService {
     } else if (text?.startsWith('/agents')) {
       await this.sendAgentTemplates(chatId);
     } else {
-      await this.sendDefaultResponse(chatId, text);
+      await this.sendDefaultResponse(chatId, text, username);
     }
   }
 
   private async handleCallbackQuery(callbackQuery: TelegramBot.CallbackQuery) {
     const chatId = callbackQuery.message?.chat.id;
     const data = callbackQuery.data;
+   re CLI free const from = callbackQuery.from;
 
     if (!chatId) return;
 
@@ -114,7 +116,8 @@ export class TelegramService {
         await this.bot.sendMessage(chatId, '📝 To create a post, send your content with the format:\n\n`/create Your post content here`');
         break;
       case 'main_menu':
-        await this.sendSmartMenu(chatId, 'User');
+        const username = from.username || from.first_name || 'User';
+        await this.sendSmartMenu(chatId, username);
         break;
       default:
         await this.handleSmartMenuCallback(chatId, data);
@@ -435,7 +438,7 @@ ${posts.slice(0, 3).map(post =>
     }
   }
 
-  private async sendDefaultResponse(chatId: number, text?: string) {
+  private async sendDefaultResponse(chatId: number, text?: string, username: string = 'User') {
     if (!text) return;
 
     // Check if it's a create post command
@@ -456,7 +459,6 @@ ${posts.slice(0, 3).map(post =>
 
     // Enhanced AI response with persona
     try {
-      const username = 'User'; // In a real app, get from message context
       const intelligentResponse = await this.enhancedPersona.generateIntelligentResponse(text, chatId, username);
       
       // Send main response
@@ -511,9 +513,13 @@ ${posts.slice(0, 3).map(post =>
 
   private async generateAIResponse(text: string): Promise<string> {
     try {
-      // This would integrate with your AI service
-      return `I understand you said: "${text}". This is a placeholder response. The AI integration will provide more intelligent responses based on your message.`;
+      const messages = [
+        { role: 'system', content: 'You are a helpful assistant.' },
+        { role: 'user', content: text }
+      ];
+      return await chatWithAssistant(messages);
     } catch (error) {
+      console.error('Fallback AI response error:', error);
       return 'Sorry, I encountered an error processing your message. Please try again.';
     }
   }

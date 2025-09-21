@@ -500,29 +500,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'Message is required' });
       }
 
-      // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
-      const response = await openai.chat.completions.create({
-        model: "gpt-5",
-        messages: [
-          { 
-            role: "system", 
-            content: "You are a helpful AI assistant for AIFlow, a social media automation platform. Help users with content creation, automation setup, and platform features. Respond with JSON in this format: {\"response\": \"your helpful response\"}" 
-          },
-          { role: "user", content: message }
-        ],
-        response_format: { type: "json_object" },
-      });
+      const messages = [
+        { 
+          role: "system", 
+          content: "You are a helpful AI assistant for AuraOS, a social media automation platform. Help users with content creation, automation setup, and platform features." 
+        },
+        { role: "user", content: message }
+      ];
 
-      const aiResponse = JSON.parse(response.choices[0].message.content || '{}');
+      const aiTextResponse = await chatWithAssistant(messages);
       
       // Save chat message
       await storage.createChatMessage({
         userId,
         message,
-        response: aiResponse.response
+        response: aiTextResponse
       });
 
-      res.json(aiResponse);
+      res.json({ response: aiTextResponse });
     } catch (error) {
       console.error('Chat error:', error);
       res.status(500).json({ message: 'Failed to process chat message' });
@@ -2812,11 +2807,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'Message is required' });
       }
 
-      // Use the existing chat functionality
-      const response = await chatWithAssistant(message, context);
+      const messages = [
+        { role: 'system', content: `You are a helpful assistant responding in a CLI context: ${context}.` },
+        { role: 'user', content: message }
+      ];
+      const response = await chatWithAssistant(messages);
       
       res.json({
-        response: response,
+        response,
         timestamp: new Date().toISOString(),
         context: context
       });
