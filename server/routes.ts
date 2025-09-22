@@ -6,6 +6,7 @@ import { storage } from "./storage";
 import { insertPostSchema, insertWorkflowSchema, insertUserAgentSchema, insertChatMessageSchema } from "../shared/schema.js";
 import { initializeTelegramBot, getTelegramService } from "./telegram.js";
 import { initializeSmartTelegramBot, getSmartTelegramBot } from "./smart-telegram-bot.js";
+import { autopilotAgent } from "./autopilot-agent.js";
 import { getTravelFoodServiceManager } from "./travel-food-services.js";
 import { getSmartLearningAI } from "./smart-learning-ai.js";
 import { getMCPProtocol, initializeMCP } from "./mcp-protocol.js";
@@ -36,6 +37,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Initialize both basic and smart Telegram bots
       initializeTelegramBot(telegramToken);
       const smartBot = initializeSmartTelegramBot(telegramToken);
+      autopilotAgent.setTelegramBot(smartBot);
       await smartBot.launch();
       console.log('🤖 Smart Learning Telegram bot initialized successfully');
     } catch (error) {

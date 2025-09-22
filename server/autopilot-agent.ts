@@ -6,6 +6,7 @@ import { getIntelligentWorkflowOrchestrator } from './intelligent-workflow.js';
 import { getSelfImprovingAISystem } from './self-improving-ai.js';
 import { enhancedLogger } from './enhanced-logger.js';
 import { getMCPProtocol } from './mcp-protocol.js';
+import { SmartLearningTelegramBot } from './smart-telegram-bot.js';
 
 export class AutopilotAgent {
   private agentSystem: any;
@@ -18,6 +19,7 @@ export class AutopilotAgent {
   private mainLoopTimeout: NodeJS.Timeout | null = null;
   private isRunning: boolean = false;
   private availableMcpTools: string[] = [];
+  private telegramBot: SmartLearningTelegramBot | null = null;
 
   constructor(debug = false) {
     this.debug = debug;
@@ -80,6 +82,18 @@ export class AutopilotAgent {
     }
 
     this.start();
+  }
+
+  public setTelegramBot(bot: SmartLearningTelegramBot) {
+    this.telegramBot = bot;
+  }
+
+  public async sendTelegramMessage(chatId: number, message: string) {
+    if (this.telegramBot) {
+      await this.telegramBot.sendMessage(chatId, message);
+    } else {
+      enhancedLogger.error('Telegram bot not set for AutopilotAgent.', 'autopilot');
+    }
   }
   
   public start() {
@@ -177,6 +191,36 @@ export class AutopilotAgent {
 
     const assignedTask = await this.agentSystem.assignTask(analysisAgent.id, optimizationTask);
     enhancedLogger.info(`Assigned optimization task ${assignedTask.id} to agent ${analysisAgent.name}.`, 'autopilot');
+    return { success: true, taskId: assignedTask.id };
+  }
+
+  public async createTaskFromTelegram(description: string, chatId: number) {
+    enhancedLogger.info(`Creating task from Telegram: ${description}`, 'autopilot');
+
+    const analysisAgent = this.agentSystem.getAgentsByType('specialist').find(
+        (agent: AIAgent) => agent.name === 'Data Insights Expert'
+    );
+
+    if (!analysisAgent) {
+        enhancedLogger.error('No suitable agent found for Telegram task.', 'autopilot');
+        return { success: false, message: 'No analysis agent available.' };
+    }
+
+    const task: Omit<AgentTask, 'id' | 'agentId' | 'status' | 'createdAt'> = {
+        type: 'telegram_task',
+        description: description,
+        parameters: {
+            source: 'telegram',
+            chatId: chatId
+        },
+        priority: 'medium',
+    };
+
+    const assignedTask = await this.agentSystem.assignTask(analysisAgent.id, task);
+    enhancedLogger.info(`Assigned Telegram task ${assignedTask.id} to agent ${analysisAgent.name}.`, 'autopilot');
+
+    await this.sendTelegramMessage(chatId, `Task "${description}" has been created and assigned to ${analysisAgent.name}.`);
+
     return { success: true, taskId: assignedTask.id };
   }
 }
