@@ -1,0 +1,51 @@
+[debug] [2025-09-22T10:58:05.469Z] ----------------------------------------------------------------------
+[debug] [2025-09-22T10:58:05.472Z] Command:       /nix/store/ws50yvm6vzlzf7jzz6n7xh4szddrack1-nodejs-20.19.1/bin/node /nix/store/wma3rvxxva78rqvnpja82nx5b3mclpxg-firebase-tools-14.15.2/lib/node_modules/firebase-tools/lib/bin/firebase.js init hosting
+[debug] [2025-09-22T10:58:05.472Z] CLI Version:   14.15.2
+[debug] [2025-09-22T10:58:05.472Z] Platform:      linux
+[debug] [2025-09-22T10:58:05.473Z] Node Version:  v20.19.1
+[debug] [2025-09-22T10:58:05.473Z] Time:          Mon Sep 22 2025 10:58:05 GMT+0000 (Coordinated Universal Time)
+[debug] [2025-09-22T10:58:05.473Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-09-22T10:58:05.984Z] Checked if tokens are valid: true, expires at: 1758542280781
+[debug] [2025-09-22T10:58:05.985Z] Checked if tokens are valid: true, expires at: 1758542280781
+[debug] [2025-09-22T10:58:05.990Z] >>> [apiv2][query] GET https://monospace-pa.googleapis.com/v1/workspaces/auraos-35156890 [none]
+[debug] [2025-09-22T10:58:06.799Z] <<< [apiv2][status] GET https://monospace-pa.googleapis.com/v1/workspaces/auraos-35156890 200
+[debug] [2025-09-22T10:58:06.799Z] <<< [apiv2][body] GET https://monospace-pa.googleapis.com/v1/workspaces/auraos-35156890 {"workspaceId":"auraos-35156890","name":"auraos","workspaceRedirectUrl":"firebase-auraos-1758377734829.cluster-lu4mup47g5gm4rtyvhzpwbfadi.cloudworkstations.dev","status":"WORKSPACE_STATUS_RUNNING","lastAccessDatetime":"2025-09-22T10:00:47.751248Z","failureReason":"Workstation has been modified. Try again later.","workspaceTemplate":"WORKSPACE_TEMPLATE_BLANK_WEB","owner":"SELF","serviceAccountEmail":"msp-7626692757484723600@monospace-per-ws-sa-10.iam.gserviceaccount.com","gitRepoUrl":"https://github.com/Moeabdelaziz007/auraos","enableNix":true,"ownerEmail":"amrikyy@gmail.com","workstationAccessToken":"eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2Nsb3VkLmdvb2dsZS5jb20vd29ya3N0YXRpb25zIiwiYXVkIjoiZmlyZWJhc2UtYXVyYW9zLTE3NTgzNzc3MzQ4MjkuY2x1c3Rlci1sdTRtdXA0N2c1Z200cnR5dmh6cHdiZmFkaS5jbG91ZHdvcmtzdGF0aW9ucy5kZXYiLCJpYXQiOjE3NTg1Mzg2ODYsImV4cCI6MTc1ODYyNTA4Nn0.YorU7_e5F0oB3EVE0by2Y2jbQsDegO-_29fBvtPcBVjkoDVT26bmz4ttdBVG5TPRhT3MYJNohIz0j0AxH289vRX_vfvn85fQeD1SvoYMtXPUCsuRm5Z-OAkkC1cAGY6cgffPrsXzyhDUoC1m2LvmlNEx_96lnmWiUEw_l1h3pQu8hx15ogvwXcTDKaMD7fsU_S97YDE_177Iw6ZNbMxE4kZbC5NnRjvQhSsTvfF00CvpiUwLTwoPfeZgWU_LQgG7YAKoxLs9rxMjEq4pEtJW2oFkDuuTxoWzddwkgzHcutamyBtjDs3MR81jT1rDcNwS08N1HpMlrBtPHO2TDsKgbg"}
+[debug] [2025-09-22T10:58:06.802Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/userinfo.email"]
+[debug] [2025-09-22T10:58:06.803Z] > authorizing via signed-in user (amrikyy@gmail.com)
+[info] 
+     ######## #### ########  ######## ########     ###     ######  ########
+     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
+     ######    ##  ########  ######   ########  #########  ######  ######
+     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
+     ##       #### ##     ## ######## ########  ##     ##  ######  ########
+
+You're about to initialize a Firebase project in this directory:
+
+  /home/user/auraos
+
+Before we get started, keep in mind:
+
+  * You are initializing within an existing Firebase project directory
+
+[info] 
+=== Project Setup
+[info] 
+[info] First, let's associate this project directory with a Firebase project.
+[info] You can create multiple project aliases by running firebase use --add, 
+[info] but for now we'll just set up a default project.
+[info] 
+[debug] [2025-09-22T10:58:06.810Z] Using project from CLI flag: aios-97581
+[debug] [2025-09-22T10:58:06.810Z] Checked if tokens are valid: true, expires at: 1758542280781
+[debug] [2025-09-22T10:58:06.811Z] Checked if tokens are valid: true, expires at: 1758542280781
+[debug] [2025-09-22T10:58:06.811Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/aios-97581 [none]
+[debug] [2025-09-22T10:58:07.024Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/aios-97581 200
+[debug] [2025-09-22T10:58:07.024Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/aios-97581 {"projectId":"aios-97581","projectNumber":"307575156824","displayName":"AIOS","name":"projects/aios-97581","resources":{"hostingSite":"aios-97581"},"state":"ACTIVE","etag":"1_4b62b62f-dfe5-4220-9eb5-58adb9f1878d"}
+[info] i  Using project aios-97581 (AIOS) 
+[info] 
+=== Hosting Setup
+[debug] [2025-09-22T10:58:07.101Z] Checked if tokens are valid: true, expires at: 1758542280781
+[debug] [2025-09-22T10:58:07.101Z] Checked if tokens are valid: true, expires at: 1758542280781
+[debug] [2025-09-22T10:58:07.102Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/aios-97581 [none]
+[debug] [2025-09-22T10:58:07.287Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/aios-97581 200
+[debug] [2025-09-22T10:58:07.288Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/aios-97581 {"projectId":"aios-97581","projectNumber":"307575156824","displayName":"AIOS","name":"projects/aios-97581","resources":{"hostingSite":"aios-97581"},"state":"ACTIVE","etag":"1_4b62b62f-dfe5-4220-9eb5-58adb9f1878d"}
