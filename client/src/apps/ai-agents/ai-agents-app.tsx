@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, Play, CheckCircle, XCircle, Bot, Zap, Brain, Settings, Plug } from "lucide-react";
-import { availableAgents, availablePlugins, Agent, codeAssistantAgent } from "./data";
+import { availableAgents, availablePlugins, Agent, codeAssistantAgent } from "./data.tsx";
 import { useAgentExecutor } from "../../hooks/use-agent-executor";
 
 export default function AIAgentsApp() {
