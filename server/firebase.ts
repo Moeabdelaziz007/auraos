@@ -1,48 +1,41 @@
 import admin from 'firebase-admin';
 
-let isFirebaseInitialized = false;
-
-/**
- * Initializes the Firebase Admin SDK.
- * @returns {{ admin: typeof admin; isFirebaseInitialized: boolean; }} An object containing the Firebase admin instance and a boolean indicating whether Firebase is initialized.
- */
-export function initializeFirebase() {
+const initializeFirebase = () => {
+  // Check if the app is already initialized to prevent errors
   if (admin.apps.length === 0) {
     try {
-      console.log('Initializing Firebase...');
-      // Attempt to initialize with application default credentials
-      admin.initializeApp({
-        credential: admin.credential.applicationDefault(),
-        databaseURL: `https://${process.env.GCLOUD_PROJECT}.firebaseio.com`
-      });
-      console.log('Firebase initialized successfully.');
-      isFirebaseInitialized = true;
+      console.log('Initializing Firebase Admin SDK...');
+      // Initialize with Application Default Credentials, which are automatically
+      // available in environments like Cloud Functions and Cloud Run.
+      admin.initializeApp();
+      console.log('Firebase Admin SDK initialized successfully.');
     } catch (e) {
-      console.error('Firebase initialization failed:', e);
-      console.log('Could not initialize Firebase Admin SDK. Some features may be disabled.');
+      console.error('Firebase Admin SDK initialization failed:', e);
+      // The app can continue running, but Firebase-dependent features will fail.
     }
   }
+};
 
-  return {
-    admin,
-    isFirebaseInitialized
-  };
-}
+// Initialize the SDK when this module is first loaded.
+initializeFirebase();
+
+// Export the initialized services for use in other parts of the server.
+export const firebaseAdmin = admin;
+export const firestoreDb = admin.firestore();
+export const firebaseAuth = admin.auth();
 
 /**
- * Verifies a Firebase ID token.
+ * Verifies a Firebase ID token using the initialized Auth service.
  * @param {string} token The ID token to verify.
  * @returns {Promise<admin.auth.DecodedIdToken>} A promise that resolves with the decoded ID token.
  */
-export async function verifyToken(token: string) {
-    if (!isFirebaseInitialized) {
-        initializeFirebase();
-    }
-    try {
-        const decodedToken = await admin.auth().verifyIdToken(token);
-        return decodedToken;
-    } catch (error) {
-        console.error('Error verifying token:', error);
-        throw new Error('Invalid authentication token');
-    }
-}
+export const verifyToken = async (token: string) => {
+  try {
+    const decodedToken = await firebaseAuth.verifyIdToken(token);
+    return decodedToken;
+  } catch (error) {
+    console.error('Error verifying Firebase ID token:', error);
+    // Re-throw a more generic error to avoid leaking implementation details.
+    throw new Error('Invalid or expired authentication token.');
+  }
+};

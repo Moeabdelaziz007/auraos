@@ -1,0 +1,82 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // --- Helper Functions ---
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isUser(uid) {
+      return isAuthenticated() && request.auth.uid == uid;
+    }
+
+    function getUserData(uid) {
+      return get(/databases/$(database)/documents/users/$(uid)).data;
+    }
+
+    function isRole(uid, role) {
+      return getUserData(uid).role == role;
+    }
+
+    function getWorkspaceMemberRole(workspaceId, uid) {
+      return get(/databases/$(database)/documents/workspace-members/$(workspaceId + '_' + uid)).data.role;
+    }
+
+    function isWorkspaceMember(workspaceId, uid) {
+        return exists(/databases/$(database)/documents/workspace-members/$(workspaceId + '_' + uid));
+    }
+
+
+    // --- Collection Rules ---
+
+    // Users can read their own data. Admins can read anyone's data.
+    // Users can only create/update their own data.
+    match /users/{userId} {
+      allow read: if isUser(userId) || isRole(request.auth.uid, 'admin');
+      allow create, update: if isUser(userId);
+      // Deletion of users should be handled by a privileged server process.
+      allow delete: if false;
+    }
+
+    // Workspaces can be created by any authenticated user.
+    // Read access is granted if the workspace is public or the user is a member.
+    // Update/delete access is granted only to owners or admins of the workspace.
+    match /workspaces/{workspaceId} {
+      allow create: if isAuthenticated();
+      allow read: if isAuthenticated() && (resource.data.isPublic == true || isWorkspaceMember(workspaceId, request.auth.uid));
+      allow update, delete: if isAuthenticated() && getWorkspaceMemberRole(workspaceId, request.auth.uid) in ['owner', 'admin'];
+    }
+
+    // Workspace members can be read by any other member of the same workspace.
+    // Only workspace owners/admins can add/remove/update members.
+    // Note: Document ID is a composite key: `${workspaceId}_${userId}`
+    match /workspace-members/{memberDocId} {
+      allow read: if isAuthenticated() && isWorkspaceMember(resource.data.workspaceId, request.auth.uid);
+      allow create, write: if isAuthenticated() && getWorkspaceMemberRole(resource.data.workspaceId, request.auth.uid) in ['owner', 'admin'];
+      allow delete: if isAuthenticated() && (
+        isUser(resource.data.userId) || // User can leave a workspace
+        getWorkspaceMemberRole(resource.data.workspaceId, request.auth.uid) in ['owner', 'admin'] // Admin can remove a user
+      );
+    }
+
+    // AI sessions are private to the user who created them.
+    match /ai-sessions/{sessionId} {
+      allow read, write, create: if isAuthenticated() && request.auth.uid == request.resource.data.userId;
+    }
+
+    // System collections are locked down and should only be accessed by the server (Admin SDK).
+    match /system-logs/{logId} {
+      allow read, write: if false;
+    }
+    match /system-metrics/{metricId} {
+      allow read, write: if false;
+    }
+    match /api-cache/{cacheId} {
+      allow read, write: if false;
+    }
+    match /migrations/{migrationId} {
+      allow read, write: if false;
+    }
+  }
+}

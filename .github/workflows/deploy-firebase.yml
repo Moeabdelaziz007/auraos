@@ -1,0 +1,69 @@
+name: CI/CD for AuraOS Firebase
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Test and Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # Using a recent LTS version
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run Linter
+        run: npm run lint
+
+      # The user's format script uses `prettier --write`, for CI we should check not write.
+      # Assuming prettier is the formatter, `prettier --check` is the correct command.
+      # This command will be updated if the linting step fails.
+      - name: Run Formatter Check
+        run: npx prettier --check .
+
+      - name: Run Unit & Integration Tests
+        # Use --run to prevent vitest from hanging in watch mode in a CI environment
+        run: npm test -- --run
+
+  deploy:
+    name: Deploy to Firebase
+    needs: test # This job only runs if the 'test' job succeeds
+    runs-on: ubuntu-latest
+    # This condition ensures deployment only happens on a direct push to the main branch
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build Client Application
+        run: npm run build
+
+      - name: Deploy to Firebase
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
+          projectId: 'aios-97581' # Explicitly set project ID from .firebaserc
+          # The action will automatically deploy hosting, firestore rules, and indexes
+          # based on the configuration in the `firebase.json` file.
