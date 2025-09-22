@@ -90,6 +90,9 @@ interface RetryPolicy {
   retryDelay: number;
 }
 
+/**
+ * Orchestrates intelligent workflows, managing their execution, optimization, and monitoring.
+ */
 export class IntelligentWorkflowOrchestrator {
   private orchestrators: Map<string, WorkflowOrchestrator> = new Map();
   private workflows: Map<string, IntelligentWorkflow> = new Map();
@@ -100,6 +103,9 @@ export class IntelligentWorkflowOrchestrator {
   private errorRecovery: Map<string, any> = new Map();
   private executionHistory: any[] = [];
 
+  /**
+   * Creates an instance of IntelligentWorkflowOrchestrator.
+   */
   constructor() {
     this.initializeDefaultWorkflows();
     this.startOrchestrationEngine();
@@ -737,7 +743,10 @@ export class IntelligentWorkflowOrchestrator {
     console.log(`  🧠 ${workflow.name}: ${randomOptimization}`);
   }
 
-  // Get workflow statistics
+  /**
+   * Gets workflow statistics.
+   * @returns {any} Workflow statistics.
+   */
   getWorkflowStats(): any {
     const totalWorkflows = this.workflows.size;
     const activeWorkflows = Array.from(this.workflows.values()).filter(w => w.status === 'active').length;
@@ -759,7 +768,14 @@ export class IntelligentWorkflowOrchestrator {
     };
   }
 
-  // Create custom workflow
+  /**
+   * Creates a custom workflow.
+   * @param {string} name The name of the workflow.
+   * @param {IntelligentWorkflow['type']} type The type of the workflow.
+   * @param {WorkflowStep[]} steps The steps in the workflow.
+   * @param {WorkflowTrigger[]} triggers The triggers for the workflow.
+   * @returns {Promise<IntelligentWorkflow>} A promise that resolves with the created workflow.
+   */
   async createCustomWorkflow(
     name: string,
     type: IntelligentWorkflow['type'],
@@ -795,7 +811,11 @@ export class IntelligentWorkflowOrchestrator {
     return workflow;
   }
 
-  // Live monitoring and control methods
+  /**
+   * Subscribes to workflow updates.
+   * @param {(status: any) => void} callback The callback to call with status updates.
+   * @returns {() => void} A function to unsubscribe.
+   */
   subscribeToWorkflowUpdates(callback: (status: any) => void): () => void {
     this.monitoringSubscribers.add(callback);
     return () => this.monitoringSubscribers.delete(callback);
@@ -844,7 +864,11 @@ export class IntelligentWorkflowOrchestrator {
     };
   }
 
-  // Workflow control methods
+  /**
+   * Pauses a workflow.
+   * @param {string} workflowId The ID of the workflow to pause.
+   * @returns {boolean} True if the workflow was paused, false otherwise.
+   */
   pauseWorkflow(workflowId: string): boolean {
     const workflow = this.workflows.get(workflowId);
     if (workflow) {
@@ -856,6 +880,11 @@ export class IntelligentWorkflowOrchestrator {
     return false;
   }
 
+  /**
+   * Resumes a workflow.
+   * @param {string} workflowId The ID of the workflow to resume.
+   * @returns {boolean} True if the workflow was resumed, false otherwise.
+   */
   resumeWorkflow(workflowId: string): boolean {
     const workflow = this.workflows.get(workflowId);
     if (workflow) {
@@ -867,6 +896,11 @@ export class IntelligentWorkflowOrchestrator {
     return false;
   }
 
+  /**
+   * Gets the status of a workflow.
+   * @param {string} workflowId The ID of the workflow to get the status of.
+   * @returns {any} The status of the workflow, or null if not found.
+   */
   getWorkflowStatus(workflowId: string): any {
     const workflow = this.workflows.get(workflowId);
     if (!workflow) return null;
@@ -881,6 +915,10 @@ export class IntelligentWorkflowOrchestrator {
     };
   }
 
+  /**
+   * Gets the live status of the orchestrator.
+   * @returns {any} The live status.
+   */
   getLiveStatus(): any {
     return {
       isLive: this.isLive,
@@ -896,6 +934,10 @@ export class IntelligentWorkflowOrchestrator {
 // Export singleton instance
 let intelligentWorkflowOrchestrator: IntelligentWorkflowOrchestrator | null = null;
 
+/**
+ * Gets the singleton instance of the IntelligentWorkflowOrchestrator.
+ * @returns {IntelligentWorkflowOrchestrator} The singleton instance of the IntelligentWorkflowOrchestrator.
+ */
 export function getIntelligentWorkflowOrchestrator(): IntelligentWorkflowOrchestrator {
   if (!intelligentWorkflowOrchestrator) {
     intelligentWorkflowOrchestrator = new IntelligentWorkflowOrchestrator();

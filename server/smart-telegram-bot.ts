@@ -6,9 +6,16 @@ import { getMCPProtocol } from './mcp-protocol.js';
 
 // ... (rest of the interfaces remain the same)
 
+/**
+ * A more advanced Telegram bot that uses AI to learn from interactions with users.
+ */
 export class SmartLearningTelegramBot {
   // ... (rest of the properties remain the same)
 
+  /**
+   * Creates an instance of SmartLearningTelegramBot.
+   * @param {string} token The Telegram bot token.
+   */
   constructor(token: string) {
     this.bot = new Telegraf(token);
     this.smartLearningAI = getSmartLearningAI();
@@ -99,13 +106,22 @@ export class SmartLearningTelegramBot {
 // Export singleton instance
 let smartTelegramBot: SmartLearningTelegramBot | null = null;
 
-export function initializeSmartTelegramBot(token: string): SmartLearningTelegramBot {
+/**
+ * Initializes the smart learning Telegram bot service.
+ * @param {string} token The Telegram bot token.
+ * @returns {SmartLearningTelegramBot} The singleton instance of the smart learning Telegram bot service.
+ */
+export function initializeSmartTelegramBot(token:string): SmartLearningTelegramBot {
   if (!smartTelegramBot) {
     smartTelegramBot = new SmartLearningTelegramBot(token);
   }
   return smartTelegramBot;
 }
 
+/**
+ * Gets the singleton instance of the smart learning Telegram bot service.
+ * @returns {SmartLearningTelegramBot | null} The singleton instance of the smart learning Telegram bot service, or null if it has not been initialized.
+ */
 export function getSmartTelegramBot(): SmartLearningTelegramBot | null {
   return smartTelegramBot;
 }

@@ -26,6 +26,11 @@ import { getN8nNodeSystem } from "./n8n-node-system.js";
 import { getN8nIntegrationManager } from "./n8n-integrations.js";
 import { getAIPromptManager } from "./ai-prompt-manager.js";
 
+/**
+ * Registers all the API routes, initializes services, and sets up WebSocket connections.
+ * @param {Express} app The Express application instance.
+ * @returns {Promise<Server>} A promise that resolves with the HTTP server instance.
+ */
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
 
@@ -103,8 +108,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   }
 
   // WebSocket server for real-time updates
-  const wss = new WebSocketServer({ 
-    server: httpServer, 
+  const wss = new WebSocketServer({
+    server: httpServer,
     path: '/ws',
     perMessageDeflate: true
   });
@@ -378,6 +383,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // AI Content Generation
+  // This endpoint uses AI to generate content for social media posts or other purposes.
   app.post('/api/ai/generate-content', async (req, res) => {
     try {
       const { prompt, type = 'post' } = req.body;
@@ -634,6 +640,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Smart Learning AI Meta Loop API routes
+  // These endpoints are for the self-improving AI system, allowing it to learn and adapt.
   app.post('/api/ai/smart-learning', async (req, res) => {
     try {
       const { userId, taskType, inputData, expectedOutput, metadata } = req.body;
@@ -2739,6 +2746,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // =============================================================================
   // CLI-SPECIFIC API ENDPOINTS (Inspired by ZentixAI)
+  // These endpoints are designed to be used by a command-line interface for system management and interaction.
   // =============================================================================
 
   /**

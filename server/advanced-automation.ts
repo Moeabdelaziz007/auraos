@@ -1,5 +1,8 @@
 import { storage } from './storage.js';
 
+/**
+ * Represents an automation rule.
+ */
 interface AutomationRule {
   id: string;
   name: string;
@@ -19,6 +22,9 @@ interface AutomationRule {
   executionCount: number;
 }
 
+/**
+ * Represents an intelligent workflow.
+ */
 interface IntelligentWorkflow {
   id: string;
   name: string;
@@ -40,6 +46,9 @@ interface IntelligentWorkflow {
   };
 }
 
+/**
+ * Represents a step in a workflow.
+ */
 interface WorkflowStep {
   id: string;
   name: string;
@@ -58,6 +67,9 @@ interface WorkflowStep {
   };
 }
 
+/**
+ * Represents predictive analytics data.
+ */
 interface PredictiveAnalytics {
   id: string;
   name: string;
@@ -82,6 +94,9 @@ interface PredictiveAnalytics {
   }[];
 }
 
+/**
+ * Represents a system optimization.
+ */
 interface SystemOptimization {
   id: string;
   category: 'performance' | 'cost' | 'user_experience' | 'resource_utilization' | 'security';
@@ -98,6 +113,9 @@ interface SystemOptimization {
   lastOptimized: Date;
 }
 
+/**
+ * Manages advanced automation, including rules, workflows, and predictive analytics.
+ */
 export class AdvancedAutomationEngine {
   private automationRules: Map<string, AutomationRule> = new Map();
   private intelligentWorkflows: Map<string, IntelligentWorkflow> = new Map();
@@ -110,6 +128,9 @@ export class AdvancedAutomationEngine {
   private emergencyStop: boolean = false;
   private userOverrides: Map<string, any> = new Map();
 
+  /**
+   * Creates an instance of AdvancedAutomationEngine.
+   */
   constructor() {
     this.initializeDefaultAutomations();
     this.startAutomationEngine();
@@ -561,7 +582,14 @@ export class AdvancedAutomationEngine {
     }
   }
 
-  // Create intelligent workflow
+  /**
+   * Creates an intelligent workflow.
+   * @param {string} name The name of the workflow.
+   * @param {string} description The description of the workflow.
+   * @param {AutomationRule[]} triggers The triggers for the workflow.
+   * @param {WorkflowStep[]} steps The steps in the workflow.
+   * @returns {Promise<IntelligentWorkflow>} A promise that resolves with the created workflow.
+   */
   async createIntelligentWorkflow(
     name: string,
     description: string,
@@ -593,12 +621,18 @@ export class AdvancedAutomationEngine {
     return workflow;
   }
 
-  // Add automation rule
+  /**
+   * Adds an automation rule.
+   * @param {AutomationRule} rule The rule to add.
+   */
   addAutomationRule(rule: AutomationRule): void {
     this.automationRules.set(rule.id, rule);
   }
 
-  // Get automation statistics
+  /**
+   * Gets automation statistics.
+   * @returns {any} Automation statistics.
+   */
   getAutomationStats(): any {
     const totalRules = this.automationRules.size;
     const activeRules = Array.from(this.automationRules.values()).filter(r => r.enabled).length;
@@ -615,7 +649,10 @@ export class AdvancedAutomationEngine {
     };
   }
 
-  // Get performance metrics
+  /**
+   * Gets performance metrics.
+   * @returns {any} Performance metrics.
+   */
   getPerformanceMetrics(): any {
     return {
       automation: this.getAutomationStats(),
@@ -631,7 +668,11 @@ export class AdvancedAutomationEngine {
     };
   }
 
-  // Live monitoring and control methods
+  /**
+   * Subscribes to status updates.
+   * @param {(status: any) => void} callback The callback to call with status updates.
+   * @returns {() => void} A function to unsubscribe.
+   */
   subscribeToUpdates(callback: (status: any) => void): () => void {
     this.monitoringSubscribers.add(callback);
     return () => this.monitoringSubscribers.delete(callback);
@@ -680,13 +721,22 @@ export class AdvancedAutomationEngine {
     };
   }
 
-  // User control methods
+  /**
+   * Sets the emergency stop flag.
+   * @param {boolean} stop True to stop the engine, false to resume.
+   */
   setEmergencyStop(stop: boolean): void {
     this.emergencyStop = stop;
     console.log(`🚨 Emergency ${stop ? 'STOPPED' : 'RESUMED'} - Autopilot ${stop ? 'disabled' : 'enabled'}`);
     this.broadcastStatusUpdate();
   }
 
+  /**
+   * Toggles an automation rule.
+   * @param {string} ruleId The ID of the rule to toggle.
+   * @param {boolean} enabled True to enable the rule, false to disable.
+   * @returns {boolean} True if the rule was toggled, false otherwise.
+   */
   toggleRule(ruleId: string, enabled: boolean): boolean {
     const rule = this.automationRules.get(ruleId);
     if (rule) {
@@ -698,6 +748,11 @@ export class AdvancedAutomationEngine {
     return false;
   }
 
+  /**
+   * Sets a user override for a rule.
+   * @param {string} ruleId The ID of the rule to override.
+   * @param {any} override The override to set.
+   */
   setUserOverride(ruleId: string, override: any): void {
     this.userOverrides.set(ruleId, {
       ...override,
@@ -707,11 +762,19 @@ export class AdvancedAutomationEngine {
     console.log(`👤 User override set for rule: ${ruleId}`);
   }
 
+  /**
+   * Clears a user override for a rule.
+   * @param {string} ruleId The ID of the rule to clear the override for.
+   */
   clearUserOverride(ruleId: string): void {
     this.userOverrides.delete(ruleId);
     console.log(`👤 User override cleared for rule: ${ruleId}`);
   }
 
+  /**
+   * Gets the live status of the automation engine.
+   * @returns {any} The live status.
+   */
   getLiveStatus(): any {
     return {
       isLive: this.isLive,
@@ -783,6 +846,10 @@ export class AdvancedAutomationEngine {
 // Export singleton instance
 let advancedAutomationEngine: AdvancedAutomationEngine | null = null;
 
+/**
+ * Gets the singleton instance of the AdvancedAutomationEngine.
+ * @returns {AdvancedAutomationEngine} The singleton instance of the AdvancedAutomationEngine.
+ */
 export function getAdvancedAutomationEngine(): AdvancedAutomationEngine {
   if (!advancedAutomationEngine) {
     advancedAutomationEngine = new AdvancedAutomationEngine();

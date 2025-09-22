@@ -4,12 +4,20 @@ import { getSmartMenuService } from './smart-menu.js';
 import { getEnhancedChatPersona } from './enhanced-persona.js';
 import { chatWithAssistant } from './gemini.js';
 
+/**
+ * Service for interacting with the Telegram Bot API.
+ * Handles incoming messages, commands, and callbacks.
+ */
 export class TelegramService {
   private bot: TelegramBot;
   private isConnected: boolean = false;
   private enhancedPersona = getEnhancedChatPersona();
   private smartMenuService = getSmartMenuService();
 
+  /**
+   * Creates an instance of TelegramService.
+   * @param {string} token The Telegram bot token.
+   */
   constructor(token: string) {
     this.bot = new TelegramBot(token, { polling: true });
     this.setupEventHandlers();
@@ -525,24 +533,50 @@ ${posts.slice(0, 3).map(post =>
   }
 
   // Public methods for external use
+  /**
+   * Sends a text message to a chat.
+   * @param {number} chatId The ID of the chat to send the message to.
+   * @param {string} text The text of the message to send.
+   * @param {TelegramBot.SendMessageOptions} [options] Additional Telegram options.
+   * @returns {Promise<TelegramBot.Message>}
+   */
   async sendMessage(chatId: number, text: string, options?: TelegramBot.SendMessageOptions) {
     return await this.bot.sendMessage(chatId, text, options);
   }
 
+  /**
+   * Sends a photo to a chat.
+   * @param {number} chatId The ID of the chat to send the photo to.
+   * @param {string} photo The file path or URL of the photo to send.
+   * @param {TelegramBot.SendPhotoOptions} [options] Additional Telegram options.
+   * @returns {Promise<TelegramBot.Message>}
+   */
   async sendPhoto(chatId: number, photo: string, options?: TelegramBot.SendPhotoOptions) {
     return await this.bot.sendPhoto(chatId, photo, options);
   }
 
+  /**
+   * Gets information about the bot.
+   * @returns {Promise<TelegramBot.User>}
+   */
   async getBotInfo() {
     return await this.bot.getMe();
   }
 
+  /**
+   * Stops the bot from polling for updates.
+   * @returns {Promise<void>}
+   */
   async stopPolling() {
     await this.bot.stopPolling();
     this.isConnected = false;
     console.log('🤖 Telegram bot polling stopped');
   }
 
+  /**
+   * Checks if the bot is connected.
+   * @returns {boolean} True if the bot is connected, false otherwise.
+   */
   isBotConnected(): boolean {
     return this.isConnected;
   }
@@ -551,6 +585,11 @@ ${posts.slice(0, 3).map(post =>
 // Export singleton instance
 let telegramService: TelegramService | null = null;
 
+/**
+ * Initializes the Telegram bot service.
+ * @param {string} token The Telegram bot token.
+ * @returns {TelegramService} The singleton instance of the Telegram service.
+ */
 export function initializeTelegramBot(token: string): TelegramService {
   if (!telegramService) {
     telegramService = new TelegramService(token);
@@ -558,6 +597,10 @@ export function initializeTelegramBot(token: string): TelegramService {
   return telegramService;
 }
 
+/**
+ * Gets the singleton instance of the Telegram service.
+ * @returns {TelegramService | null} The singleton instance of the Telegram service, or null if it has not been initialized.
+ */
 export function getTelegramService(): TelegramService | null {
   return telegramService;
 }

@@ -85,12 +85,18 @@ interface TravelDashboardWidget {
   refreshInterval: number;
 }
 
+/**
+ * Manages the travel dashboard, including metrics and widgets.
+ */
 export class TravelDashboard {
   private metrics: TravelDashboardMetrics | null = null;
   private widgets: Map<string, TravelDashboardWidget> = new Map();
   private subscribers: Set<any> = new Set();
   private isMonitoring: boolean = false;
 
+  /**
+   * Creates an instance of TravelDashboard.
+   */
   constructor() {
     this.initializeDefaultWidgets();
     this.startMonitoring();
@@ -660,15 +666,31 @@ export class TravelDashboard {
     return coordinates[destination as keyof typeof coordinates] || { lat: 0, lng: 0 };
   }
 
-  // Public API Methods
+  /**
+   * Gets the latest dashboard metrics.
+   * @returns {Promise<TravelDashboardMetrics | null>} A promise that resolves with the dashboard metrics.
+   */
   async getDashboardMetrics(): Promise<TravelDashboardMetrics | null> {
     return this.metrics;
   }
 
+  /**
+   * Gets all dashboard widgets.
+   * @returns {Promise<TravelDashboardWidget[]>} A promise that resolves with a list of dashboard widgets.
+   */
   async getWidgets(): Promise<TravelDashboardWidget[]> {
     return Array.from(this.widgets.values());
   }
 
+  /**
+   * Creates a custom widget.
+   * @param {string} id The ID of the widget.
+   * @param {TravelDashboardWidget['type']} type The type of the widget.
+   * @param {string} title The title of the widget.
+   * @param {string} description The description of the widget.
+   * @param {any} config The configuration for the widget.
+   * @returns {Promise<TravelDashboardWidget>} A promise that resolves with the newly created widget.
+   */
   async createCustomWidget(
     id: string,
     type: TravelDashboardWidget['type'],
@@ -692,7 +714,11 @@ export class TravelDashboard {
     return widget;
   }
 
-  // Subscription Methods
+  /**
+   * Subscribes to updates from the dashboard.
+   * @param {(update: any) => void} callback The callback to call with updates.
+   * @returns {() => void} A function to unsubscribe.
+   */
   subscribeToUpdates(callback: (update: any) => void): () => void {
     this.subscribers.add(callback);
     return () => this.subscribers.delete(callback);
@@ -734,6 +760,10 @@ export class TravelDashboard {
 // Export singleton instance
 let travelDashboard: TravelDashboard | null = null;
 
+/**
+ * Gets the singleton instance of the TravelDashboard.
+ * @returns {TravelDashboard} The singleton instance of the TravelDashboard.
+ */
 export function getTravelDashboard(): TravelDashboard {
   if (!travelDashboard) {
     travelDashboard = new TravelDashboard();

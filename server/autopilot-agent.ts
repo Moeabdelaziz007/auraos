@@ -7,6 +7,9 @@ import { getSelfImprovingAISystem } from './self-improving-ai.js';
 import { enhancedLogger } from './enhanced-logger.js';
 import { getMCPProtocol } from './mcp-protocol.js';
 
+/**
+ * An advanced AI agent that autonomously manages and optimizes complex projects.
+ */
 export class AutopilotAgent {
   private agentSystem: any;
   public agent: AIAgent;
@@ -19,6 +22,10 @@ export class AutopilotAgent {
   private isRunning: boolean = false;
   private availableMcpTools: string[] = [];
 
+  /**
+   * Creates an instance of AutopilotAgent.
+   * @param {boolean} [debug=false] Whether to run in debug mode.
+   */
   constructor(debug = false) {
     this.debug = debug;
     this.agentSystem = getAdvancedAIAgentSystem();
@@ -82,6 +89,9 @@ export class AutopilotAgent {
     this.start();
   }
   
+  /**
+   * Starts the autopilot agent.
+   */
   public start() {
     if (this.isRunning) {
       return;
@@ -92,6 +102,9 @@ export class AutopilotAgent {
     this.runCycle();
   }
 
+  /**
+   * Stops the autopilot agent.
+   */
   public stop() {
     this.isRunning = false;
     if (this.mainLoopTimeout) {
@@ -129,6 +142,10 @@ export class AutopilotAgent {
     }
   }
 
+  /**
+   * Monitors the system health.
+   * @returns {Promise<any>} A promise that resolves with the system health report.
+   */
   public async monitorSystemHealth(): Promise<any> {
     enhancedLogger.info('Monitoring system health...', 'autopilot');
     const automationStats = this.automationEngine.getAutomationStats();
@@ -144,6 +161,10 @@ export class AutopilotAgent {
     return health;
   }
 
+  /**
+   * Optimizes workflows.
+   * @returns {Promise<{ success: boolean; message: string }>} A promise that resolves with the optimization result.
+   */
   public async optimizeWorkflows() {
     enhancedLogger.info('Optimizing workflows...', 'autopilot');
     // In a real implementation, this would analyze and optimize workflows.
@@ -151,6 +172,11 @@ export class AutopilotAgent {
     return { success: true, message: 'Workflow optimization cycle completed.' };
   }
 
+  /**
+   * Suggests system optimizations based on a health report.
+   * @param {any} healthReport The health report to analyze.
+   * @returns {Promise<{ success: boolean; message?: string, taskId?: string }>} A promise that resolves with the optimization suggestions.
+   */
   public async suggestOptimizations(healthReport: any) {
     enhancedLogger.info('Suggesting system optimizations...', 'autopilot');
 

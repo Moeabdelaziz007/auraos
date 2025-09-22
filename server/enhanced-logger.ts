@@ -2,6 +2,9 @@ import fs from 'fs';
 import path from 'path';
 import { createWriteStream } from 'fs';
 
+/**
+ * The level of a log entry.
+ */
 export enum LogLevel {
   DEBUG = 0,
   INFO = 1,
@@ -10,6 +13,9 @@ export enum LogLevel {
   CRITICAL = 4
 }
 
+/**
+ * A log entry.
+ */
 export interface LogEntry {
   timestamp: string;
   level: LogLevel;
@@ -22,6 +28,9 @@ export interface LogEntry {
   requestId?: string;
 }
 
+/**
+ * The configuration for the logger.
+ */
 export interface LoggerConfig {
   level: LogLevel;
   enableConsole: boolean;
@@ -35,6 +44,9 @@ export interface LoggerConfig {
   enableSource: boolean;
 }
 
+/**
+ * An enhanced logger that supports multiple transports and log levels.
+ */
 class EnhancedLogger {
   private config: LoggerConfig;
   private logStream: fs.WriteStream | null = null;
@@ -43,6 +55,10 @@ class EnhancedLogger {
   private bufferSize: number = 100;
   private flushInterval: NodeJS.Timeout | null = null;
 
+  /**
+   * Creates an instance of EnhancedLogger.
+   * @param {Partial<LoggerConfig>} [config={}] The configuration for the logger.
+   */
   constructor(config: Partial<LoggerConfig> = {}) {
     this.config = {
       level: LogLevel.INFO,
@@ -275,42 +291,65 @@ class EnhancedLogger {
   }
 
   /**
-   * Debug level logging
+   * Logs a debug message.
+   * @param {string} message The message to log.
+   * @param {string} [source='system'] The source of the message.
+   * @param {Record<string, any>} [context] Additional context for the message.
    */
   debug(message: string, source: string = 'system', context?: Record<string, any>): void {
     this.log(LogLevel.DEBUG, message, source, context);
   }
 
   /**
-   * Info level logging
+   * Logs an info message.
+   * @param {string} message The message to log.
+   * @param {string} [source='system'] The source of the message.
+   * @param {Record<string, any>} [context] Additional context for the message.
    */
   info(message: string, source: string = 'system', context?: Record<string, any>): void {
     this.log(LogLevel.INFO, message, source, context);
   }
 
   /**
-   * Warning level logging
+   * Logs a warning message.
+   * @param {string} message The message to log.
+   * @param {string} [source='system'] The source of the message.
+   * @param {Record<string, any>} [context] Additional context for the message.
    */
   warn(message: string, source: string = 'system', context?: Record<string, any>): void {
     this.log(LogLevel.WARN, message, source, context);
   }
 
   /**
-   * Error level logging
+   * Logs an error message.
+   * @param {string} message The message to log.
+   * @param {string} [source='system'] The source of the message.
+   * @param {Record<string, any>} [context] Additional context for the message.
+   * @param {Error} [error] The error object.
    */
   error(message: string, source: string = 'system', context?: Record<string, any>, error?: Error): void {
     this.log(LogLevel.ERROR, message, source, context, error);
   }
 
   /**
-   * Critical level logging
+   * Logs a critical message.
+   * @param {string} message The message to log.
+   * @param {string} [source='system'] The source of the message.
+   * @param {Record<string, any>} [context] Additional context for the message.
+   * @param {Error} [error] The error object.
    */
   critical(message: string, source: string = 'system', context?: Record<string, any>, error?: Error): void {
     this.log(LogLevel.CRITICAL, message, source, context, error);
   }
 
   /**
-   * Log HTTP requests
+   * Logs an HTTP request.
+   * @param {string} method The HTTP method.
+   * @param {string} url The URL of the request.
+   * @param {number} statusCode The status code of the response.
+   * @param {number} duration The duration of the request in milliseconds.
+   * @param {string} [userId] The ID of the user who made the request.
+   * @param {string} [requestId] The ID of the request.
    */
   logRequest(method: string, url: string, statusCode: number, duration: number, userId?: string, requestId?: string): void {
     this.info(`HTTP ${method} ${url}`, 'http', {
@@ -324,7 +363,11 @@ class EnhancedLogger {
   }
 
   /**
-   * Log AI agent activities
+   * Logs an AI agent activity.
+   * @param {string} agentId The ID of the agent.
+   * @param {string} action The action performed by the agent.
+   * @param {any} result The result of the action.
+   * @param {Record<string, any>} [context] Additional context for the activity.
    */
   logAgentActivity(agentId: string, action: string, result: any, context?: Record<string, any>): void {
     this.info(`Agent ${agentId}: ${action}`, 'ai-agent', {
@@ -336,7 +379,11 @@ class EnhancedLogger {
   }
 
   /**
-   * Log autopilot activities
+   * Logs an autopilot activity.
+   * @param {string} action The action performed by the autopilot.
+   * @param {string} [ruleId] The ID of the rule that triggered the action.
+   * @param {string} [workflowId] The ID of the workflow that was executed.
+   * @param {Record<string, any>} [context] Additional context for the activity.
    */
   logAutopilotActivity(action: string, ruleId?: string, workflowId?: string, context?: Record<string, any>): void {
     this.info(`Autopilot: ${action}`, 'autopilot', {
@@ -348,7 +395,11 @@ class EnhancedLogger {
   }
 
   /**
-   * Log system performance metrics
+   * Logs a system performance metric.
+   * @param {string} metric The name of the metric.
+   * @param {number} value The value of the metric.
+   * @param {string} unit The unit of the metric.
+   * @param {Record<string, any>} [context] Additional context for the metric.
    */
   logPerformance(metric: string, value: number, unit: string, context?: Record<string, any>): void {
     this.info(`Performance: ${metric} = ${value}${unit}`, 'performance', {
@@ -360,7 +411,10 @@ class EnhancedLogger {
   }
 
   /**
-   * Get recent logs
+   * Gets recent logs.
+   * @param {number} [limit=100] The maximum number of logs to return.
+   * @param {LogLevel} [level] The minimum log level to return.
+   * @returns {LogEntry[]} A list of recent logs.
    */
   getRecentLogs(limit: number = 100, level?: LogLevel): LogEntry[] {
     // This would read from your database or log files
@@ -369,7 +423,12 @@ class EnhancedLogger {
   }
 
   /**
-   * Search logs
+   * Searches logs.
+   * @param {string} query The search query.
+   * @param {Date} [startDate] The start date of the search range.
+   * @param {Date} [endDate] The end date of the search range.
+   * @param {LogLevel} [level] The minimum log level to search for.
+   * @returns {LogEntry[]} A list of matching logs.
    */
   searchLogs(query: string, startDate?: Date, endDate?: Date, level?: LogLevel): LogEntry[] {
     // This would search through your database or log files
@@ -378,7 +437,8 @@ class EnhancedLogger {
   }
 
   /**
-   * Update configuration
+   * Updates the logger configuration.
+   * @param {Partial<LoggerConfig>} newConfig The new configuration to apply.
    */
   updateConfig(newConfig: Partial<LoggerConfig>): void {
     this.config = { ...this.config, ...newConfig };
@@ -386,7 +446,7 @@ class EnhancedLogger {
   }
 
   /**
-   * Cleanup resources
+   * Cleans up resources used by the logger.
    */
   cleanup(): void {
     if (this.flushInterval) {

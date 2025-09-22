@@ -32,10 +32,16 @@ interface ConversationContext {
   sessionData: any;
 }
 
+/**
+ * Manages different chat personas and generates intelligent responses based on the persona and conversation context.
+ */
 export class EnhancedChatPersona {
   private personas: Map<string, ChatPersona> = new Map();
   private conversationContexts: Map<number, ConversationContext> = new Map();
 
+  /**
+   * Creates an instance of EnhancedChatPersona.
+   */
   constructor() {
     this.initializePersonas();
   }
@@ -148,7 +154,13 @@ export class EnhancedChatPersona {
     return 'auraos_assistant';
   }
 
-  // Generate intelligent response based on persona and context
+  /**
+   * Generates an intelligent response based on the message, persona, and conversation context.
+   * @param {string} message The user's message.
+   * @param {number} chatId The ID of the chat.
+   * @param {string} username The username of the user.
+   * @returns {Promise<{ response: string; suggestions: string[]; mood: string; persona: string; }>} A promise that resolves with the generated response and other context.
+   */
   async generateIntelligentResponse(
     message: string, 
     chatId: number, 
@@ -442,14 +454,22 @@ What's your main goal today? I'm here to make your social media management effor
     ];
   }
 
-  // Update user preferences
+  /**
+   * Updates a user's preferences.
+   * @param {number} chatId The ID of the chat.
+   * @param {any} preferences The preferences to update.
+   */
   updateUserPreferences(chatId: number, preferences: any) {
     const context = this.getConversationContext(chatId, '');
     context.userGoals = preferences.goals || context.userGoals;
     context.sessionData = { ...context.sessionData, ...preferences };
   }
 
-  // Get conversation context
+  /**
+   * Gets the conversation context for a chat.
+   * @param {number} chatId The ID of the chat.
+   * @returns {ConversationContext | undefined} The conversation context, or undefined if not found.
+   */
   getConversationContext(chatId: number): ConversationContext | undefined {
     return this.conversationContexts.get(chatId);
   }
@@ -458,6 +478,10 @@ What's your main goal today? I'm here to make your social media management effor
 // Export singleton instance
 let enhancedChatPersona: EnhancedChatPersona | null = null;
 
+/**
+ * Gets the singleton instance of the EnhancedChatPersona.
+ * @returns {EnhancedChatPersona} The singleton instance of the EnhancedChatPersona.
+ */
 export function getEnhancedChatPersona(): EnhancedChatPersona {
   if (!enhancedChatPersona) {
     enhancedChatPersona = new EnhancedChatPersona();

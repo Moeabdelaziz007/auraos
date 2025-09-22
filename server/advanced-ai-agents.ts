@@ -1,6 +1,9 @@
 import { getAdvancedAIToolsManager } from './advanced-ai-tools.js';
 import { getMCPProtocol } from './mcp-protocol.js';
 
+/**
+ * Represents an AI agent.
+ */
 export interface AIAgent {
   id: string;
   name: string;
@@ -17,6 +20,9 @@ export interface AIAgent {
   lastActive: Date;
 }
 
+/**
+ * Represents the personality of an AI agent.
+ */
 export interface AgentPersonality {
   tone: 'professional' | 'casual' | 'friendly' | 'authoritative' | 'creative';
   communicationStyle: 'concise' | 'detailed' | 'conversational' | 'technical';
@@ -25,6 +31,9 @@ export interface AgentPersonality {
   preferences: Record<string, any>;
 }
 
+/**
+ * Represents the knowledge of an AI agent.
+ */
 export interface AgentKnowledge {
   domains: string[];
   skills: string[];
@@ -33,6 +42,9 @@ export interface AgentKnowledge {
   specializations: string[];
 }
 
+/**
+ * Represents the memory of an AI agent.
+ */
 export interface AgentMemory {
   shortTerm: Map<string, any>;
   longTerm: Map<string, any>;
@@ -45,6 +57,9 @@ export interface AgentMemory {
   semantic: Map<string, any>;
 }
 
+/**
+ * Represents the performance of an AI agent.
+ */
 export interface AgentPerformance {
   tasksCompleted: number;
   successRate: number;
@@ -54,6 +69,9 @@ export interface AgentPerformance {
   efficiency: number;
 }
 
+/**
+ * Represents a task for an AI agent.
+ */
 export interface AgentTask {
   id: string;
   agentId: string;
@@ -69,6 +87,9 @@ export interface AgentTask {
   error?: string;
 }
 
+/**
+ * Represents a collaboration between AI agents.
+ */
 export interface AgentCollaboration {
   id: string;
   agents: string[];
@@ -79,6 +100,9 @@ export interface AgentCollaboration {
   createdAt: Date;
 }
 
+/**
+ * Manages a system of advanced AI agents.
+ */
 export class AdvancedAIAgentSystem {
   private agents: Map<string, AIAgent> = new Map();
   private tasks: Map<string, AgentTask> = new Map();
@@ -87,6 +111,9 @@ export class AdvancedAIAgentSystem {
   private mcpProtocol: any;
   private agentCommunications: Map<string, any[]> = new Map();
 
+  /**
+   * Creates an instance of AdvancedAIAgentSystem.
+   */
   constructor() {
     this.aiToolsManager = getAdvancedAIToolsManager();
     this.mcpProtocol = getMCPProtocol();
@@ -280,7 +307,11 @@ export class AdvancedAIAgentSystem {
     });
   }
 
-  // Agent Management Methods
+  /**
+   * Creates a new AI agent.
+   * @param {Omit<AIAgent, 'id' | 'status' | 'createdAt' | 'lastActive'>} agentData The data for the new agent.
+   * @returns {AIAgent} The newly created agent.
+   */
   createAgent(agentData: Omit<AIAgent, 'id' | 'status' | 'createdAt' | 'lastActive'>): AIAgent {
     const agent: AIAgent = {
       ...agentData,
@@ -294,18 +325,38 @@ export class AdvancedAIAgentSystem {
     return agent;
   }
 
+  /**
+   * Gets an agent by its ID.
+   * @param {string} agentId The ID of the agent to get.
+   * @returns {AIAgent | undefined} The agent, or undefined if not found.
+   */
   getAgent(agentId: string): AIAgent | undefined {
     return this.agents.get(agentId);
   }
 
+  /**
+   * Gets all agents.
+   * @returns {AIAgent[]} A list of all agents.
+   */
   getAllAgents(): AIAgent[] {
     return Array.from(this.agents.values());
   }
 
+  /**
+   * Gets all agents of a specific type.
+   * @param {string} type The type of agents to get.
+   * @returns {AIAgent[]} A list of agents of the specified type.
+   */
   getAgentsByType(type: string): AIAgent[] {
     return Array.from(this.agents.values()).filter(agent => agent.type === type);
   }
 
+  /**
+   * Updates an agent.
+   * @param {string} agentId The ID of the agent to update.
+   * @param {Partial<AIAgent>} updates The updates to apply to the agent.
+   * @returns {boolean} True if the agent was updated, false otherwise.
+   */
   updateAgent(agentId: string, updates: Partial<AIAgent>): boolean {
     const agent = this.agents.get(agentId);
     if (!agent) return false;
@@ -315,15 +366,30 @@ export class AdvancedAIAgentSystem {
     return true;
   }
 
+  /**
+   * Deactivates an agent.
+   * @param {string} agentId The ID of the agent to deactivate.
+   * @returns {boolean} True if the agent was deactivated, false otherwise.
+   */
   deactivateAgent(agentId: string): boolean {
     return this.updateAgent(agentId, { status: 'inactive' });
   }
 
+  /**
+   * Activates an agent.
+   * @param {string} agentId The ID of the agent to activate.
+   * @returns {boolean} True if the agent was activated, false otherwise.
+   */
   activateAgent(agentId: string): boolean {
     return this.updateAgent(agentId, { status: 'active' });
   }
 
-  // Task Management Methods
+  /**
+   * Assigns a task to an agent.
+   * @param {string} agentId The ID of the agent to assign the task to.
+   * @param {Omit<AgentTask, 'id' | 'agentId' | 'status' | 'createdAt'>} task The task to assign.
+   * @returns {Promise<AgentTask>} A promise that resolves with the assigned task.
+   */
   async assignTask(agentId: string, task: Omit<AgentTask, 'id' | 'agentId' | 'status' | 'createdAt'>): Promise<AgentTask> {
     const agent = this.agents.get(agentId);
     if (!agent) {
@@ -608,7 +674,13 @@ export class AdvancedAIAgentSystem {
     }
   }
 
-  // Collaboration Methods
+  /**
+   * Creates a collaboration between agents.
+   * @param {string[]} agents The IDs of the agents to collaborate.
+   * @param {string} task The task for the collaboration.
+   * @param {'sequential' | 'parallel' | 'hierarchical' | 'peer'} coordination The coordination mode for the collaboration.
+   * @returns {Promise<AgentCollaboration>} A promise that resolves with the created collaboration.
+   */
   async createCollaboration(agents: string[], task: string, coordination: 'sequential' | 'parallel' | 'hierarchical' | 'peer'): Promise<AgentCollaboration> {
     const collaboration: AgentCollaboration = {
       id: `collab_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -760,12 +832,24 @@ export class AdvancedAIAgentSystem {
     });
   }
 
-  // Communication Methods
+  /**
+   * Enables communication between two agents.
+   * @param {string} agentId1 The ID of the first agent.
+   * @param {string} agentId2 The ID of the second agent.
+   * @returns {Promise<void>}
+   */
   async enableAgentCommunication(agentId1: string, agentId2: string): Promise<void> {
     const communicationId = `${agentId1}_${agentId2}`;
     this.agentCommunications.set(communicationId, []);
   }
 
+  /**
+   * Sends a message from one agent to another.
+   * @param {string} fromAgentId The ID of the agent sending the message.
+   * @param {string} toAgentId The ID of the agent receiving the message.
+   * @param {any} message The message to send.
+   * @returns {Promise<void>}
+   */
   async sendMessage(fromAgentId: string, toAgentId: string, message: any): Promise<void> {
     const communicationId = `${fromAgentId}_${toAgentId}`;
     const communications = this.agentCommunications.get(communicationId) || [];
@@ -780,12 +864,22 @@ export class AdvancedAIAgentSystem {
     this.agentCommunications.set(communicationId, communications);
   }
 
+  /**
+   * Gets the communication history between two agents.
+   * @param {string} agentId1 The ID of the first agent.
+   * @param {string} agentId2 The ID of the second agent.
+   * @returns {any[]} A list of communication messages.
+   */
   getCommunicationHistory(agentId1: string, agentId2: string): any[] {
     const communicationId = `${agentId1}_${agentId2}`;
     return this.agentCommunications.get(communicationId) || [];
   }
 
-  // Analytics and Reporting
+  /**
+   * Gets analytics for a specific agent or all agents.
+   * @param {string} [agentId] The ID of the agent to get analytics for.
+   * @returns {any} Analytics data.
+   */
   getAgentAnalytics(agentId?: string): any {
     if (agentId) {
       const agent = this.agents.get(agentId);
@@ -831,11 +925,20 @@ export class AdvancedAIAgentSystem {
     };
   }
 
+  /**
+   * Gets the task history for a specific agent or all agents.
+   * @param {string} [agentId] The ID of the agent to get the task history for.
+   * @returns {AgentTask[]} A list of tasks.
+   */
   getTaskHistory(agentId?: string): AgentTask[] {
     const allTasks = Array.from(this.tasks.values());
     return agentId ? allTasks.filter(task => task.agentId === agentId) : allTasks;
   }
 
+  /**
+   * Gets the collaboration history.
+   * @returns {AgentCollaboration[]} A list of collaborations.
+   */
   getCollaborationHistory(): AgentCollaboration[] {
     return Array.from(this.collaborations.values());
   }
@@ -844,6 +947,10 @@ export class AdvancedAIAgentSystem {
 // Export singleton instance
 let aiAgentSystem: AdvancedAIAgentSystem | null = null;
 
+/**
+ * Gets the singleton instance of the AdvancedAIAgentSystem.
+ * @returns {AdvancedAIAgentSystem} The singleton instance of the AdvancedAIAgentSystem.
+ */
 export function getAdvancedAIAgentSystem(): AdvancedAIAgentSystem {
   if (!aiAgentSystem) {
     aiAgentSystem = new AdvancedAIAgentSystem();

@@ -225,12 +225,18 @@ interface UserTravelProfile {
   };
 }
 
+/**
+ * Manages an enhanced travel agency with AI-powered features.
+ */
 export class EnhancedTravelAgency {
   private destinations: Map<string, TravelDestination> = new Map();
   private userProfiles: Map<string, UserTravelProfile> = new Map();
   private bookings: Map<string, TravelBooking> = new Map();
   private aiRecommendations: Map<string, any> = new Map();
 
+  /**
+   * Creates an instance of EnhancedTravelAgency.
+   */
   constructor() {
     this.initializeDestinations();
     this.startAITravelEngine();
@@ -317,7 +323,11 @@ export class EnhancedTravelAgency {
     }, 600000); // Every 10 minutes
   }
 
-  // AI-Powered Flight Search
+  /**
+   * Searches for flights using AI.
+   * @param {FlightSearch} searchParams The flight search parameters.
+   * @returns {Promise<FlightOption[]>} A promise that resolves with a list of flight options.
+   */
   async searchFlights(searchParams: FlightSearch): Promise<FlightOption[]> {
     console.log(`🔍 AI-powered flight search: ${searchParams.origin} → ${searchParams.destination}`);
     
@@ -366,7 +376,11 @@ export class EnhancedTravelAgency {
     }
   }
 
-  // AI-Powered Hotel Search
+  /**
+   * Searches for hotels using AI.
+   * @param {HotelSearch} searchParams The hotel search parameters.
+   * @returns {Promise<HotelOption[]>} A promise that resolves with a list of hotel options.
+   */
   async searchHotels(searchParams: HotelSearch): Promise<HotelOption[]> {
     console.log(`🏨 AI-powered hotel search in ${searchParams.destination}`);
     
@@ -415,7 +429,12 @@ export class EnhancedTravelAgency {
     }
   }
 
-  // AI-Powered Travel Recommendations
+  /**
+   * Gets personalized travel recommendations for a user.
+   * @param {string} userId The ID of the user.
+   * @param {string} destination The destination.
+   * @returns {Promise<TravelPackage[]>} A promise that resolves with a list of travel packages.
+   */
   async getPersonalizedRecommendations(userId: string, destination: string): Promise<TravelPackage[]> {
     console.log(`🎯 Generating personalized travel recommendations for ${userId} in ${destination}`);
     
@@ -467,7 +486,11 @@ export class EnhancedTravelAgency {
     }
   }
 
-  // Intelligent Booking System
+  /**
+   * Books a travel service.
+   * @param {any} bookingRequest The booking request.
+   * @returns {Promise<TravelBooking>} A promise that resolves with the booking information.
+   */
   async bookTravel(bookingRequest: any): Promise<TravelBooking> {
     console.log(`📋 Processing travel booking: ${bookingRequest.type}`);
     
@@ -832,24 +855,46 @@ export class EnhancedTravelAgency {
     return ['Book flights 6-8 weeks in advance for best prices', 'Consider shoulder season for fewer crowds'];
   }
 
-  // Public API Methods
+  /**
+   * Gets all travel destinations.
+   * @returns {Promise<TravelDestination[]>} A promise that resolves with a list of travel destinations.
+   */
   async getDestinations(): Promise<TravelDestination[]> {
     return Array.from(this.destinations.values());
   }
 
+  /**
+   * Gets a travel destination by its ID.
+   * @param {string} id The ID of the travel destination to get.
+   * @returns {Promise<TravelDestination | null>} A promise that resolves with the travel destination, or null if not found.
+   */
   async getDestination(id: string): Promise<TravelDestination | null> {
     return this.destinations.get(id) || null;
   }
 
+  /**
+   * Gets all bookings for a user.
+   * @param {string} userId The ID of the user.
+   * @returns {Promise<TravelBooking[]>} A promise that resolves with a list of bookings.
+   */
   async getUserBookings(userId: string): Promise<TravelBooking[]> {
     const profile = await this.getUserProfile(userId);
     return profile.history.bookings;
   }
 
+  /**
+   * Gets a booking by its ID.
+   * @param {string} id The ID of the booking to get.
+   * @returns {Promise<TravelBooking | null>} A promise that resolves with the booking, or null if not found.
+   */
   async getBooking(id: string): Promise<TravelBooking | null> {
     return this.bookings.get(id) || null;
   }
 
+  /**
+   * Gets AI-powered travel recommendations.
+   * @returns {Promise<any>} A promise that resolves with AI-powered travel recommendations.
+   */
   async getAIRecommendations(): Promise<any> {
     return Array.from(this.aiRecommendations.entries());
   }
@@ -858,6 +903,10 @@ export class EnhancedTravelAgency {
 // Export singleton instance
 let enhancedTravelAgency: EnhancedTravelAgency | null = null;
 
+/**
+ * Gets the singleton instance of the EnhancedTravelAgency.
+ * @returns {EnhancedTravelAgency} The singleton instance of the EnhancedTravelAgency.
+ */
 export function getEnhancedTravelAgency(): EnhancedTravelAgency {
   if (!enhancedTravelAgency) {
     enhancedTravelAgency = new EnhancedTravelAgency();

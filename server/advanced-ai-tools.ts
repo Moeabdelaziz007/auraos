@@ -1,5 +1,8 @@
 import { getMCPProtocol } from './mcp-protocol.js';
 
+/**
+ * Represents an AI tool.
+ */
 export interface AITool {
   id: string;
   name: string;
@@ -18,6 +21,9 @@ export interface AITool {
   };
 }
 
+/**
+ * Represents a parameter for an AI tool.
+ */
 export interface AIToolParameter {
   name: string;
   type: string;
@@ -27,6 +33,9 @@ export interface AIToolParameter {
   validation?: (value: any) => boolean;
 }
 
+/**
+ * Represents the context for an AI tool execution.
+ */
 export interface AIToolContext {
   userId: string;
   sessionId: string;
@@ -35,6 +44,9 @@ export interface AIToolContext {
   metadata: Record<string, any>;
 }
 
+/**
+ * Represents the result of an AI tool execution.
+ */
 export interface AIToolResult {
   success: boolean;
   data?: any;
@@ -45,12 +57,18 @@ export interface AIToolResult {
   suggestions?: string[];
 }
 
+/**
+ * Manages advanced AI tools, including their registration, execution, and analytics.
+ */
 export class AdvancedAIToolsManager {
   private tools: Map<string, AITool> = new Map();
   private toolCategories: Map<string, AITool[]> = new Map();
   private executionHistory: Map<string, AIToolResult[]> = new Map();
   private mcpProtocol: any;
 
+  /**
+   * Creates an instance of AdvancedAIToolsManager.
+   */
   constructor() {
     this.mcpProtocol = getMCPProtocol();
     this.initializeCoreTools();
@@ -361,7 +379,10 @@ export class AdvancedAIToolsManager {
     });
   }
 
-  // Tool Management Methods
+  /**
+   * Adds a tool to the manager.
+   * @param {AITool} tool The tool to add.
+   */
   addTool(tool: AITool): void {
     this.tools.set(tool.id, tool);
     
@@ -371,6 +392,11 @@ export class AdvancedAIToolsManager {
     this.toolCategories.get(tool.category)!.push(tool);
   }
 
+  /**
+   * Removes a tool from the manager.
+   * @param {string} toolId The ID of the tool to remove.
+   * @returns {boolean} True if the tool was removed, false otherwise.
+   */
   removeTool(toolId: string): boolean {
     const tool = this.tools.get(toolId);
     if (!tool) return false;
@@ -386,23 +412,47 @@ export class AdvancedAIToolsManager {
     return true;
   }
 
+  /**
+   * Gets a tool by its ID.
+   * @param {string} toolId The ID of the tool to get.
+   * @returns {AITool | undefined} The tool, or undefined if not found.
+   */
   getTool(toolId: string): AITool | undefined {
     return this.tools.get(toolId);
   }
 
+  /**
+   * Gets all tools in a category.
+   * @param {string} category The category to get tools from.
+   * @returns {AITool[]} A list of tools in the category.
+   */
   getToolsByCategory(category: string): AITool[] {
     return this.toolCategories.get(category) || [];
   }
 
+  /**
+   * Gets all tools.
+   * @returns {AITool[]} A list of all tools.
+   */
   getAllTools(): AITool[] {
     return Array.from(this.tools.values());
   }
 
+  /**
+   * Gets all tool categories.
+   * @returns {string[]} A list of all tool categories.
+   */
   getToolCategories(): string[] {
     return Array.from(this.toolCategories.keys());
   }
 
-  // Tool Execution Methods
+  /**
+   * Executes a tool.
+   * @param {string} toolId The ID of the tool to execute.
+   * @param {any} params The parameters for the tool.
+   * @param {AIToolContext} context The context for the tool execution.
+   * @returns {Promise<AIToolResult>} A promise that resolves with the result of the tool execution.
+   */
   async executeTool(toolId: string, params: any, context: AIToolContext): Promise<AIToolResult> {
     const tool = this.tools.get(toolId);
     if (!tool) {
@@ -746,7 +796,11 @@ export class AdvancedAIToolsManager {
     };
   }
 
-  // Analytics and Reporting
+  /**
+   * Gets analytics for a specific tool or all tools.
+   * @param {string} [toolId] The ID of the tool to get analytics for.
+   * @returns {any} Analytics data.
+   */
   getToolAnalytics(toolId?: string): any {
     if (toolId) {
       const tool = this.tools.get(toolId);
@@ -778,11 +832,21 @@ export class AdvancedAIToolsManager {
     };
   }
 
+  /**
+   * Gets the execution history for a user.
+   * @param {string} userId The ID of the user.
+   * @returns {AIToolResult[]} A list of execution results.
+   */
   getExecutionHistory(userId: string): AIToolResult[] {
     return this.executionHistory.get(userId) || [];
   }
 
-  // Tool Discovery and Recommendations
+  /**
+   * Discovers tools based on a query and optional category.
+   * @param {string} query The search query.
+   * @param {string} [category] The category to search in.
+   * @returns {AITool[]} A list of matching tools.
+   */
   discoverTools(query: string, category?: string): AITool[] {
     const allTools = category ? this.getToolsByCategory(category) : this.getAllTools();
     
@@ -793,6 +857,12 @@ export class AdvancedAIToolsManager {
     );
   }
 
+  /**
+   * Recommends tools based on usage patterns.
+   * @param {AIToolContext} context The context for the recommendation.
+   * @param {number} [limit=5] The maximum number of tools to recommend.
+   * @returns {AITool[]} A list of recommended tools.
+   */
   recommendTools(context: AIToolContext, limit: number = 5): AITool[] {
     // Simple recommendation based on usage patterns
     const allTools = this.getAllTools();
@@ -807,6 +877,10 @@ export class AdvancedAIToolsManager {
 // Export singleton instance
 let aiToolsManager: AdvancedAIToolsManager | null = null;
 
+/**
+ * Gets the singleton instance of the AdvancedAIToolsManager.
+ * @returns {AdvancedAIToolsManager} The singleton instance of the AdvancedAIToolsManager.
+ */
 export function getAdvancedAIToolsManager(): AdvancedAIToolsManager {
   if (!aiToolsManager) {
     aiToolsManager = new AdvancedAIToolsManager();

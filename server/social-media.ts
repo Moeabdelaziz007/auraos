@@ -2,6 +2,9 @@ import { TwitterApi } from 'twitter-api-v2';
 import axios from 'axios';
 import { storage } from './storage.js';
 
+/**
+ * Represents a social media account.
+ */
 export interface SocialMediaAccount {
   id: string;
   platform: 'twitter' | 'instagram' | 'linkedin' | 'facebook';
@@ -14,6 +17,9 @@ export interface SocialMediaAccount {
   createdAt: Date;
 }
 
+/**
+ * Represents a social media post.
+ */
 export interface SocialPost {
   id: string;
   content: string;
@@ -30,9 +36,19 @@ export interface SocialPost {
   };
 }
 
+/**
+ * Manages social media accounts and posting.
+ */
 export class SocialMediaService {
   private twitterClients: Map<string, TwitterApi> = new Map();
 
+  /**
+   * Connects a Twitter account.
+   * @param {string} userId The ID of the user connecting the account.
+   * @param {string} accessToken The access token for the account.
+   * @param {string} [refreshToken] The refresh token for the account.
+   * @returns {Promise<SocialMediaAccount>} A promise that resolves with the connected account.
+   */
   async connectTwitterAccount(userId: string, accessToken: string, refreshToken?: string): Promise<SocialMediaAccount> {
     try {
       const client = new TwitterApi(accessToken);
@@ -56,6 +72,12 @@ export class SocialMediaService {
     }
   }
 
+  /**
+   * Connects an Instagram account.
+   * @param {string} userId The ID of the user connecting the account.
+   * @param {string} accessToken The access token for the account.
+   * @returns {Promise<SocialMediaAccount>} A promise that resolves with the connected account.
+   */
   async connectInstagramAccount(userId: string, accessToken: string): Promise<SocialMediaAccount> {
     try {
       // Instagram Basic Display API integration
@@ -77,6 +99,12 @@ export class SocialMediaService {
     }
   }
 
+  /**
+   * Connects a LinkedIn account.
+   * @param {string} userId The ID of the user connecting the account.
+   * @param {string} accessToken The access token for the account.
+   * @returns {Promise<SocialMediaAccount>} A promise that resolves with the connected account.
+   */
   async connectLinkedInAccount(userId: string, accessToken: string): Promise<SocialMediaAccount> {
     try {
       const response = await axios.get('https://api.linkedin.com/v2/me', {
@@ -99,6 +127,13 @@ export class SocialMediaService {
     }
   }
 
+  /**
+   * Posts a tweet to Twitter.
+   * @param {string} accountId The ID of the Twitter account to post from.
+   * @param {string} content The content of the tweet.
+   * @param {string} [imageUrl] The URL of an image to attach to the tweet.
+   * @returns {Promise<any>} A promise that resolves with the tweet data.
+   */
   async postToTwitter(accountId: string, content: string, imageUrl?: string): Promise<any> {
     const client = this.twitterClients.get(accountId);
     if (!client) {
@@ -121,6 +156,13 @@ export class SocialMediaService {
     }
   }
 
+  /**
+   * Posts to Instagram.
+   * @param {string} accountId The ID of the Instagram account to post from.
+   * @param {string} content The content of the post.
+   * @param {string} imageUrl The URL of the image to post.
+   * @returns {Promise<any>} A promise that resolves with the post data.
+   */
   async postToInstagram(accountId: string, content: string, imageUrl: string): Promise<any> {
     try {
       // Instagram requires a different approach - using Instagram Basic Display API
@@ -139,6 +181,13 @@ export class SocialMediaService {
     }
   }
 
+  /**
+   * Posts to LinkedIn.
+   * @param {string} accountId The ID of the LinkedIn account to post from.
+   * @param {string} content The content of the post.
+   * @param {string} [imageUrl] The URL of an image to attach to the post.
+   * @returns {Promise<any>} A promise that resolves with the post data.
+   */
   async postToLinkedIn(accountId: string, content: string, imageUrl?: string): Promise<any> {
     try {
       const account = await this.getAccountById(accountId);
@@ -182,6 +231,11 @@ export class SocialMediaService {
     }
   }
 
+  /**
+   * Schedules a post to be published at a later time.
+   * @param {SocialPost} post The post to schedule.
+   * @returns {Promise<void>}
+   */
   async schedulePost(post: SocialPost): Promise<void> {
     // This would integrate with a scheduling service like node-cron
     // For now, we'll store the scheduled post
@@ -190,11 +244,21 @@ export class SocialMediaService {
     console.log(`Scheduled for: ${post.scheduledAt}`);
   }
 
+  /**
+   * Publishes a scheduled post.
+   * @param {string} postId The ID of the post to publish.
+   * @returns {Promise<void>}
+   */
   async publishScheduledPost(postId: string): Promise<void> {
     // This would fetch the scheduled post and publish it to all platforms
     console.log(`Publishing scheduled post: ${postId}`);
   }
 
+  /**
+   * Gets a social media account by its ID.
+   * @param {string} accountId The ID of the account to get.
+   * @returns {Promise<SocialMediaAccount>} A promise that resolves with the account.
+   */
   async getAccountById(accountId: string): Promise<SocialMediaAccount> {
     // This would fetch from database
     // For now, return a mock account
@@ -209,6 +273,12 @@ export class SocialMediaService {
     };
   }
 
+  /**
+   * Gets analytics for a social media account.
+   * @param {string} accountId The ID of the account to get analytics for.
+   * @param {string} platform The platform of the account.
+   * @returns {Promise<any>} A promise that resolves with the analytics data.
+   */
   async getAccountAnalytics(accountId: string, platform: string): Promise<any> {
     try {
       const account = await this.getAccountById(accountId);
@@ -249,6 +319,13 @@ export class SocialMediaService {
     }
   }
 
+  /**
+   * Cross-posts content to multiple platforms.
+   * @param {string} content The content to post.
+   * @param {string[]} platforms The platforms to post to.
+   * @param {string} [imageUrl] The URL of an image to attach to the post.
+   * @returns {Promise<any>} A promise that resolves with the results of the cross-posting.
+   */
   async crossPost(content: string, platforms: string[], imageUrl?: string): Promise<any> {
     const results = [];
     
@@ -285,6 +362,10 @@ export class SocialMediaService {
 // Export singleton instance
 let socialMediaService: SocialMediaService | null = null;
 
+/**
+ * Gets the singleton instance of the SocialMediaService.
+ * @returns {SocialMediaService} The singleton instance of the SocialMediaService.
+ */
 export function getSocialMediaService(): SocialMediaService {
   if (!socialMediaService) {
     socialMediaService = new SocialMediaService();

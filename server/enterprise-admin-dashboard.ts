@@ -125,6 +125,9 @@ interface DashboardWidget {
   refreshInterval: number;
 }
 
+/**
+ * Manages the enterprise admin dashboard, including metrics, widgets, and alerts.
+ */
 export class EnterpriseAdminDashboard {
   private metrics: DashboardMetrics | null = null;
   private alerts: Map<string, Alert> = new Map();
@@ -132,6 +135,9 @@ export class EnterpriseAdminDashboard {
   private subscribers: Set<any> = new Set();
   private isMonitoring: boolean = false;
 
+  /**
+   * Creates an instance of EnterpriseAdminDashboard.
+   */
   constructor() {
     this.initializeDefaultWidgets();
     this.startMonitoring();
@@ -604,21 +610,39 @@ export class EnterpriseAdminDashboard {
     return data;
   }
 
-  // Public Methods
+  /**
+   * Gets the latest dashboard metrics.
+   * @returns {Promise<DashboardMetrics | null>} A promise that resolves with the dashboard metrics.
+   */
   async getDashboardMetrics(): Promise<DashboardMetrics | null> {
     return this.metrics;
   }
 
+  /**
+   * Gets all dashboard widgets.
+   * @returns {Promise<DashboardWidget[]>} A promise that resolves with a list of dashboard widgets.
+   */
   async getWidgets(): Promise<DashboardWidget[]> {
     return Array.from(this.widgets.values());
   }
 
+  /**
+   * Gets alerts.
+   * @param {boolean} [acknowledged=false] Whether to include acknowledged alerts.
+   * @returns {Promise<Alert[]>} A promise that resolves with a list of alerts.
+   */
   async getAlerts(acknowledged: boolean = false): Promise<Alert[]> {
     return Array.from(this.alerts.values())
       .filter(alert => acknowledged ? alert.acknowledged : !alert.acknowledged)
       .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
   }
 
+  /**
+   * Acknowledges an alert.
+   * @param {string} alertId The ID of the alert to acknowledge.
+   * @param {string} acknowledgedBy The ID of the user who acknowledged the alert.
+   * @returns {Promise<boolean>} A promise that resolves with true if the alert was acknowledged, false otherwise.
+   */
   async acknowledgeAlert(alertId: string, acknowledgedBy: string): Promise<boolean> {
     const alert = this.alerts.get(alertId);
     if (!alert) {
@@ -634,6 +658,15 @@ export class EnterpriseAdminDashboard {
     return true;
   }
 
+  /**
+   * Creates a custom widget.
+   * @param {string} id The ID of the widget.
+   * @param {DashboardWidget['type']} type The type of the widget.
+   * @param {string} title The title of the widget.
+   * @param {string} description The description of the widget.
+   * @param {any} config The configuration for the widget.
+   * @returns {Promise<DashboardWidget>} A promise that resolves with the newly created widget.
+   */
   async createCustomWidget(
     id: string,
     type: DashboardWidget['type'],
@@ -657,6 +690,12 @@ export class EnterpriseAdminDashboard {
     return widget;
   }
 
+  /**
+   * Updates a widget's position.
+   * @param {string} widgetId The ID of the widget to update.
+   * @param {{ x: number; y: number; width: number; height: number; }} position The new position of the widget.
+   * @returns {Promise<boolean>} A promise that resolves with true if the widget's position was updated, false otherwise.
+   */
   async updateWidgetPosition(widgetId: string, position: { x: number; y: number; width: number; height: number }): Promise<boolean> {
     const widget = this.widgets.get(widgetId);
     if (!widget) {
@@ -668,7 +707,11 @@ export class EnterpriseAdminDashboard {
     return true;
   }
 
-  // Subscription Methods
+  /**
+   * Subscribes to updates from the dashboard.
+   * @param {(update: any) => void} callback The callback to call with updates.
+   * @returns {() => void} A function to unsubscribe.
+   */
   subscribeToUpdates(callback: (update: any) => void): () => void {
     this.subscribers.add(callback);
     return () => this.subscribers.delete(callback);
@@ -726,6 +769,10 @@ export class EnterpriseAdminDashboard {
 // Export singleton instance
 let enterpriseAdminDashboard: EnterpriseAdminDashboard | null = null;
 
+/**
+ * Gets the singleton instance of the EnterpriseAdminDashboard.
+ * @returns {EnterpriseAdminDashboard} The singleton instance of the EnterpriseAdminDashboard.
+ */
 export function getEnterpriseAdminDashboard(): EnterpriseAdminDashboard {
   if (!enterpriseAdminDashboard) {
     enterpriseAdminDashboard = new EnterpriseAdminDashboard();
