@@ -253,19 +253,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // User routes
-  app.get('/api/users/current', async (req, res) => {
+  protectedRouter.get('/users/current', async (req: AuthenticatedRequest, res) => {
     try {
-      // For demo purposes, return the default user
-      const user = await storage.getUser('user-1');
+      const userId = req.user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
+      }
+      const user = await storage.getUser(userId);
       if (!user) {
+        // Optionally, create a user record on-the-fly if one doesn't exist
         return res.status(404).json({ message: 'User not found' });
       }
       res.json(user);
     } catch (error) {
+      console.error("Failed to get current user:", error);
       res.status(500).json({ message: 'Failed to get current user' });
     }
   });
 
+  // This should also be protected, ensuring a user can only see their own stats
+  // unless they are an admin. Leaving as-is for now as it requires role-based access control.
   app.get('/api/users/:id/stats', async (req, res) => {
     try {
       const { id } = req.params;
@@ -443,9 +450,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // User Agents routes
-  app.get('/api/user-agents', async (req, res) => {
+  protectedRouter.get('/user-agents', async (req: AuthenticatedRequest, res) => {
     try {
-      const userId = req.query.userId as string || 'user-1';
+      const userId = req.user?.id;
+      if (!userId) { return res.status(401).json({ message: 'Authentication error' }); }
       const agents = await storage.getUserAgents(userId);
       res.json(agents);
     } catch (error) {
@@ -453,9 +461,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/user-agents', async (req, res) => {
+  protectedRouter.post('/user-agents', async (req: AuthenticatedRequest, res) => {
     try {
-      const validatedData = insertUserAgentSchema.parse(req.body);
+      const userId = req.user?.id;
+      if (!userId) { return res.status(401).json({ message: 'Authentication error' }); }
+      const validatedData = insertUserAgentSchema.parse({ ...req.body, userId });
       const agent = await storage.createUserAgent(validatedData);
       res.status(201).json(agent);
     } catch (error) {
@@ -525,13 +535,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Chat routes
-  app.post('/api/chat', async (req, res) => {
+  protectedRouter.post('/chat', async (req: AuthenticatedRequest, res) => {
     try {
-      const { message, userId = 'user-1' } = req.body;
-      
-      if (!message) {
-        return res.status(400).json({ message: 'Message is required' });
-      }
+      const userId = req.user?.id;
+      const { message } = req.body;
+
+      if (!userId) { return res.status(401).json({ message: 'Authentication error' }); }
+      if (!message) { return res.status(400).json({ message: 'Message is required' }); }
 
       // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
       const response = await openai.chat.completions.create({
@@ -562,9 +572,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/chat/history', async (req, res) => {
+  protectedRouter.get('/chat/history', async (req: AuthenticatedRequest, res) => {
     try {
-      const userId = req.query.userId as string || 'user-1';
+      const userId = req.user?.id;
+      if (!userId) { return res.status(401).json({ message: 'Authentication error' }); }
+
       const limit = parseInt(req.query.limit as string) || 20;
       const messages = await storage.getChatMessages(userId, limit);
       res.json(messages);
