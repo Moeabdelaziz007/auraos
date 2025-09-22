@@ -1,4 +1,6 @@
+import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import React from "react";
 
 interface HeaderProps {
   title: string;
@@ -8,25 +10,17 @@ interface HeaderProps {
 
 export default function Header({ title, subtitle, actions }: HeaderProps) {
   return (
-    <header className="glass-card border-b border-border/50 px-6 py-4 backdrop-blur-xl">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold neon-text animate-neon-flicker" data-testid="text-page-title">
-            {title}
-          </h1>
-          {subtitle && (
-            <p className="text-sm text-muted-foreground mt-1" data-testid="text-page-subtitle">
-              {subtitle}
-            </p>
-          )}
-        </div>
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="sm" className="relative neon-glow-sm hover:neon-glow-md transition-all duration-300" data-testid="button-notifications">
-            <i className="fas fa-bell text-lg"></i>
-            <span className="absolute -top-1 -right-1 w-3 h-3 bg-accent rounded-full animate-neon-pulse neon-glow-sm"></span>
-          </Button>
-          {actions}
-        </div>
+    <header className="flex h-16 items-center justify-between border-b bg-card px-6">
+      <div>
+        <h1 className="text-xl font-semibold text-foreground">{title}</h1>
+        {subtitle && <p className="text-sm text-muted-foreground">{subtitle}</p>}
+      </div>
+      <div className="flex items-center gap-4">
+        {actions}
+        <Button variant="ghost" size="icon">
+          <Bell className="h-5 w-5" />
+          <span className="sr-only">Notifications</span>
+        </Button>
       </div>
     </header>
   );

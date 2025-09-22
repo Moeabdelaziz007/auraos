@@ -1,125 +1,175 @@
-import { useLocation } from "wouter";
-import { Link } from "wouter";
-import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { useLocation, Link } from "wouter";
+import {
+  Home,
+  Users,
+  GitFork,
+  Bot,
+  Puzzle,
+  Book,
+  GraduationCap,
+  Brain,
+  Sparkles,
+  Send,
+  BarChart,
+  Settings,
+  Bug,
+  Star,
+  ChevronsLeft,
+  ChevronsRight,
+  LogOut,
+  Sun,
+  Moon,
+  Compass,
+  FileText as FileTextIcon
+} from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/hooks/use-auth";
+import { useTheme } from "@/hooks/use-theme";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const navigation = [
-  { name: 'Dashboard', href: '/', icon: 'fas fa-home' },
-  { name: 'Social Feed', href: '/social-feed', icon: 'fas fa-users', hasNotification: true },
-  { name: 'Workflows', href: '/workflows', icon: 'fas fa-project-diagram' },
-  { name: 'AI Agents', href: '/ai-agents', icon: 'fas fa-robot' },
-  { name: 'MCP Tools', href: '/mcp-tools', icon: 'fas fa-puzzle-piece', hasNotification: true },
-  { name: 'Prompt Library', href: '/prompt-library', icon: 'fas fa-book', hasNotification: true },
-  { name: 'Learning', href: '/learning', icon: 'fas fa-graduation-cap', hasNotification: true },
-  { name: 'Smart Learning', href: '/smart-learning', icon: 'fas fa-brain' },
-  { name: 'AI Tools', href: '/advanced-ai-tools', icon: 'fas fa-tools' },
-  { name: 'Telegram', href: '/telegram', icon: 'fab fa-telegram' },
-  { name: 'Analytics', href: '/analytics', icon: 'fas fa-chart-bar' },
-  { name: 'Settings', href: '/settings', icon: 'fas fa-cog' },
-  { name: 'Debug', href: '/debug', icon: 'fas fa-bug' },
-  { name: 'Workspace', href: '/workspace', icon: 'fas fa-star' },
+  { name: "Dashboard", href: "/", icon: Home },
+  { name: "AI Browser", href: "/ai-browser", icon: Compass },
+  { name: "AI Notes", href: "/ai-notes", icon: FileTextIcon },
+  { name: "Social Feed", href: "/social-feed", icon: Users },
+  { name: "Workflows", href: "/workflows", icon: GitFork },
+  { name: "AI Agents", href: "/ai-agents", icon: Bot },
+  { name: "MCP Tools", href: "/mcp-tools", icon: Puzzle },
+  { name: "Prompt Library", href: "/prompt-library", icon: Book },
+  { name: "Learning", href: "/learning", icon: GraduationCap },
+  { name: "Smart Learning", href: "/smart-learning", icon: Brain },
+  { name: "AI Tools", href: "/advanced-ai-tools", icon: Sparkles },
+  { name: "Telegram", href: "/telegram", icon: Send },
+  { name: "Analytics", href: "/analytics", icon: BarChart },
+  { name: "Settings", href: "/settings", icon: Settings },
+  { name: "Debug", href: "/debug", icon: Bug },
+  { name: "Workspace", href: "/workspace", icon: Star },
 ];
 
 export default function Sidebar() {
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const [location] = useLocation();
   const { user, signOut } = useAuth();
-  
-  const { data: userData } = useQuery({
-    queryKey: ['userData', user?.uid],
-    queryFn: () => user?.uid ? Promise.resolve({ displayName: user.displayName, email: user.email }) : null,
-    enabled: !!user?.uid
-  });
+  const { theme, setTheme } = useTheme();
 
-  const handleSignOut = async () => {
-    try {
-      await signOut();
-    } catch (error) {
-      console.error('Sign out error:', error);
-    }
-  };
+  const toggleSidebar = () => setIsCollapsed(!isCollapsed);
 
   return (
-    <div className="sidebar w-64 glass-card border-r border-border/50 flex flex-col backdrop-blur-xl cyber-scrollbar">
-      {/* Logo */}
-      <div className="p-6">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 gradient-cyber-primary rounded-xl flex items-center justify-center neon-glow-lg animate-neon-pulse">
-            <i className="fas fa-robot text-white text-lg"></i>
-          </div>
-          <div className="flex flex-col">
-            <span className="font-bold text-xl neon-text animate-neon-flicker">AuraOS</span>
-            <span className="text-xs text-muted-foreground font-mono">v2.0</span>
-          </div>
-        </div>
+    <div
+      className={cn(
+        "flex h-screen flex-col border-r bg-card text-card-foreground transition-all duration-300 ease-in-out",
+        isCollapsed ? "w-20" : "w-64"
+      )}
+    >
+      {/* Header */}
+      <div className="flex h-16 items-center border-b px-6">
+         <Link href="/">
+            <a className="flex items-center gap-2">
+                <Bot className="h-8 w-8 text-primary" />
+                <h1
+                className={cn(
+                    "text-xl font-bold text-foreground transition-opacity duration-200",
+                    isCollapsed ? "opacity-0" : "opacity-100"
+                )}
+                >
+                AuraOS
+                </h1>
+            </a>
+        </Link>
       </div>
-      
+
       {/* Navigation */}
-      <nav className="flex-1 px-4 pb-4">
-        <ul className="space-y-2">
-          {navigation.map((item) => {
-            const isActive = location === item.href;
-            
-            return (
-              <li key={item.name}>
+      <nav className="flex-1 space-y-2 overflow-y-auto px-3 py-4">
+        {navigation.map((item) => {
+          const isActive = location === item.href;
+          const Icon = item.icon;
+          return (
+            <Tooltip key={item.name}>
+              <TooltipTrigger asChild>
                 <Link href={item.href}>
-                  <a 
+                  <a
                     className={cn(
-                      "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group relative overflow-hidden",
+                      "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
                       isActive
-                        ? "gradient-cyber-primary text-white neon-glow-lg animate-neon-pulse"
-                        : "text-muted-foreground hover:text-foreground hover:bg-primary/10 hover:neon-glow-sm hover:border-primary/30 border border-transparent"
+                        ? "bg-primary text-primary-foreground"
+                        : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
+                      isCollapsed && "justify-center"
                     )}
-                    data-testid={`nav-${item.name.toLowerCase().replace(' ', '-')}`}
                   >
-                    <i className={`${item.icon} w-5 transition-transform duration-300 group-hover:scale-110`}></i>
-                    <span className="font-medium">{item.name}</span>
-                    {item.hasNotification && (
-                      <div className="ml-auto w-2 h-2 bg-accent rounded-full animate-neon-pulse neon-glow-sm"></div>
-                    )}
-                    {isActive && (
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-cyber-scan"></div>
-                    )}
+                    <Icon className="h-5 w-5" />
+                    <span className={cn(isCollapsed ? "hidden" : "block")}>
+                      {item.name}
+                    </span>
                   </a>
                 </Link>
-              </li>
-            );
-          })}
-        </ul>
+              </TooltipTrigger>
+              {isCollapsed && (
+                <TooltipContent side="right">
+                  <p>{item.name}</p>
+                </TooltipContent>
+              )}
+            </Tooltip>
+          );
+        })}
       </nav>
-      
-      <Separator className="bg-border/30" />
-      
-      {/* User Profile */}
-      <div className="p-4">
-        <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-primary/10 transition-all duration-300 group">
-          <Avatar className="w-10 h-10 border border-primary/30 neon-glow-sm group-hover:neon-glow-md transition-all duration-300">
+
+      {/* Footer */}
+      <div className="mt-auto border-t p-3">
+        <div className="space-y-2">
+            {/* Theme Toggle */}
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <Button variant="ghost" size={isCollapsed ? "icon" : "default"} onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className={cn("w-full", isCollapsed ? "" : "justify-start gap-3")}>
+                        {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+                        <span className={cn(isCollapsed ? "hidden" : "block")}>Toggle Theme</span>
+                    </Button>
+                </TooltipTrigger>
+                {isCollapsed && <TooltipContent side="right"><p>Toggle Theme</p></TooltipContent>}
+            </Tooltip>
+
+            {/* Collapse Toggle */}
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <Button variant="ghost" size={isCollapsed ? "icon" : "default"} onClick={toggleSidebar} className={cn("w-full", isCollapsed ? "" : "justify-start gap-3")}>
+                        {isCollapsed ? <ChevronsRight className="h-5 w-5" /> : <ChevronsLeft className="h-5 w-5" />}
+                        <span className={cn(isCollapsed ? "hidden" : "block")}>Collapse</span>
+                    </Button>
+                </TooltipTrigger>
+                {isCollapsed && <TooltipContent side="right"><p>Collapse</p></TooltipContent>}
+            </Tooltip>
+        </div>
+
+        {/* User Profile */}
+        <div className="mt-4 flex items-center gap-3 rounded-md p-2 hover:bg-muted/50">
+          <Avatar className="h-9 w-9">
             <AvatarImage src={user?.photoURL || undefined} alt={user?.displayName || 'User'} />
-            <AvatarFallback className="bg-gradient-to-r from-primary/20 to-accent/20 text-primary font-bold">
-              {user?.displayName?.split(' ').map(n => n[0]).join('') || user?.email?.[0]?.toUpperCase() || 'U'}
-            </AvatarFallback>
+            <AvatarFallback>{user?.email?.[0]?.toUpperCase() || 'U'}</AvatarFallback>
           </Avatar>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-foreground truncate neon-text" data-testid="text-user-name">
-              {user?.displayName || user?.email || 'User'}
+          <div className={cn("flex-1 min-w-0", isCollapsed && "hidden")}>
+            <p className="truncate text-sm font-medium text-foreground">
+              {user?.displayName || "User"}
             </p>
-            <p className="text-xs text-muted-foreground truncate" data-testid="text-user-email">
-              {user?.email || 'user@example.com'}
+            <p className="truncate text-xs text-muted-foreground">
+              {user?.email}
             </p>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleSignOut}
-            data-testid="button-sign-out"
-            title="Sign Out"
-            className="hover:bg-primary/20 hover:text-primary transition-all duration-300 neon-glow-sm hover:neon-glow-md"
-          >
-            <i className="fas fa-sign-out-alt"></i>
-          </Button>
+          {!isCollapsed && (
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon" onClick={signOut}>
+                        <LogOut className="h-5 w-5" />
+                    </Button>
+                </TooltipTrigger>
+                <TooltipContent side="right"><p>Sign Out</p></TooltipContent>
+            </Tooltip>
+          )}
         </div>
       </div>
     </div>

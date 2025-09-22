@@ -7,13 +7,12 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/hooks/use-theme";
 import { AuthProvider } from "@/hooks/use-auth";
 import ProtectedRoute from "@/components/auth/protected-route";
-import { ErrorBoundary } from "@/components/ui/error-boundary";
-import { KeyboardShortcuts, COMMON_SHORTCUTS } from "@/components/ui/keyboard-navigation";
-import { useRouterTracking } from "@/components/analytics/page-tracker";
-import { withPageTracking } from "@/components/analytics/page-tracker";
+import MainLayout from "@/components/layout/main-layout";
 
-// Lazy load pages for better performance
+// Lazy load pages
 const Dashboard = lazy(() => import("@/pages/dashboard"));
+const AIBrowserPage = lazy(() => import("@/pages/ai-browser"));
+const AINotesPage = lazy(() => import("@/pages/ai-notes"));
 const SocialFeed = lazy(() => import("@/pages/social-feed"));
 const Workflows = lazy(() => import("@/pages/workflows"));
 const AIAgents = lazy(() => import("@/pages/ai-agents"));
@@ -30,38 +29,39 @@ const Analytics = lazy(() => import("@/pages/analytics"));
 const Settings = lazy(() => import("@/pages/settings"));
 const Login = lazy(() => import("@/pages/login"));
 
-// Loading component
 const PageLoader = () => (
-  <div className="flex items-center justify-center h-screen">
-    <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+  <div className="flex h-screen items-center justify-center bg-background">
+    <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
   </div>
 );
 
-function Router() {
-  useRouterTracking(); // Track router navigation
-  
+function AppRoutes() {
   return (
     <Suspense fallback={<PageLoader />}>
       <Switch>
         <Route path="/login" component={Login} />
         <ProtectedRoute>
-          <Switch>
-            <Route path="/" component={withPageTracking(Dashboard, 'Dashboard')} />
-            <Route path="/social-feed" component={withPageTracking(SocialFeed, 'Social Feed')} />
-            <Route path="/workflows" component={withPageTracking(Workflows, 'Workflows')} />
-            <Route path="/ai-agents" component={withPageTracking(AIAgents, 'AI Agents')} />
-            <Route path="/mcp-tools" component={withPageTracking(MCPToolsPage, 'MCP Tools')} />
-            <Route path="/prompt-library" component={withPageTracking(PromptLibraryPage, 'Prompt Library')} />
-            <Route path="/telegram" component={withPageTracking(TelegramPage, 'Telegram')} />
-            <Route path="/smart-learning" component={withPageTracking(SmartLearningPage, 'Smart Learning')} />
-            <Route path="/advanced-ai-tools" component={withPageTracking(AdvancedAIToolsPage, 'Advanced AI Tools')} />
-            <Route path="/learning" component={withPageTracking(LearningDashboard, 'Learning Dashboard')} />
-            <Route path="/debug" component={withPageTracking(DebugView, 'Debug View')} />
-            <Route path="/workspace" component={withPageTracking(Workspace, 'Workspace')} />
-            <Route path="/analytics" component={withPageTracking(Analytics, 'Analytics')} />
-            <Route path="/settings" component={withPageTracking(Settings, 'Settings')} />
-            <Route component={withPageTracking(NotFound, 'Not Found')} />
-          </Switch>
+          <MainLayout>
+            <Switch>
+              <Route path="/" component={Dashboard} />
+              <Route path="/ai-browser" component={AIBrowserPage} />
+              <Route path="/ai-notes" component={AINotesPage} />
+              <Route path="/social-feed" component={SocialFeed} />
+              <Route path="/workflows" component={Workflows} />
+              <Route path="/ai-agents" component={AIAgents} />
+              <Route path="/mcp-tools" component={MCPToolsPage} />
+              <Route path="/prompt-library" component={PromptLibraryPage} />
+              <Route path="/telegram" component={TelegramPage} />
+              <Route path="/smart-learning" component={SmartLearningPage} />
+              <Route path="/advanced-ai-tools" component={AdvancedAIToolsPage} />
+              <Route path="/learning" component={LearningDashboard} />
+              <Route path="/debug" component={DebugView} />
+              <Route path="/workspace" component={Workspace} />
+              <Route path="/analytics" component={Analytics} />
+              <Route path="/settings" component={Settings} />
+              <Route component={NotFound} />
+            </Switch>
+          </MainLayout>
         </ProtectedRoute>
       </Switch>
     </Suspense>
@@ -70,20 +70,16 @@ function Router() {
 
 function App() {
   return (
-    <ErrorBoundary>
-      <AuthProvider>
-        <QueryClientProvider client={queryClient}>
-          <ThemeProvider>
-            <TooltipProvider>
-              <KeyboardShortcuts shortcuts={COMMON_SHORTCUTS}>
-                <Toaster />
-                <Router />
-              </KeyboardShortcuts>
-            </TooltipProvider>
-          </ThemeProvider>
-        </QueryClientProvider>
-      </AuthProvider>
-    </ErrorBoundary>
+    <AuthProvider>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider>
+          <TooltipProvider>
+            <Toaster />
+            <AppRoutes />
+          </TooltipProvider>
+        </ThemeProvider>
+      </QueryClientProvider>
+    </AuthProvider>
   );
 }
 
