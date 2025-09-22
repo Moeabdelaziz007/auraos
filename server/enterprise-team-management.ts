@@ -101,12 +101,18 @@ interface OrganizationSettings {
   };
 }
 
+/**
+ * Manages enterprise teams, organizations, roles, and permissions.
+ */
 export class EnterpriseTeamManager {
   private teams: Map<string, Team> = new Map();
   private organizations: Map<string, Organization> = new Map();
   private roles: Map<string, TeamRole> = new Map();
   private auditLog: any[] = [];
 
+  /**
+   * Creates an instance of EnterpriseTeamManager.
+   */
   constructor() {
     this.initializeDefaultRoles();
     this.initializeDefaultOrganization();
@@ -253,7 +259,14 @@ export class EnterpriseTeamManager {
     this.organizations.set(defaultOrg.id, defaultOrg);
   }
 
-  // Team Management Methods
+  /**
+   * Creates a new team.
+   * @param {string} name The name of the team.
+   * @param {string} description The description of the team.
+   * @param {string} [organizationId='default_org'] The ID of the organization the team belongs to.
+   * @param {string} creatorId The ID of the user creating the team.
+   * @returns {Promise<Team>} A promise that resolves with the newly created team.
+   */
   async createTeam(
     name: string,
     description: string,
@@ -340,6 +353,16 @@ export class EnterpriseTeamManager {
     return team;
   }
 
+  /**
+   * Adds a member to a team.
+   * @param {string} teamId The ID of the team to add the member to.
+   * @param {string} userId The ID of the user to add.
+   * @param {string} email The email of the user to add.
+   * @param {string} name The name of the user to add.
+   * @param {string} roleId The ID of the role to assign to the user.
+   * @param {any} [metadata={}] Additional metadata for the user.
+   * @returns {Promise<TeamMember>} A promise that resolves with the newly added team member.
+   */
   async addTeamMember(
     teamId: string,
     userId: string,
@@ -391,6 +414,13 @@ export class EnterpriseTeamManager {
     return member;
   }
 
+  /**
+   * Removes a member from a team.
+   * @param {string} teamId The ID of the team to remove the member from.
+   * @param {string} memberId The ID of the member to remove.
+   * @param {string} removedBy The ID of the user removing the member.
+   * @returns {Promise<boolean>} A promise that resolves with true if the member was removed, false otherwise.
+   */
   async removeTeamMember(teamId: string, memberId: string, removedBy: string): Promise<boolean> {
     const team = this.teams.get(teamId);
     if (!team) {
@@ -419,6 +449,14 @@ export class EnterpriseTeamManager {
     return true;
   }
 
+  /**
+   * Updates a member's role.
+   * @param {string} teamId The ID of the team the member belongs to.
+   * @param {string} memberId The ID of the member to update.
+   * @param {string} newRoleId The ID of the new role.
+   * @param {string} updatedBy The ID of the user updating the role.
+   * @returns {Promise<boolean>} A promise that resolves with true if the role was updated, false otherwise.
+   */
   async updateMemberRole(
     teamId: string,
     memberId: string,
@@ -462,7 +500,14 @@ export class EnterpriseTeamManager {
     return true;
   }
 
-  // Role Management Methods
+  /**
+   * Creates a custom role.
+   * @param {string} name The name of the role.
+   * @param {string[]} permissions The permissions for the role.
+   * @param {string} description The description of the role.
+   * @param {string} [organizationId='default_org'] The ID of the organization the role belongs to.
+   * @returns {Promise<TeamRole>} A promise that resolves with the newly created role.
+   */
   async createCustomRole(
     name: string,
     permissions: string[],
@@ -492,7 +537,13 @@ export class EnterpriseTeamManager {
     return role;
   }
 
-  // Permission and Access Control Methods
+  /**
+   * Checks if a user has a specific permission in a team.
+   * @param {string} userId The ID of the user.
+   * @param {string} teamId The ID of the team.
+   * @param {string} permission The permission to check for.
+   * @returns {Promise<boolean>} A promise that resolves with true if the user has the permission, false otherwise.
+   */
   async checkPermission(
     userId: string,
     teamId: string,
@@ -511,6 +562,11 @@ export class EnterpriseTeamManager {
     return member.permissions.includes(permission);
   }
 
+  /**
+   * Gets all teams a user belongs to.
+   * @param {string} userId The ID of the user.
+   * @returns {Promise<Team[]>} A promise that resolves with a list of teams.
+   */
   async getUserTeams(userId: string): Promise<Team[]> {
     const userTeams: Team[] = [];
     
@@ -524,11 +580,21 @@ export class EnterpriseTeamManager {
     return userTeams;
   }
 
+  /**
+   * Gets all members of a team.
+   * @param {string} teamId The ID of the team.
+   * @returns {Promise<TeamMember[]>} A promise that resolves with a list of team members.
+   */
   async getTeamMembers(teamId: string): Promise<TeamMember[]> {
     const team = this.teams.get(teamId);
     return team ? team.members : [];
   }
 
+  /**
+   * Gets analytics for a team.
+   * @param {string} teamId The ID of the team.
+   * @returns {Promise<any>} A promise that resolves with analytics data for the team.
+   */
   async getTeamAnalytics(teamId: string): Promise<any> {
     const team = this.teams.get(teamId);
     if (!team) {
@@ -562,7 +628,6 @@ export class EnterpriseTeamManager {
     return analytics;
   }
 
-  // Audit and Logging Methods
   private logAuditEvent(event: any): void {
     this.auditLog.push(event);
     
@@ -572,6 +637,14 @@ export class EnterpriseTeamManager {
     }
   }
 
+  /**
+   * Gets the audit log.
+   * @param {string} [teamId] The ID of the team to get the audit log for.
+   * @param {string} [userId] The ID of the user to get the audit log for.
+   * @param {Date} [startDate] The start date of the audit log.
+   * @param {Date} [endDate] The end date of the audit log.
+   * @returns {Promise<any[]>} A promise that resolves with the audit log.
+   */
   async getAuditLog(
     teamId?: string,
     userId?: string,
@@ -599,11 +672,20 @@ export class EnterpriseTeamManager {
     return filteredLog.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
   }
 
-  // Utility Methods
+  /**
+   * Gets a team by its ID.
+   * @param {string} teamId The ID of the team to get.
+   * @returns {Promise<Team | null>} A promise that resolves with the team, or null if not found.
+   */
   async getTeam(teamId: string): Promise<Team | null> {
     return this.teams.get(teamId) || null;
   }
 
+  /**
+   * Gets all teams in an organization.
+   * @param {string} [organizationId='default_org'] The ID of the organization.
+   * @returns {Promise<Team[]>} A promise that resolves with a list of teams.
+   */
   async getAllTeams(organizationId: string = 'default_org'): Promise<Team[]> {
     const organization = this.organizations.get(organizationId);
     if (!organization) {
@@ -613,10 +695,21 @@ export class EnterpriseTeamManager {
     return organization.teams.map(teamId => this.teams.get(teamId)).filter(Boolean) as Team[];
   }
 
+  /**
+   * Gets all available roles.
+   * @returns {Promise<TeamRole[]>} A promise that resolves with a list of available roles.
+   */
   async getAvailableRoles(): Promise<TeamRole[]> {
     return Array.from(this.roles.values());
   }
 
+  /**
+   * Updates a team's settings.
+   * @param {string} teamId The ID of the team to update.
+   * @param {Partial<TeamSettings>} settings The settings to update.
+   * @param {string} updatedBy The ID of the user updating the settings.
+   * @returns {Promise<boolean>} A promise that resolves with true if the settings were updated, false otherwise.
+   */
   async updateTeamSettings(teamId: string, settings: Partial<TeamSettings>, updatedBy: string): Promise<boolean> {
     const team = this.teams.get(teamId);
     if (!team) {
@@ -643,6 +736,10 @@ export class EnterpriseTeamManager {
 // Export singleton instance
 let enterpriseTeamManager: EnterpriseTeamManager | null = null;
 
+/**
+ * Gets the singleton instance of the EnterpriseTeamManager.
+ * @returns {EnterpriseTeamManager} The singleton instance of the EnterpriseTeamManager.
+ */
 export function getEnterpriseTeamManager(): EnterpriseTeamManager {
   if (!enterpriseTeamManager) {
     enterpriseTeamManager = new EnterpriseTeamManager();

@@ -86,11 +86,17 @@ const calculateAIScore = (service: TravelService | FoodService, persona: UserPer
   return Math.min(10, score + Math.random() * 0.5); // Add a small random factor
 };
 
+/**
+ * Manages travel and food services, as well as smart shopping agents.
+ */
 export class TravelFoodServiceManager {
   private travelServices: Map<string, TravelService> = new Map();
   private foodServices: Map<string, FoodService> = new Map();
   private smartAgents: Map<string, SmartShoppingAgent> = new Map();
 
+  /**
+   * Creates an instance of TravelFoodServiceManager.
+   */
   constructor() {
     this.initializeTravelServices();
     this.initializeFoodServices();
@@ -523,35 +529,66 @@ export class TravelFoodServiceManager {
     });
   }
 
-  // Get all travel services
+  /**
+   * Gets all travel services.
+   * @returns {TravelService[]} A list of all travel services.
+   */
   getTravelServices(): TravelService[] {
     return Array.from(this.travelServices.values());
   }
 
-  // Get all food services
+  /**
+   * Gets all food services.
+   * @returns {FoodService[]} A list of all food services.
+   */
   getFoodServices(): FoodService[] {
     return Array.from(this.foodServices.values());
   }
 
-  // Get all smart agents
+  /**
+   * Gets all smart shopping agents.
+   * @returns {SmartShoppingAgent[]} A list of all smart shopping agents.
+   */
   getSmartAgents(): SmartShoppingAgent[] {
     return Array.from(this.smartAgents.values());
   }
 
-  // Get service by ID
+  /**
+   * Gets a travel service by its ID.
+   * @param {string} id The ID of the travel service.
+   * @returns {TravelService | undefined} The travel service, or undefined if not found.
+   */
   getTravelService(id: string): TravelService | undefined {
     return this.travelServices.get(id);
   }
 
+  /**
+   * Gets a food service by its ID.
+   * @param {string} id The ID of the food service.
+   * @returns {FoodService | undefined} The food service, or undefined if not found.
+   */
   getFoodService(id: string): FoodService | undefined {
     return this.foodServices.get(id);
   }
 
+  /**
+   * Gets a smart shopping agent by its ID.
+   * @param {string} id The ID of the smart shopping agent.
+   * @returns {SmartShoppingAgent | undefined} The smart shopping agent, or undefined if not found.
+   */
   getSmartAgent(id: string): SmartShoppingAgent | undefined {
     return this.smartAgents.get(id);
   }
 
-  // Create custom agent template
+  /**
+   * Creates a custom agent template.
+   * @param {string} name The name of the agent.
+   * @param {'travel' | 'food' | 'general'} category The category of the agent.
+   * @param {Partial<SmartShoppingAgent['capabilities']>} capabilities The capabilities of the agent.
+   * @param {string[]} integrations The integrations of the agent.
+   * @param {string[]} automationRules The automation rules of the agent.
+   * @returns {SmartShoppingAgent} The newly created smart shopping agent.
+   */
   createCustomAgentTemplate(
     name: string,
     category: 'travel' | 'food' | 'general',
@@ -580,7 +617,14 @@ export class TravelFoodServiceManager {
     return agent;
   }
 
-  // Generate AI-powered recommendations
+  /**
+   * Generates AI-powered travel recommendations.
+   * @param {string} userId The user's ID.
+   * @param {string} destination The destination.
+   * @param {number} budget The budget.
+   * @param {any} preferences The user's preferences.
+   * @returns {Promise<{ flights: any[]; hotels: any[]; activities: any[]; packages: any[]; }>} A promise that resolves with travel recommendations.
+   */
   async generateTravelRecommendations(
     userId: string,
     destination: string,
@@ -643,7 +687,14 @@ export class TravelFoodServiceManager {
     return { flights, hotels, activities, packages };
   }
 
-  // Generate AI-powered food recommendations
+  /**
+   * Generates AI-powered food recommendations.
+   * @param {string} userId The user's ID.
+   * @param {string} location The location.
+   * @param {number} budget The budget.
+   * @param {any} preferences The user's preferences.
+   * @returns {Promise<{ restaurants: any[]; delivery: any[]; groceries: any[]; mealPlans: any[]; }>} A promise that resolves with food recommendations.
+   */
   async generateFoodRecommendations(
     userId: string,
     location: string,
@@ -709,6 +760,10 @@ export class TravelFoodServiceManager {
 // Export singleton instance
 let travelFoodServiceManager: TravelFoodServiceManager | null = null;
 
+/**
+ * Gets the singleton instance of the TravelFoodServiceManager.
+ * @returns {TravelFoodServiceManager} The singleton instance of the TravelFoodServiceManager.
+ */
 export function getTravelFoodServiceManager(): TravelFoodServiceManager {
   if (!travelFoodServiceManager) {
     travelFoodServiceManager = new TravelFoodServiceManager();

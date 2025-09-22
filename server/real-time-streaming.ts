@@ -5,6 +5,9 @@ import { getMultiModalAIEngine, MultiModalInput, MultiModalOutput } from './mult
 import { Server as HttpServer } from 'http';
 import { verifyToken } from './firebase.js'; // Import Firebase token verification
 
+/**
+ * Represents a streaming connection.
+ */
 export interface StreamingConnection {
   id: string;
   userId: string;
@@ -16,6 +19,9 @@ export interface StreamingConnection {
   messageCount: number;
 }
 
+/**
+ * Represents a streaming message.
+ */
 export interface StreamingMessage {
   id: string;
   type: 'input' | 'output' | 'status' | 'error' | 'heartbeat';
@@ -24,6 +30,9 @@ export interface StreamingMessage {
   sessionId?: string;
 }
 
+/**
+ * Represents the configuration for the real-time streaming service.
+ */
 export interface StreamingConfig {
   maxConnections: number;
   heartbeatInterval: number;
@@ -32,6 +41,9 @@ export interface StreamingConfig {
   path: string; // Add path to config
 }
 
+/**
+ * Manages real-time AI streaming over WebSockets.
+ */
 export class RealTimeAIStreaming extends EventEmitter {
   private wss: WebSocketServer | null = null;
   private connections: Map<string, StreamingConnection> = new Map();
@@ -40,6 +52,10 @@ export class RealTimeAIStreaming extends EventEmitter {
   private heartbeatInterval: NodeJS.Timeout | null = null;
   private cleanupInterval: NodeJS.Timeout | null = null;
 
+  /**
+   * Creates an instance of RealTimeAIStreaming.
+   * @param {StreamingConfig} config The configuration for the streaming service.
+   */
   constructor(config: StreamingConfig) {
     super();
     this.config = config;
@@ -47,6 +63,11 @@ export class RealTimeAIStreaming extends EventEmitter {
     this.setupAIEngineListeners();
   }
 
+  /**
+   * Starts the real-time streaming service.
+   * @param {HttpServer} server The HTTP server to attach the WebSocket server to.
+   * @returns {Promise<void>}
+   */
   async start(server: HttpServer): Promise<void> {
     // Skip starting if already running or if main WebSocket server is handling connections
     if (this.wss) {
@@ -95,6 +116,10 @@ export class RealTimeAIStreaming extends EventEmitter {
     }
   }
 
+  /**
+   * Stops the real-time streaming service.
+   * @returns {Promise<void>}
+   */
   async stop(): Promise<void> {
     if (this.heartbeatInterval) {
       clearInterval(this.heartbeatInterval);
@@ -436,18 +461,35 @@ export class RealTimeAIStreaming extends EventEmitter {
     });
   }
 
+  /**
+   * Gets a connection by its ID.
+   * @param {string} connectionId The ID of the connection to get.
+   * @returns {StreamingConnection | undefined} The connection, or undefined if not found.
+   */
   getConnection(connectionId: string): StreamingConnection | undefined {
     return this.connections.get(connectionId);
   }
 
+  /**
+   * Gets all connections.
+   * @returns {StreamingConnection[]} A list of all connections.
+   */
   getAllConnections(): StreamingConnection[] {
     return Array.from(this.connections.values());
   }
 
+  /**
+   * Gets all active connections.
+   * @returns {StreamingConnection[]} A list of all active connections.
+   */
   getActiveConnections(): StreamingConnection[] {
     return Array.from(this.connections.values()).filter(conn => conn.isActive);
   }
 
+  /**
+   * Gets connection statistics.
+   * @returns {any} Connection statistics.
+   */
   getConnectionStats(): any {
     const connections = Array.from(this.connections.values());
     return {
@@ -461,6 +503,11 @@ export class RealTimeAIStreaming extends EventEmitter {
     };
   }
 
+  /**
+   * Broadcasts a message to all active connections.
+   * @param {StreamingMessage} message The message to broadcast.
+   * @param {string} [excludeConnectionId] The ID of a connection to exclude from the broadcast.
+   */
   broadcastMessage(message: StreamingMessage, excludeConnectionId?: string): void {
     for (const connection of Array.from(this.connections.values())) {
       if (connection.isActive && connection.id !== excludeConnectionId) {
@@ -469,6 +516,11 @@ export class RealTimeAIStreaming extends EventEmitter {
     }
   }
 
+  /**
+   * Sends a message to a specific user.
+   * @param {string} userId The ID of the user to send the message to.
+   * @param {StreamingMessage} message The message to send.
+   */
   sendToUser(userId: string, message: StreamingMessage): void {
     for (const connection of Array.from(this.connections.values())) {
       if (connection.isActive && connection.userId === userId) {
@@ -477,6 +529,10 @@ export class RealTimeAIStreaming extends EventEmitter {
     }
   }
 
+  /**
+   * Gets streaming metrics.
+   * @returns {any} Streaming metrics.
+   */
   getStreamingMetrics(): any {
     const stats = this.getConnectionStats();
     const aiMetrics = this.aiEngine.getPerformanceMetrics();
@@ -496,6 +552,11 @@ export class RealTimeAIStreaming extends EventEmitter {
 
 let realTimeAIStreaming: RealTimeAIStreaming | null = null;
 
+/**
+ * Initializes the real-time AI streaming service.
+ * @param {HttpServer} server The HTTP server to attach the WebSocket server to.
+ * @returns {RealTimeAIStreaming} The singleton instance of the real-time AI streaming service.
+ */
 export function initializeRealTimeAIStreaming(server: HttpServer): RealTimeAIStreaming {
   if (!realTimeAIStreaming) {
     const config: StreamingConfig = {
@@ -511,6 +572,10 @@ export function initializeRealTimeAIStreaming(server: HttpServer): RealTimeAIStr
   return realTimeAIStreaming;
 }
 
+/**
+ * Gets the singleton instance of the real-time AI streaming service.
+ * @returns {RealTimeAIStreaming} The singleton instance of the real-time AI streaming service.
+ */
 export function getRealTimeAIStreaming(): RealTimeAIStreaming {
   if (!realTimeAIStreaming) {
     throw new Error('RealTimeAIStreaming is not initialized. Call initializeRealTimeAIStreaming first.');

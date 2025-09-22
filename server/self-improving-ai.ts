@@ -1,17 +1,27 @@
 import { getSmartLearningAI, MetaLearningState, LearningContext, AdaptationStrategy } from './smart-learning-ai.js';
 import { enhancedLogger } from './enhanced-logger.js';
 
-// A new interface for a generated learning strategy
+/**
+ * Represents a generated learning strategy.
+ */
 export interface GeneratedStrategy {
   id: string;
   name: string;
   description: string;
-  // A strategy is a function that takes a context and state and returns a result.
+  /**
+   * A strategy is a function that takes a context and state and returns a result.
+   * @param {LearningContext} context The learning context.
+   * @param {MetaLearningState} state The meta-learning state.
+   * @returns {Promise<any>} A promise that resolves with the result of the strategy.
+   */
   execute: (context: LearningContext, state: MetaLearningState) => Promise<any>;
   performanceScore: number;
   validationResults: any[];
 }
 
+/**
+ * A system that can improve its own learning strategies over time.
+ */
 export class SelfImprovingAISystem {
   private smartLearningAI: any;
   private generatedStrategies: Map<string, GeneratedStrategy> = new Map();
@@ -21,12 +31,18 @@ export class SelfImprovingAISystem {
     this.smartLearningAI = getSmartLearningAI();
   }
 
+  /**
+   * Starts the self-improving AI system.
+   */
   public start() {
     enhancedLogger.info('Self-Improving AI System started.', 'ai');
     // Run an improvement cycle every 5 minutes
     this.improvementCycleInterval = setInterval(() => this.runImprovementCycle(), 5 * 60 * 1000);
   }
 
+  /**
+   * Stops the self-improving AI system.
+   */
   public stop() {
     if (this.improvementCycleInterval) {
       clearInterval(this.improvementCycleInterval);
@@ -34,6 +50,11 @@ export class SelfImprovingAISystem {
     }
   }
 
+  /**
+   * Runs a self-improvement cycle.
+   * This involves analyzing performance, generating new strategies, validating them, and applying the best one.
+   * @returns {Promise<void>}
+   */
   public async runImprovementCycle() {
     enhancedLogger.info('Running self-improvement cycle...', 'ai');
 
@@ -226,6 +247,10 @@ export class SelfImprovingAISystem {
 
 let selfImprovingAISystem: SelfImprovingAISystem | null = null;
 
+/**
+ * Gets the singleton instance of the SelfImprovingAISystem.
+ * @returns {SelfImprovingAISystem} The singleton instance of the SelfImprovingAISystem.
+ */
 export function getSelfImprovingAISystem(): SelfImprovingAISystem {
   if (!selfImprovingAISystem) {
     selfImprovingAISystem = new SelfImprovingAISystem();

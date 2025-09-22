@@ -1,6 +1,8 @@
 import { storage } from './storage.js';
 
-// Enhanced Node System inspired by n8n architecture
+/**
+ * Represents a node in an n8n workflow.
+ */
 export interface N8nNode {
   id: string;
   name: string;
@@ -24,12 +26,18 @@ export interface N8nNode {
   executeOnce?: boolean;
 }
 
+/**
+ * Represents a connection between nodes in an n8n workflow.
+ */
 export interface N8nConnection {
   node: string;
   type: string;
   index: number;
 }
 
+/**
+ * Represents an n8n workflow.
+ */
 export interface N8nWorkflow {
   id: string;
   name: string;
@@ -46,6 +54,9 @@ export interface N8nWorkflow {
   };
 }
 
+/**
+ * Represents the settings for an n8n workflow.
+ */
 export interface N8nWorkflowSettings {
   executionOrder: 'v1' | 'v2';
   saveManualExecutions: boolean;
@@ -64,6 +75,9 @@ export interface N8nWorkflowSettings {
   };
 }
 
+/**
+ * Represents a type of n8n node.
+ */
 export interface N8nNodeType {
   name: string;
   displayName: string;
@@ -91,6 +105,9 @@ export interface N8nNodeType {
   iconUrl?: string;
 }
 
+/**
+ * Represents a property of an n8n node.
+ */
 export interface N8nNodeProperty {
   displayName: string;
   name: string;
@@ -109,6 +126,9 @@ export interface N8nNodeProperty {
   noDataExpression?: boolean;
 }
 
+/**
+ * Represents an option for a property of an n8n node.
+ */
 export interface N8nNodePropertyOption {
   name: string;
   value: string | number | boolean;
@@ -117,6 +137,9 @@ export interface N8nNodePropertyOption {
   rightIcon?: string;
 }
 
+/**
+ * Represents an execution of an n8n workflow.
+ */
 export interface N8nExecution {
   id: string;
   finished: boolean;
@@ -135,6 +158,9 @@ export interface N8nExecution {
   };
 }
 
+/**
+ * Represents the data for an n8n workflow execution.
+ */
 export interface N8nExecutionData {
   resultData: N8nExecutionResult[];
   startTime: number;
@@ -142,6 +168,9 @@ export interface N8nExecutionData {
   lastNodeExecuted?: string;
 }
 
+/**
+ * Represents the result of an n8n workflow execution.
+ */
 export interface N8nExecutionResult {
   node: {
     name: string;
@@ -155,6 +184,9 @@ export interface N8nExecutionResult {
   executionTime?: number;
 }
 
+/**
+ * Manages an n8n-style node system, including node types, workflows, and executions.
+ */
 export class N8nNodeSystem {
   private nodeTypes: Map<string, N8nNodeType> = new Map();
   private workflows: Map<string, N8nWorkflow> = new Map();
@@ -163,6 +195,9 @@ export class N8nNodeSystem {
   private executionQueue: string[] = [];
   private monitoringSubscribers: Set<any> = new Set();
 
+  /**
+   * Creates an instance of N8nNodeSystem.
+   */
   constructor() {
     this.initializeDefaultNodeTypes();
     this.initializeDefaultWorkflows();
@@ -877,12 +912,20 @@ export class N8nNodeSystem {
     });
   }
 
-  // Public API Methods
+  /**
+   * Registers a new node type.
+   * @param {N8nNodeType} nodeType The node type to register.
+   */
   registerNodeType(nodeType: N8nNodeType): void {
     this.nodeTypes.set(nodeType.name, nodeType);
     console.log(`📦 Registered node type: ${nodeType.displayName}`);
   }
 
+  /**
+   * Creates a new workflow.
+   * @param {Omit<N8nWorkflow, 'id'>} workflowData The data for the new workflow.
+   * @returns {N8nWorkflow} The newly created workflow.
+   */
   createWorkflow(workflowData: Omit<N8nWorkflow, 'id'>): N8nWorkflow {
     const workflow: N8nWorkflow = {
       ...workflowData,
@@ -894,31 +937,62 @@ export class N8nNodeSystem {
     return workflow;
   }
 
+  /**
+   * Executes a workflow manually.
+   * @param {string} workflowId The ID of the workflow to execute.
+   * @returns {Promise<string>} A promise that resolves with the execution ID.
+   */
   async executeWorkflowManually(workflowId: string): Promise<string> {
     this.executionQueue.push(workflowId);
     return `exec_manual_${Date.now()}_${workflowId}`;
   }
 
+  /**
+   * Gets a workflow by its ID.
+   * @param {string} workflowId The ID of the workflow to get.
+   * @returns {N8nWorkflow | undefined} The workflow, or undefined if not found.
+   */
   getWorkflow(workflowId: string): N8nWorkflow | undefined {
     return this.workflows.get(workflowId);
   }
 
+  /**
+   * Gets all workflows.
+   * @returns {N8nWorkflow[]} A list of all workflows.
+   */
   getAllWorkflows(): N8nWorkflow[] {
     return Array.from(this.workflows.values());
   }
 
+  /**
+   * Gets an execution by its ID.
+   * @param {string} executionId The ID of the execution to get.
+   * @returns {N8nExecution | undefined} The execution, or undefined if not found.
+   */
   getExecution(executionId: string): N8nExecution | undefined {
     return this.executions.get(executionId);
   }
 
+  /**
+   * Gets all executions.
+   * @returns {N8nExecution[]} A list of all executions.
+   */
   getAllExecutions(): N8nExecution[] {
     return Array.from(this.executions.values());
   }
 
+  /**
+   * Gets all node types.
+   * @returns {N8nNodeType[]} A list of all node types.
+   */
   getNodeTypes(): N8nNodeType[] {
     return Array.from(this.nodeTypes.values());
   }
 
+  /**
+   * Gets the system status.
+   * @returns {any} The system status.
+   */
   getSystemStatus(): any {
     return {
       isLive: this.isLive,
@@ -931,7 +1005,11 @@ export class N8nNodeSystem {
     };
   }
 
-  // Monitoring and Control
+  /**
+   * Subscribes to updates from the system.
+   * @param {(status: any) => void} callback The callback to call with updates.
+   * @returns {() => void} A function to unsubscribe.
+   */
   subscribeToUpdates(callback: (status: any) => void): () => void {
     this.monitoringSubscribers.add(callback);
     return () => this.monitoringSubscribers.delete(callback);
@@ -984,6 +1062,10 @@ export class N8nNodeSystem {
 // Export singleton instance
 let n8nNodeSystem: N8nNodeSystem | null = null;
 
+/**
+ * Gets the singleton instance of the N8nNodeSystem.
+ * @returns {N8nNodeSystem} The singleton instance of the N8nNodeSystem.
+ */
 export function getN8nNodeSystem(): N8nNodeSystem {
   if (!n8nNodeSystem) {
     n8nNodeSystem = new N8nNodeSystem();

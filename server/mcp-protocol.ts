@@ -1,6 +1,8 @@
 import { EventEmitter } from 'events';
 
-// MCP (Model Context Protocol) Implementation
+/**
+ * Represents a message in the Model Context Protocol.
+ */
 export interface MCPMessage {
   id: string;
   type: 'request' | 'response' | 'notification' | 'error';
@@ -15,6 +17,9 @@ export interface MCPMessage {
   timestamp: Date;
 }
 
+/**
+ * Represents a capability in the Model Context Protocol.
+ */
 export interface MCPCapability {
   name: string;
   description: string;
@@ -23,6 +28,9 @@ export interface MCPCapability {
   resources: MCPResource[];
 }
 
+/**
+ * Represents a method of a capability in the Model Context Protocol.
+ */
 export interface MCPMethod {
   name: string;
   description: string;
@@ -31,6 +39,9 @@ export interface MCPMethod {
   async: boolean;
 }
 
+/**
+ * Represents a parameter of a method in the Model Context Protocol.
+ */
 export interface MCPParameter {
   name: string;
   type: string;
@@ -39,11 +50,17 @@ export interface MCPParameter {
   default?: any;
 }
 
+/**
+ * Represents the return value of a method in the Model Context Protocol.
+ */
 export interface MCPReturn {
   type: string;
   description: string;
 }
 
+/**
+ * Represents a resource in the Model Context Protocol.
+ */
 export interface MCPResource {
   uri: string;
   name: string;
@@ -53,6 +70,9 @@ export interface MCPResource {
   lastModified?: Date;
 }
 
+/**
+ * Represents a tool in the Model Context Protocol.
+ */
 export interface MCPTool {
   name: string;
   description: string;
@@ -60,6 +80,9 @@ export interface MCPTool {
   execute: (params: any) => Promise<any>;
 }
 
+/**
+ * Represents an agent in the Model Context Protocol.
+ */
 export interface MCPAgent {
   id: string;
   name: string;
@@ -70,6 +93,9 @@ export interface MCPAgent {
   isActive: boolean;
 }
 
+/**
+ * Implements the Model Context Protocol (MCP), a protocol for communication between AI models and tools.
+ */
 export class MCPProtocol extends EventEmitter {
   private capabilities: Map<string, MCPCapability> = new Map();
   private agents: Map<string, MCPAgent> = new Map();
@@ -77,6 +103,9 @@ export class MCPProtocol extends EventEmitter {
   private messageQueue: MCPMessage[] = [];
   private isConnected: boolean = false;
 
+  /**
+   * Creates an instance of MCPProtocol.
+   */
   constructor() {
     super();
     this.initializeCoreCapabilities();
@@ -545,7 +574,10 @@ export class MCPProtocol extends EventEmitter {
     });
   }
 
-  // MCP Protocol Methods
+  /**
+   * Connects the MCP protocol.
+   * @returns {Promise<boolean>} A promise that resolves with true if the connection is successful, false otherwise.
+   */
   async connect(): Promise<boolean> {
     try {
       this.isConnected = true;
@@ -558,11 +590,20 @@ export class MCPProtocol extends EventEmitter {
     }
   }
 
+  /**
+   * Disconnects the MCP protocol.
+   * @returns {Promise<void>}
+   */
   async disconnect(): Promise<void> {
     this.isConnected = false;
     this.emit('disconnected');
   }
 
+  /**
+   * Sends a message through the MCP protocol.
+   * @param {MCPMessage} message The message to send.
+   * @returns {Promise<MCPMessage>} A promise that resolves with the response message.
+   */
   async sendMessage(message: MCPMessage): Promise<MCPMessage> {
     if (!this.isConnected) {
       throw new Error('MCP Protocol not connected');
@@ -876,7 +917,14 @@ export class MCPProtocol extends EventEmitter {
     };
   }
 
-  // Public API Methods
+  /**
+   * Creates a new agent.
+   * @param {string} name The name of the agent.
+   * @param {string} description The description of the agent.
+   * @param {string[]} capabilities The capabilities of the agent.
+   * @param {string[]} tools The tools the agent can use.
+   * @returns {Promise<MCPAgent>} A promise that resolves with the newly created agent.
+   */
   async createAgent(name: string, description: string, capabilities: string[], tools: string[]): Promise<MCPAgent> {
     const agent: MCPAgent = {
       id: `agent_${Date.now()}`,
@@ -892,6 +940,13 @@ export class MCPProtocol extends EventEmitter {
     return agent;
   }
 
+  /**
+   * Executes a task on an agent.
+   * @param {string} agentId The ID of the agent to execute the task on.
+   * @param {string} task The task to execute.
+   * @param {any} [context={}] The context for the task.
+   * @returns {Promise<any>} A promise that resolves with the result of the task.
+   */
   async executeAgentTask(agentId: string, task: string, context: any = {}): Promise<any> {
     const agent = this.agents.get(agentId);
     if (!agent) {
@@ -901,32 +956,63 @@ export class MCPProtocol extends EventEmitter {
     return await this.executeAgent(agent, task, context);
   }
 
+  /**
+   * Adds a tool to the protocol.
+   * @param {MCPTool} tool The tool to add.
+   * @returns {Promise<void>}
+   */
   async addTool(tool: MCPTool): Promise<void> {
     this.tools.set(tool.name, tool);
   }
 
+  /**
+   * Removes a tool from the protocol.
+   * @param {string} toolName The name of the tool to remove.
+   * @returns {Promise<void>}
+   */
   async removeTool(toolName: string): Promise<void> {
     this.tools.delete(toolName);
   }
 
+  /**
+   * Gets all capabilities.
+   * @returns {Promise<MCPCapability[]>} A promise that resolves with a list of all capabilities.
+   */
   async getCapabilities(): Promise<MCPCapability[]> {
     return Array.from(this.capabilities.values());
   }
 
+  /**
+   * Gets all tools.
+   * @returns {Promise<MCPTool[]>} A promise that resolves with a list of all tools.
+   */
   async getTools(): Promise<MCPTool[]> {
     return Array.from(this.tools.values());
   }
 
+  /**
+   * Gets all agents.
+   * @returns {Promise<MCPAgent[]>} A promise that resolves with a list of all agents.
+   */
   async getAgents(): Promise<MCPAgent[]> {
     return Array.from(this.agents.values());
   }
 
-  // Real-time capabilities
+  /**
+   * Enables real-time updates for connected clients.
+   * @returns {Promise<void>}
+   */
   async enableRealTimeUpdates(): Promise<void> {
     // Enable real-time updates for connected clients
     this.emit('realTimeEnabled');
   }
 
+  /**
+   * Broadcasts an update to all connected clients.
+   * @param {string} type The type of the update.
+   * @param {any} data The data for the update.
+   * @returns {Promise<void>}
+   */
   async broadcastUpdate(type: string, data: any): Promise<void> {
     this.emit('update', { type, data, timestamp: new Date() });
   }
@@ -935,6 +1021,10 @@ export class MCPProtocol extends EventEmitter {
 // Export singleton instance
 let mcpProtocol: MCPProtocol | null = null;
 
+/**
+ * Gets the singleton instance of the MCPProtocol.
+ * @returns {MCPProtocol} The singleton instance of the MCPProtocol.
+ */
 export function getMCPProtocol(): MCPProtocol {
   if (!mcpProtocol) {
     mcpProtocol = new MCPProtocol();
@@ -942,7 +1032,10 @@ export function getMCPProtocol(): MCPProtocol {
   return mcpProtocol;
 }
 
-// Initialize MCP Protocol
+/**
+ * Initializes the MCP protocol.
+ * @returns {Promise<MCPProtocol>} A promise that resolves with the initialized MCP protocol instance.
+ */
 export async function initializeMCP(): Promise<MCPProtocol> {
   const protocol = getMCPProtocol();
   await protocol.connect();

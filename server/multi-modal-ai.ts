@@ -1,6 +1,9 @@
 import { EventEmitter } from 'events';
 import { v4 as uuidv4 } from 'uuid';
 
+/**
+ * Represents a multi-modal input.
+ */
 export interface MultiModalInput {
   type: 'text' | 'audio' | 'image' | 'video' | 'mixed';
   data: string | Buffer | ArrayBuffer;
@@ -13,6 +16,9 @@ export interface MultiModalInput {
   };
 }
 
+/**
+ * Represents a multi-modal output.
+ */
 export interface MultiModalOutput {
   type: 'text' | 'audio' | 'image' | 'video' | 'mixed';
   data: string | Buffer | ArrayBuffer;
@@ -27,6 +33,9 @@ export interface MultiModalOutput {
   };
 }
 
+/**
+ * Represents an AI model.
+ */
 export interface AIModel {
   id: string;
   name: string;
@@ -40,6 +49,9 @@ export interface AIModel {
   isActive: boolean;
 }
 
+/**
+ * Represents a streaming session.
+ */
 export interface StreamingSession {
   id: string;
   userId: string;
@@ -49,6 +61,9 @@ export interface StreamingSession {
   messages: StreamingMessage[];
 }
 
+/**
+ * Represents a streaming message.
+ */
 export interface StreamingMessage {
   id: string;
   timestamp: Date;
@@ -57,12 +72,18 @@ export interface StreamingMessage {
   processingTime: number;
 }
 
+/**
+ * An AI engine that can process multi-modal inputs.
+ */
 export class MultiModalAIEngine extends EventEmitter {
   private models: Map<string, AIModel> = new Map();
   private streamingSessions: Map<string, StreamingSession> = new Map();
   private activeSessions: Set<string> = new Set();
   private performanceMetrics: Map<string, any> = new Map();
 
+  /**
+   * Creates an instance of MultiModalAIEngine.
+   */
   constructor() {
     super();
     this.initializeDefaultModels();
@@ -147,23 +168,46 @@ export class MultiModalAIEngine extends EventEmitter {
     });
   }
 
+  /**
+   * Registers an AI model.
+   * @param {AIModel} model The model to register.
+   */
   registerModel(model: AIModel): void {
     this.models.set(model.id, model);
     this.emit('modelRegistered', model);
   }
 
+  /**
+   * Gets a model by its ID.
+   * @param {string} modelId The ID of the model to get.
+   * @returns {AIModel | undefined} The model, or undefined if not found.
+   */
   getModel(modelId: string): AIModel | undefined {
     return this.models.get(modelId);
   }
 
+  /**
+   * Gets all models.
+   * @returns {AIModel[]} A list of all models.
+   */
   getAllModels(): AIModel[] {
     return Array.from(this.models.values());
   }
 
+  /**
+   * Gets all active models.
+   * @returns {AIModel[]} A list of all active models.
+   */
   getActiveModels(): AIModel[] {
     return Array.from(this.models.values()).filter(model => model.isActive);
   }
 
+  /**
+   * Processes a multi-modal input.
+   * @param {MultiModalInput} input The input to process.
+   * @param {string} [modelId] The ID of the model to use. If not provided, the best model will be selected automatically.
+   * @returns {Promise<MultiModalOutput>} A promise that resolves with the output.
+   */
   async processMultiModal(input: MultiModalInput, modelId?: string): Promise<MultiModalOutput> {
     const startTime = Date.now();
     
@@ -391,7 +435,12 @@ export class MultiModalAIEngine extends EventEmitter {
     };
   }
 
-  // Real-Time Streaming Methods
+  /**
+   * Starts a real-time streaming session.
+   * @param {string} userId The ID of the user starting the session.
+   * @param {string} modelId The ID of the model to use for the session.
+   * @returns {Promise<string>} A promise that resolves with the session ID.
+   */
   async startStreamingSession(userId: string, modelId: string): Promise<string> {
     const sessionId = uuidv4();
     const session: StreamingSession = {
@@ -410,6 +459,12 @@ export class MultiModalAIEngine extends EventEmitter {
     return sessionId;
   }
 
+  /**
+   * Processes a streaming input.
+   * @param {string} sessionId The ID of the streaming session.
+   * @param {MultiModalInput} input The input to process.
+   * @returns {Promise<MultiModalOutput>} A promise that resolves with the output.
+   */
   async processStreamingInput(sessionId: string, input: MultiModalInput): Promise<MultiModalOutput> {
     const session = this.streamingSessions.get(sessionId);
     if (!session || !session.isActive) {
@@ -433,6 +488,11 @@ export class MultiModalAIEngine extends EventEmitter {
     return output;
   }
 
+  /**
+   * Ends a streaming session.
+   * @param {string} sessionId The ID of the streaming session to end.
+   * @returns {Promise<void>}
+   */
   async endStreamingSession(sessionId: string): Promise<void> {
     const session = this.streamingSessions.get(sessionId);
     if (session) {
@@ -442,10 +502,19 @@ export class MultiModalAIEngine extends EventEmitter {
     }
   }
 
+  /**
+   * Gets a streaming session by its ID.
+   * @param {string} sessionId The ID of the streaming session to get.
+   * @returns {StreamingSession | undefined} The streaming session, or undefined if not found.
+   */
   getStreamingSession(sessionId: string): StreamingSession | undefined {
     return this.streamingSessions.get(sessionId);
   }
 
+  /**
+   * Gets all active streaming sessions.
+   * @returns {StreamingSession[]} A list of all active streaming sessions.
+   */
   getActiveStreamingSessions(): StreamingSession[] {
     return Array.from(this.streamingSessions.values()).filter(session => session.isActive);
   }
@@ -477,15 +546,29 @@ export class MultiModalAIEngine extends EventEmitter {
     this.performanceMetrics.set(modelId, metrics);
   }
 
+  /**
+   * Gets performance metrics for all models.
+   * @returns {Map<string, any>} A map of performance metrics.
+   */
   getPerformanceMetrics(): Map<string, any> {
     return new Map(this.performanceMetrics);
   }
 
+  /**
+   * Gets performance metrics for a specific model.
+   * @param {string} modelId The ID of the model to get performance metrics for.
+   * @returns {any} Performance metrics for the model.
+   */
   getModelPerformance(modelId: string): any {
     return this.performanceMetrics.get(modelId);
   }
 
-  // Federated Learning Support
+  /**
+   * Updates a model using federated learning.
+   * @param {string} modelId The ID of the model to update.
+   * @param {any} localUpdate The local update to apply.
+   * @returns {Promise<void>}
+   */
   async federatedLearningUpdate(modelId: string, localUpdate: any): Promise<void> {
     // Simulate federated learning update
     const model = this.getModel(modelId);
@@ -501,6 +584,10 @@ export class MultiModalAIEngine extends EventEmitter {
     });
   }
 
+  /**
+   * Gets the status of federated learning.
+   * @returns {Promise<any>} A promise that resolves with the federated learning status.
+   */
   async getFederatedLearningStatus(): Promise<any> {
     return {
       activeModels: this.getActiveModels().length,
@@ -514,6 +601,10 @@ export class MultiModalAIEngine extends EventEmitter {
 // Singleton instance
 let multiModalAIEngine: MultiModalAIEngine | null = null;
 
+/**
+ * Gets the singleton instance of the MultiModalAIEngine.
+ * @returns {MultiModalAIEngine} The singleton instance of the MultiModalAIEngine.
+ */
 export function getMultiModalAIEngine(): MultiModalAIEngine {
   if (!multiModalAIEngine) {
     multiModalAIEngine = new MultiModalAIEngine();
@@ -521,6 +612,10 @@ export function getMultiModalAIEngine(): MultiModalAIEngine {
   return multiModalAIEngine;
 }
 
+/**
+ * Initializes the multi-modal AI engine.
+ * @returns {MultiModalAIEngine} The initialized multi-modal AI engine.
+ */
 export function initializeMultiModalAI(): MultiModalAIEngine {
   const engine = getMultiModalAIEngine();
   console.log('🧠 Multi-Modal AI Engine initialized successfully');

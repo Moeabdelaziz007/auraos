@@ -1,6 +1,8 @@
 import { storage } from './storage.js';
 
-// Enhanced Integration Connectors inspired by n8n's 400+ integrations
+/**
+ * Represents an integration connector.
+ */
 export interface IntegrationConnector {
   id: string;
   name: string;
@@ -21,11 +23,17 @@ export interface IntegrationConnector {
   isOfficial?: boolean;
 }
 
+/**
+ * Represents the category of an integration.
+ */
 export type IntegrationCategory = 
   | 'communication' | 'productivity' | 'development' | 'marketing' 
   | 'sales' | 'finance' | 'analytics' | 'storage' | 'database' 
   | 'ai' | 'social_media' | 'ecommerce' | 'travel' | 'utilities';
 
+/**
+ * Represents a type of credential for an integration.
+ */
 export interface CredentialType {
   name: string;
   displayName: string;
@@ -34,6 +42,9 @@ export interface CredentialType {
   properties: CredentialProperty[];
 }
 
+/**
+ * Represents a property of a credential.
+ */
 export interface CredentialProperty {
   displayName: string;
   name: string;
@@ -44,6 +55,9 @@ export interface CredentialProperty {
   description?: string;
 }
 
+/**
+ * Represents a node in an integration.
+ */
 export interface IntegrationNode {
   name: string;
   displayName: string;
@@ -62,6 +76,9 @@ export interface IntegrationNode {
   webhookUrl?: string;
 }
 
+/**
+ * Represents a property of a node.
+ */
 export interface NodeProperty {
   displayName: string;
   name: string;
@@ -74,6 +91,9 @@ export interface NodeProperty {
   displayOptions?: Record<string, any>;
 }
 
+/**
+ * Represents a webhook definition for an integration.
+ */
 export interface WebhookDefinition {
   name: string;
   httpMethod: 'GET' | 'POST' | 'PUT' | 'DELETE';
@@ -82,6 +102,9 @@ export interface WebhookDefinition {
   authentication?: string;
 }
 
+/**
+ * Represents a trigger definition for an integration.
+ */
 export interface TriggerDefinition {
   name: string;
   displayName: string;
@@ -90,6 +113,9 @@ export interface TriggerDefinition {
   webhookSupported?: boolean;
 }
 
+/**
+ * Represents an action definition for an integration.
+ */
 export interface ActionDefinition {
   name: string;
   displayName: string;
@@ -98,12 +124,18 @@ export interface ActionDefinition {
   operation: string;
 }
 
+/**
+ * Manages n8n-style integration connectors.
+ */
 export class N8nIntegrationManager {
   private connectors: Map<string, IntegrationConnector> = new Map();
   private credentials: Map<string, Record<string, any>> = new Map();
   private webhooks: Map<string, WebhookDefinition[]> = new Map();
   private isLive: boolean = false;
 
+  /**
+   * Creates an instance of N8nIntegrationManager.
+   */
   constructor() {
     this.initializeDefaultConnectors();
     this.initializeLiveMode();
@@ -742,24 +774,45 @@ export class N8nIntegrationManager {
     console.log(`🔌 Registered ${this.connectors.size} integration connectors`);
   }
 
-  // Public API Methods
+  /**
+   * Registers a new integration connector.
+   * @param {IntegrationConnector} connector The connector to register.
+   */
   registerConnector(connector: IntegrationConnector): void {
     this.connectors.set(connector.id, connector);
     console.log(`📦 Registered connector: ${connector.displayName}`);
   }
 
+  /**
+   * Gets a connector by its ID.
+   * @param {string} connectorId The ID of the connector to get.
+   * @returns {IntegrationConnector | undefined} The connector, or undefined if not found.
+   */
   getConnector(connectorId: string): IntegrationConnector | undefined {
     return this.connectors.get(connectorId);
   }
 
+  /**
+   * Gets all connectors.
+   * @returns {IntegrationConnector[]} A list of all connectors.
+   */
   getAllConnectors(): IntegrationConnector[] {
     return Array.from(this.connectors.values());
   }
 
+  /**
+   * Gets all connectors in a category.
+   * @param {IntegrationCategory} category The category to get connectors from.
+   * @returns {IntegrationConnector[]} A list of connectors in the category.
+   */
   getConnectorsByCategory(category: IntegrationCategory): IntegrationConnector[] {
     return Array.from(this.connectors.values()).filter(c => c.category === category);
   }
 
+  /**
+   * Gets popular connectors.
+   * @returns {IntegrationConnector[]} A list of popular connectors.
+   */
   getPopularConnectors(): IntegrationConnector[] {
     // Return most commonly used connectors
     const popularIds = ['telegram', 'openai', 'http_request', 'google_sheets', 'gmail'];
@@ -768,31 +821,58 @@ export class N8nIntegrationManager {
       .filter(Boolean) as IntegrationConnector[];
   }
 
+  /**
+   * Gets featured connectors.
+   * @returns {IntegrationConnector[]} A list of featured connectors.
+   */
   getFeaturedConnectors(): IntegrationConnector[] {
     return Array.from(this.connectors.values()).filter(c => c.isOfficial && !c.isPremium);
   }
 
+  /**
+   * Gets premium connectors.
+   * @returns {IntegrationConnector[]} A list of premium connectors.
+   */
   getPremiumConnectors(): IntegrationConnector[] {
     return Array.from(this.connectors.values()).filter(c => c.isPremium);
   }
 
+  /**
+   * Gets community connectors.
+   * @returns {IntegrationConnector[]} A list of community connectors.
+   */
   getCommunityConnectors(): IntegrationConnector[] {
     return Array.from(this.connectors.values()).filter(c => c.isCommunity);
   }
 
-  // Credential Management
+  /**
+   * Sets credentials for a connector.
+   * @param {string} connectorId The ID of the connector.
+   * @param {string} credentialName The name of the credential.
+   * @param {Record<string, any>} credentials The credentials to set.
+   */
   setCredentials(connectorId: string, credentialName: string, credentials: Record<string, any>): void {
     const key = `${connectorId}:${credentialName}`;
     this.credentials.set(key, credentials);
     console.log(`🔑 Stored credentials for ${connectorId}:${credentialName}`);
   }
 
+  /**
+   * Gets credentials for a connector.
+   * @param {string} connectorId The ID of the connector.
+   * @param {string} credentialName The name of the credential.
+   * @returns {Record<string, any> | undefined} The credentials, or undefined if not found.
+   */
   getCredentials(connectorId: string, credentialName: string): Record<string, any> | undefined {
     const key = `${connectorId}:${credentialName}`;
     return this.credentials.get(key);
   }
 
-  // Webhook Management
+  /**
+   * Registers a webhook for a connector.
+   * @param {string} connectorId The ID of the connector.
+   * @param {WebhookDefinition} webhook The webhook to register.
+   */
   registerWebhook(connectorId: string, webhook: WebhookDefinition): void {
     if (!this.webhooks.has(connectorId)) {
       this.webhooks.set(connectorId, []);
@@ -801,11 +881,20 @@ export class N8nIntegrationManager {
     console.log(`🎣 Registered webhook for ${connectorId}: ${webhook.name}`);
   }
 
+  /**
+   * Gets all webhooks for a connector.
+   * @param {string} connectorId The ID of the connector.
+   * @returns {WebhookDefinition[]} A list of webhooks.
+   */
   getWebhooks(connectorId: string): WebhookDefinition[] {
     return this.webhooks.get(connectorId) || [];
   }
 
-  // Search and Discovery
+  /**
+   * Searches for connectors.
+   * @param {string} query The search query.
+   * @returns {IntegrationConnector[]} A list of matching connectors.
+   */
   searchConnectors(query: string): IntegrationConnector[] {
     const lowercaseQuery = query.toLowerCase();
     return Array.from(this.connectors.values()).filter(connector =>
@@ -816,6 +905,10 @@ export class N8nIntegrationManager {
     );
   }
 
+  /**
+   * Gets connector statistics.
+   * @returns {any} Connector statistics.
+   */
   getConnectorStatistics(): any {
     const connectors = Array.from(this.connectors.values());
     const categories = [...new Set(connectors.map(c => c.category))];
@@ -833,6 +926,10 @@ export class N8nIntegrationManager {
     };
   }
 
+  /**
+   * Gets the system status.
+   * @returns {any} The system status.
+   */
   getSystemStatus(): any {
     return {
       isLive: this.isLive,
@@ -843,7 +940,12 @@ export class N8nIntegrationManager {
     };
   }
 
-  // Integration Testing
+  /**
+   * Tests a connector.
+   * @param {string} connectorId The ID of the connector to test.
+   * @param {string} credentialName The name of the credential to use for testing.
+   * @returns {Promise<{ success: boolean; message: string }>} A promise that resolves with the test result.
+   */
   async testConnector(connectorId: string, credentialName: string): Promise<{ success: boolean; message: string }> {
     const connector = this.getConnector(connectorId);
     const credentials = this.getCredentials(connectorId, credentialName);
@@ -872,7 +974,13 @@ export class N8nIntegrationManager {
     }
   }
 
-  // Node Execution Helpers
+  /**
+   * Executes a node.
+   * @param {IntegrationNode} node The node to execute.
+   * @param {Record<string, any>} parameters The parameters for the node.
+   * @param {any[]} inputData The input data for the node.
+   * @returns {Promise<any[]>} A promise that resolves with the output data.
+   */
   async executeNode(node: IntegrationNode, parameters: Record<string, any>, inputData: any[]): Promise<any[]> {
     console.log(`🔧 Executing ${node.displayName} node`);
     
@@ -900,6 +1008,10 @@ export class N8nIntegrationManager {
 // Export singleton instance
 let n8nIntegrationManager: N8nIntegrationManager | null = null;
 
+/**
+ * Gets the singleton instance of the N8nIntegrationManager.
+ * @returns {N8nIntegrationManager} The singleton instance of the N8nIntegrationManager.
+ */
 export function getN8nIntegrationManager(): N8nIntegrationManager {
   if (!n8nIntegrationManager) {
     n8nIntegrationManager = new N8nIntegrationManager();

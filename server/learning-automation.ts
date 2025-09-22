@@ -1,6 +1,9 @@
 import { EventEmitter } from 'events';
 import { v4 as uuidv4 } from 'uuid';
 
+/**
+ * Represents a learning activity.
+ */
 export interface LearningActivity {
   id: string;
   userId: string;
@@ -12,6 +15,9 @@ export interface LearningActivity {
   difficulty: 'beginner' | 'intermediate' | 'advanced' | 'expert';
 }
 
+/**
+ * Represents a user's progress.
+ */
 export interface UserProgress {
   userId: string;
   totalPoints: number;
@@ -26,6 +32,9 @@ export interface UserProgress {
   monthlyGoal: number;
 }
 
+/**
+ * Represents an achievement.
+ */
 export interface Achievement {
   id: string;
   name: string;
@@ -38,6 +47,9 @@ export interface Achievement {
   metadata: Record<string, any>;
 }
 
+/**
+ * Represents a badge.
+ */
 export interface Badge {
   id: string;
   name: string;
@@ -52,6 +64,9 @@ export interface Badge {
   rarity: 'bronze' | 'silver' | 'gold' | 'platinum' | 'diamond';
 }
 
+/**
+ * Represents a learning recommendation.
+ */
 export interface LearningRecommendation {
   id: string;
   userId: string;
@@ -67,6 +82,9 @@ export interface LearningRecommendation {
   createdAt: Date;
 }
 
+/**
+ * Represents a learning challenge.
+ */
 export interface LearningChallenge {
   id: string;
   title: string;
@@ -89,6 +107,9 @@ export interface LearningChallenge {
   isActive: boolean;
 }
 
+/**
+ * Manages the learning automation system, including activities, progress, badges, and achievements.
+ */
 export class LearningAutomationSystem extends EventEmitter {
   private activities: Map<string, LearningActivity[]> = new Map();
   private userProgress: Map<string, UserProgress> = new Map();
@@ -109,6 +130,9 @@ export class LearningAutomationSystem extends EventEmitter {
     50: 3.0
   };
 
+  /**
+   * Creates an instance of LearningAutomationSystem.
+   */
   constructor() {
     super();
     this.initializeDefaultBadges();
@@ -117,7 +141,9 @@ export class LearningAutomationSystem extends EventEmitter {
   }
 
   /**
-   * Record a learning activity and update user progress
+   * Records a learning activity and updates user progress.
+   * @param {Omit<LearningActivity, 'id' | 'timestamp'>} activity The activity to record.
+   * @returns {Promise<LearningActivity>} A promise that resolves with the recorded activity.
    */
   async recordActivity(activity: Omit<LearningActivity, 'id' | 'timestamp'>): Promise<LearningActivity> {
     const learningActivity: LearningActivity = {
@@ -197,14 +223,19 @@ export class LearningAutomationSystem extends EventEmitter {
   }
 
   /**
-   * Get user progress
+   * Gets a user's progress.
+   * @param {string} userId The ID of the user.
+   * @returns {UserProgress | null} The user's progress, or null if not found.
    */
   getUserProgress(userId: string): UserProgress | null {
     return this.userProgress.get(userId) || null;
   }
 
   /**
-   * Get user activities
+   * Gets a user's activities.
+   * @param {string} userId The ID of the user.
+   * @param {number} [limit=50] The maximum number of activities to return.
+   * @returns {LearningActivity[]} A list of the user's activities.
    */
   getUserActivities(userId: string, limit: number = 50): LearningActivity[] {
     const activities = this.activities.get(userId) || [];
@@ -214,7 +245,9 @@ export class LearningAutomationSystem extends EventEmitter {
   }
 
   /**
-   * Get learning recommendations for user
+   * Gets learning recommendations for a user.
+   * @param {string} userId The ID of the user.
+   * @returns {LearningRecommendation[]} A list of learning recommendations.
    */
   getUserRecommendations(userId: string): LearningRecommendation[] {
     const recommendations = this.recommendations.get(userId) || [];
@@ -550,7 +583,9 @@ export class LearningAutomationSystem extends EventEmitter {
   }
 
   /**
-   * Get leaderboard data
+   * Gets leaderboard data.
+   * @param {number} [limit=10] The maximum number of users to return.
+   * @returns {Array<{ userId: string; points: number; level: number; badges: number }>} A list of users on the leaderboard.
    */
   getLeaderboard(limit: number = 10): Array<{ userId: string; points: number; level: number; badges: number }> {
     const allProgress = Array.from(this.userProgress.values());
@@ -566,7 +601,8 @@ export class LearningAutomationSystem extends EventEmitter {
   }
 
   /**
-   * Get available challenges
+   * Gets active challenges.
+   * @returns {LearningChallenge[]} A list of active challenges.
    */
   getActiveChallenges(): LearningChallenge[] {
     return Array.from(this.challenges.values()).filter(challenge => challenge.isActive);
@@ -576,6 +612,10 @@ export class LearningAutomationSystem extends EventEmitter {
 // Singleton instance
 let learningSystem: LearningAutomationSystem | null = null;
 
+/**
+ * Gets the singleton instance of the LearningAutomationSystem.
+ * @returns {LearningAutomationSystem} The singleton instance of the LearningAutomationSystem.
+ */
 export function getLearningSystem(): LearningAutomationSystem {
   if (!learningSystem) {
     learningSystem = new LearningAutomationSystem();
@@ -583,6 +623,10 @@ export function getLearningSystem(): LearningAutomationSystem {
   return learningSystem;
 }
 
+/**
+ * Initializes the learning automation system.
+ * @returns {LearningAutomationSystem} The initialized learning automation system.
+ */
 export function initializeLearningSystem(): LearningAutomationSystem {
   const system = getLearningSystem();
   

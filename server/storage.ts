@@ -15,44 +15,177 @@ import {
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 
+/**
+ * Interface for a storage provider.
+ */
 export interface IStorage {
   // Users
+  /**
+   * Gets a user by their ID.
+   * @param {string} id The user's ID.
+   * @returns {Promise<User | undefined>} The user, or undefined if not found.
+   */
   getUser(id: string): Promise<User | undefined>;
+  /**
+   * Gets a user by their username.
+   * @param {string} username The user's username.
+   * @returns {Promise<User | undefined>} The user, or undefined if not found.
+   */
   getUserByUsername(username: string): Promise<User | undefined>;
+  /**
+   * Gets a user by their email address.
+   * @param {string} email The user's email address.
+   * @returns {Promise<User | undefined>} The user, or undefined if not found.
+   */
   getUserByEmail(email: string): Promise<User | undefined>;
+  /**
+   * Creates a new user.
+   * @param {InsertUser} user The user data to create.
+   * @returns {Promise<User>} The newly created user.
+   */
   createUser(user: InsertUser): Promise<User>;
 
   // Posts
+  /**
+   * Creates a new post.
+   * @param {InsertPost} post The post data to create.
+   * @returns {Promise<Post>} The newly created post.
+   */
   createPost(post: InsertPost): Promise<Post>;
+  /**
+   * Gets a list of posts, with their authors.
+   * @param {number} [limit=10] The maximum number of posts to return.
+   * @returns {Promise<PostWithAuthor[]>} A list of posts with their authors.
+   */
   getPostsWithAuthor(limit?: number): Promise<PostWithAuthor[]>;
+  /**
+   * Gets a single post by its ID.
+   * @param {string} id The post's ID.
+   * @returns {Promise<Post | undefined>} The post, or undefined if not found.
+   */
   getPost(id: string): Promise<Post | undefined>;
+  /**
+   * Updates the stats for a post.
+   * @param {string} id The post's ID.
+   * @param {number} likes The new number of likes.
+   * @param {number} shares The new number of shares.
+   * @param {number} comments The new number of comments.
+   * @returns {Promise<void>}
+   */
   updatePostStats(id: string, likes: number, shares: number, comments: number): Promise<void>;
 
   // Workflows
+  /**
+   * Creates a new workflow.
+   * @param {InsertWorkflow} workflow The workflow data to create.
+   * @returns {Promise<Workflow>} The newly created workflow.
+   */
   createWorkflow(workflow: InsertWorkflow): Promise<Workflow>;
+  /**
+   * Gets all workflows for a user.
+   * @param {string} userId The user's ID.
+   * @returns {Promise<Workflow[]>} A list of the user's workflows.
+   */
   getWorkflowsByUser(userId: string): Promise<Workflow[]>;
+  /**
+   * Gets a single workflow by its ID.
+   * @param {string} id The workflow's ID.
+   * @returns {Promise<Workflow | undefined>} The workflow, or undefined if not found.
+   */
   getWorkflow(id: string): Promise<Workflow | undefined>;
+  /**
+   * Updates a workflow.
+   * @param {string} id The workflow's ID.
+   * @param {Partial<Workflow>} updates The updates to apply.
+   * @returns {Promise<void>}
+   */
   updateWorkflow(id: string, updates: Partial<Workflow>): Promise<void>;
+  /**
+   * Deletes a workflow.
+   * @param {string} id The workflow's ID.
+   * @returns {Promise<void>}
+   */
   deleteWorkflow(id: string): Promise<void>;
 
   // Agent Templates
+  /**
+   * Gets all agent templates.
+   * @returns {Promise<AgentTemplate[]>} A list of all agent templates.
+   */
   getAgentTemplates(): Promise<AgentTemplate[]>;
+  /**
+   * Gets a single agent template by its ID.
+   * @param {string} id The template's ID.
+   * @returns {Promise<AgentTemplate | undefined>} The template, or undefined if not found.
+   */
   getAgentTemplate(id: string): Promise<AgentTemplate | undefined>;
+  /**
+   * Creates a new agent template.
+   * @param {InsertAgentTemplate} template The template data to create.
+   * @returns {Promise<AgentTemplate>} The newly created template.
+   */
   createAgentTemplate(template: InsertAgentTemplate): Promise<AgentTemplate>;
+  /**
+   * Increments the usage count of an agent template.
+   * @param {string} id The template's ID.
+   * @returns {Promise<void>}
+   */
   incrementTemplateUsage(id: string): Promise<void>;
 
   // User Agents
+  /**
+   * Creates a new user agent.
+   * @param {InsertUserAgent} agent The agent data to create.
+   * @returns {Promise<UserAgent>} The newly created agent.
+   */
   createUserAgent(agent: InsertUserAgent): Promise<UserAgent>;
+  /**
+   * Gets all agents for a user.
+   * @param {string} userId The user's ID.
+   * @returns {Promise<UserAgent[]>} A list of the user's agents.
+   */
   getUserAgents(userId: string): Promise<UserAgent[]>;
+  /**
+   * Gets a single user agent by its ID.
+   * @param {string} id The agent's ID.
+   * @returns {Promise<UserAgent | undefined>} The agent, or undefined if not found.
+   */
   getUserAgent(id: string): Promise<UserAgent | undefined>;
+  /**
+   * Updates a user agent.
+   * @param {string} id The agent's ID.
+   * @param {Partial<UserAgent>} updates The updates to apply.
+   * @returns {Promise<void>}
+   */
   updateUserAgent(id: string, updates: Partial<UserAgent>): Promise<void>;
+  /**
+   * Deletes a user agent.
+   * @param {string} id The agent's ID.
+   * @returns {Promise<void>}
+   */
   deleteUserAgent(id: string): Promise<void>;
 
   // Chat Messages
+  /**
+   * Creates a new chat message.
+   * @param {InsertChatMessage} message The chat message data to create.
+   * @returns {Promise<ChatMessage>} The newly created chat message.
+   */
   createChatMessage(message: InsertChatMessage): Promise<ChatMessage>;
+  /**
+   * Gets all chat messages for a user.
+   * @param {string} userId The user's ID.
+   * @param {number} [limit=50] The maximum number of messages to return.
+   * @returns {Promise<ChatMessage[]>} A list of the user's chat messages.
+   */
   getChatMessages(userId: string, limit?: number): Promise<ChatMessage[]>;
 
   // Statistics
+  /**
+   * Gets statistics for a user.
+   * @param {string} userId The user's ID.
+   * @returns {Promise<{ totalPosts: number; activeAgents: number; engagementRate: number; automationsRun: number; }>} The user's statistics.
+   */
   getUserStats(userId: string): Promise<{
     totalPosts: number;
     activeAgents: number;
@@ -61,6 +194,10 @@ export interface IStorage {
   }>;
 }
 
+/**
+ * An in-memory storage implementation for demonstration and testing purposes.
+ * It implements the IStorage interface.
+ */
 export class MemStorage implements IStorage {
   private users: Map<string, User> = new Map();
   private posts: Map<string, Post> = new Map();
