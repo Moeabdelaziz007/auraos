@@ -151,7 +151,6 @@ export class SmartLearningTelegramBot {
     }
   }
 
-  // ... (rest of the file remains the same)
   public async sendMessage(chatId: number, text: string) {
     try {
       await this.bot.telegram.sendMessage(chatId, text);
@@ -159,6 +158,8 @@ export class SmartLearningTelegramBot {
       console.error(`Failed to send message to chat ${chatId}:`, error);
     }
   }
+
+  // ... (rest of the file remains the same)
 }
 
 // Export singleton instance
