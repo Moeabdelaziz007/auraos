@@ -1,10 +1,44 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Placeholder rules for Sprint 1 scaffolding
-    // NOTE: Replace with proper security rules before production.
-    match /{document=**} {
-      allow read, write: if false;
+    // Users can create their own user document, and read/update their own data.
+    match /users/{userId} {
+      allow create: if request.auth.uid == userId;
+      allow read, update: if request.auth.uid == userId;
+    }
+
+    // Users can create, read, update, and delete their own posts.
+    match /posts/{postId} {
+      allow read: if request.auth.uid == resource.data.userId;
+      allow create: if request.auth.uid == request.resource.data.userId;
+      allow update, delete: if request.auth.uid == resource.data.userId;
+    }
+
+    // Users can create, read, update, and delete their own workflows.
+    match /workflows/{workflowId} {
+      allow read: if request.auth.uid == resource.data.userId;
+      allow create: if request.auth.uid == request.resource.data.userId;
+      allow update, delete: if request.auth.uid == resource.data.userId;
+    }
+
+    // Users can create, read, update, and delete their own agents.
+    match /agents/{agentId} {
+      allow read: if request.auth.uid == resource.data.userId;
+      allow create: if request.auth.uid == request.resource.data.userId;
+      allow update, delete: if request.auth.uid == resource.data.userId;
+    }
+
+    // Users can create and read their own chat messages.
+    match /chatMessages/{messageId} {
+      allow read: if request.auth.uid == resource.data.userId;
+      allow create: if request.auth.uid == request.resource.data.userId;
+    }
+
+    // Users can create, read, update, and delete their own notes.
+    match /notes/{noteId} {
+      allow read: if request.auth.uid == resource.data.userId;
+      allow create: if request.auth.uid == request.resource.data.userId;
+      allow update, delete: if request.auth.uid == resource.data.userId;
     }
   }
 }

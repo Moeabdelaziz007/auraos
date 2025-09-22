@@ -291,6 +291,64 @@ export class FirestoreService {
       throw error;
     }
   }
+
+  // Notes
+  static async createNote(userId: string, noteData: any): Promise<string> {
+    try {
+      const docRef = await addDoc(collection(db, 'notes'), {
+        ...noteData,
+        userId,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      });
+      return docRef.id;
+    } catch (error) {
+      console.error('Error creating note:', error);
+      throw error;
+    }
+  }
+
+  static async getNotes(userId: string): Promise<any[]> {
+    try {
+      const q = query(
+        collection(db, 'notes'),
+        where('userId', '==', userId),
+        orderBy('createdAt', 'desc')
+      );
+
+      const querySnapshot = await getDocs(q);
+      return querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+    } catch (error) {
+      console.error('Error getting notes:', error);
+      throw error;
+    }
+  }
+
+  static async updateNote(noteId: string, data: any): Promise<void> {
+    try {
+      const noteRef = doc(db, 'notes', noteId);
+      await updateDoc(noteRef, {
+        ...data,
+        updatedAt: new Date()
+      });
+    } catch (error) {
+      console.error('Error updating note:', error);
+      throw error;
+    }
+  }
+
+  static async deleteNote(noteId: string): Promise<void> {
+    try {
+      const noteRef = doc(db, 'notes', noteId);
+      await deleteDoc(noteRef);
+    } catch (error) {
+      console.error('Error deleting note:', error);
+      throw error;
+    }
+  }
 }
 
 export const trackEvent = (eventName: string, eventParams?: { [key: string]: any }) => {
