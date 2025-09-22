@@ -8,25 +8,25 @@
 
 :root {
   /* AuraOS Enhanced Green Theme */
-  --background: hsl(0, 0%, 3%); /* Deep dark background */
-  --foreground: hsl(120, 100%, 90%); /* Bright green text */
-  --card: hsl(0, 0%, 5%); /* Dark card background */
-  --card-foreground: hsl(120, 100%, 90%);
+  --background: hsl(0, 0%, 8%); /* Deep dark background */
+  --foreground: hsl(120, 20%, 90%); /* Bright green text */
+  --card: hsl(0, 0%, 10%); /* Dark card background */
+  --card-foreground: hsl(120, 20%, 90%);
   --popover: hsl(0, 0%, 5%);
   --popover-foreground: hsl(120, 100%, 90%);
-  --primary: hsl(120, 100%, 60%); /* Pure bright green */
+  --primary: hsl(120, 70%, 50%); /* Pure bright green */
   --primary-foreground: hsl(0, 0%, 3%);
-  --secondary: hsl(0, 0%, 10%); /* Dark secondary */
-  --secondary-foreground: hsl(120, 100%, 85%);
-  --muted: hsl(0, 0%, 10%);
-  --muted-foreground: hsl(120, 60%, 70%); /* Muted green text */
-  --accent: hsl(140, 100%, 60%); /* Slightly blue-tinted green */
+  --secondary: hsl(0, 0%, 15%); /* Dark secondary */
+  --secondary-foreground: hsl(120, 70%, 85%);
+  --muted: hsl(0, 0%, 15%);
+  --muted-foreground: hsl(120, 30%, 70%); /* Muted green text */
+  --accent: hsl(140, 70%, 50%); /* Slightly blue-tinted green */
   --accent-foreground: hsl(0, 0%, 3%);
-  --destructive: hsl(0, 95%, 70%); /* Red for destructive actions */
+  --destructive: hsl(0, 85%, 60%); /* Red for destructive actions */
   --destructive-foreground: hsl(0, 0%, 98%);
-  --border: hsl(120, 40%, 20%); /* Green-tinted borders */
-  --input: hsl(0, 0%, 10%);
-  --ring: hsl(120, 100%, 60%); /* Green focus ring */
+  --border: hsl(120, 20%, 30%); /* Green-tinted borders */
+  --input: hsl(0, 0%, 15%);
+  --ring: hsl(120, 70%, 50%); /* Green focus ring */
   --chart-1: hsl(120, 100%, 60%); /* Primary green */
   --chart-2: hsl(140, 100%, 60%); /* Accent green */
   --chart-3: hsl(100, 100%, 60%); /* Light green */
@@ -56,10 +56,10 @@
   --shadow-2xl: 0px 25px 50px -12px hsla(120, 100%, 60%, 0.5);
   
   /* Green Neon Glow Effects */
-  --neon-glow-sm: 0 0 5px hsla(120, 100%, 60%, 0.5), 0 0 10px hsla(120, 100%, 60%, 0.3);
-  --neon-glow-md: 0 0 10px hsla(120, 100%, 60%, 0.6), 0 0 20px hsla(120, 100%, 60%, 0.4);
-  --neon-glow-lg: 0 0 15px hsla(120, 100%, 60%, 0.7), 0 0 30px hsla(120, 100%, 60%, 0.5);
-  --neon-glow-xl: 0 0 20px hsla(120, 100%, 60%, 0.8), 0 0 40px hsla(120, 100%, 60%, 0.6);
+  --neon-glow-sm: 0 0 2px hsla(120, 100%, 60%, 0.3), 0 0 5px hsla(120, 100%, 60%, 0.2);
+  --neon-glow-md: 0 0 5px hsla(120, 100%, 60%, 0.4), 0 0 10px hsla(120, 100%, 60%, 0.3);
+  --neon-glow-lg: 0 0 10px hsla(120, 100%, 60%, 0.5), 0 0 20px hsla(120, 100%, 60%, 0.4);
+  --neon-glow-xl: 0 0 15px hsla(120, 100%, 60%, 0.6), 0 0 30px hsla(120, 100%, 60%, 0.5);
   
   /* Green-Focused Cyberpunk Color Palette */
   --cyber-green: hsl(120, 100%, 60%); /* Primary bright green */
@@ -149,20 +149,9 @@
   body {
     @apply font-sans antialiased bg-background text-foreground;
     font-family: 'Inter', 'SF Pro Display', system-ui, sans-serif;
-    background: 
-      /* Animated grid pattern */
-      linear-gradient(90deg, transparent 98%, rgba(0,255,65,0.03) 100%),
-      linear-gradient(0deg, transparent 98%, rgba(0,255,65,0.03) 100%),
-      /* Dynamic radial gradients */
-      radial-gradient(circle at 20% 50%, transparent 20%, rgba(0,255,65,0.04) 21%, rgba(0,255,65,0.04) 34%, transparent 35%, transparent),
-      radial-gradient(circle at 80% 20%, transparent 20%, rgba(0,255,255,0.03) 21%, rgba(0,255,255,0.03) 34%, transparent 35%, transparent),
-      radial-gradient(circle at 40% 80%, transparent 20%, rgba(255,0,255,0.03) 21%, rgba(255,0,255,0.03) 34%, transparent 35%, transparent),
-      radial-gradient(circle at 60% 30%, transparent 20%, rgba(255,255,0,0.02) 21%, rgba(255,255,0,0.02) 34%, transparent 35%, transparent),
-      /* Base gradient */
+    background:
       linear-gradient(135deg, rgba(0,0,0,0.98) 0%, rgba(0,0,0,0.95) 50%, rgba(0,0,0,0.98) 100%);
-    background-size: 50px 50px, 50px 50px, 800px 800px, 600px 600px, 700px 700px, 500px 500px, 100% 100%;
     background-attachment: fixed;
-    animation: backgroundShift 20s ease-in-out infinite;
   }
 
   /* Enhanced Typography */
@@ -175,10 +164,6 @@
   h1 {
     font-size: 2.5rem;
     font-weight: 800;
-    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
   }
 
   h2 {
@@ -261,22 +246,14 @@
   
   /* Cyberpunk Text Effects */
   .cyber-text {
-    background: linear-gradient(45deg, hsl(var(--primary)), hsl(var(--accent)));
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    text-shadow: 0 0 10px hsl(var(--primary));
-    animation: cyber-pulse 3s ease-in-out infinite;
+    color: hsl(var(--primary));
+    text-shadow: 0 0 5px hsl(var(--primary));
   }
   
   .neon-text {
     color: hsl(var(--primary));
     text-shadow: 
-      0 0 5px hsl(var(--primary)),
-      0 0 10px hsl(var(--primary)),
-      0 0 15px hsl(var(--primary)),
-      0 0 20px hsl(var(--primary));
-    animation: neon-flicker 2s ease-in-out infinite alternate;
+      0 0 2px hsl(var(--primary));
   }
   
   /* Advanced Neon Glow Classes */
