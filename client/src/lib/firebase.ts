@@ -1,300 +1,176 @@
-
-import { initializeApp } from 'firebase/app';
-import { getAnalytics, logEvent } from "firebase/analytics";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, User, signInAnonymously } from 'firebase/auth';
-import { getFirestore, doc, setDoc, getDoc, collection, addDoc, updateDoc, deleteDoc, query, where, getDocs, orderBy, limit } from 'firebase/firestore';
-
-// Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyApDku-geNVplwIgRBz2U0rs46aAVo-_mE",
-  authDomain: "aios-97581.firebaseapp.com",
-  projectId: "aios-97581",
-  storageBucket: "aios-97581.appspot.com",
-  messagingSenderId: "307575156824",
-  appId: "1:307575156824:web:00924bd384df1f29909a2d"
-};
+import { initializeApp, FirebaseApp } from 'firebase/app';
+import { getAnalytics, logEvent, Analytics } from "firebase/analytics";
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signOut,
+  onAuthStateChanged,
+  User,
+  signInAnonymously,
+  Auth
+} from 'firebase/auth';
+import {
+  getFirestore,
+  doc,
+  setDoc,
+  getDoc,
+  collection,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  query,
+  where,
+  getDocs,
+  orderBy,
+  limit,
+  enableIndexedDbPersistence,
+  Firestore,
+  DocumentData,
+  QuerySnapshot,
+  serverTimestamp
+} from 'firebase/firestore';
+import {
+  IUserDocument,
+  IAISessionDocument,
+  IWorkspaceDocument
+} from '../../shared/types/firestore';
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
-export const db = getFirestore(app);
-export const analytics = getAnalytics(app);
+const firebaseConfig = {
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
+};
 
-// Google Auth Provider
+const app: FirebaseApp = initializeApp(firebaseConfig);
+const auth: Auth = getAuth(app);
+const db: Firestore = getFirestore(app);
+const analytics: Analytics = getAnalytics(app);
+
+// Enable offline persistence
+enableIndexedDbPersistence(db)
+  .then(() => console.log('Firestore offline persistence enabled.'))
+  .catch((err) => console.error('Error enabling offline persistence:', err));
+
+
+// --- Authentication Service ---
+
 const googleProvider = new GoogleAuthProvider();
 googleProvider.addScope('email');
 googleProvider.addScope('profile');
 
 export class AuthService {
   static async signInWithGoogle(): Promise<User> {
-    try {
-      const result = await signInWithPopup(auth, googleProvider);
-      const user = result.user;
-      
-      // Save user data to Firestore
-      await this.saveUserToFirestore(user);
-      
-      return user;
-    } catch (error) {
-      console.error('Google sign-in error:', error);
-      throw error;
-    }
+    const result = await signInWithPopup(auth, googleProvider);
+    await this.upsertUserInFirestore(result.user);
+    return result.user;
   }
 
   static async signInAnonymously(): Promise<User> {
-    try {
-      const result = await signInAnonymously(auth);
-      const user = result.user;
-      
-      // Save user data to Firestore
-      await this.saveUserToFirestore(user);
-      
-      return user;
-    } catch (error) {
-      console.error('Anonymous sign-in error:', error);
-      throw error;
-    }
+    const result = await signInAnonymously(auth);
+    await this.upsertUserInFirestore(result.user);
+    return result.user;
   }
 
   static async signOut(): Promise<void> {
-    try {
-      await signOut(auth);
-    } catch (error) {
-      console.error('Sign-out error:', error);
-      throw error;
-    }
+    await signOut(auth);
   }
 
-  static onAuthStateChanged(callback: (user: User | null) => void): () => void {
+  static onAuthStateChanged(callback: (user: User | null) => void) {
     return onAuthStateChanged(auth, callback);
   }
 
-  static async saveUserToFirestore(user: User): Promise<void> {
-    try {
-      const userRef = doc(db, 'users', user.uid);
-      const userData = {
-        uid: user.uid,
-        email: user.email,
-        displayName: user.displayName,
-        photoURL: user.photoURL,
-        emailVerified: user.emailVerified,
-        createdAt: new Date(),
-        lastLoginAt: new Date(),
-        preferences: {
-          theme: 'light',
-          notifications: true,
-          language: 'en'
-        }
-      };
+  private static async upsertUserInFirestore(user: User): Promise<void> {
+    const userRef = doc(db, 'users', user.uid);
+    const userData: Partial<IUserDocument> = {
+      uid: user.uid,
+      email: user.email,
+      displayName: user.displayName,
+      photoURL: user.photoURL,
+      lastLoginAt: serverTimestamp() as any, // Cast because serverTimestamp is a sentinel
+    };
 
-      await setDoc(userRef, userData, { merge: true });
-    } catch (error) {
-      console.error('Error saving user to Firestore:', error);
-      throw error;
-    }
+    // Use set with merge:true to create or update the document
+    await setDoc(userRef, userData, { merge: true });
   }
 
-  static async getUserData(uid: string): Promise<any> {
-    try {
-      const userRef = doc(db, 'users', uid);
-      const userSnap = await getDoc(userRef);
-      
-      if (userSnap.exists()) {
-        return userSnap.data();
-      } else {
-        throw new Error('User data not found');
-      }
-    } catch (error) {
-      console.error('Error getting user data:', error);
-      throw error;
-    }
-  }
-
-  static async updateUserData(uid: string, data: any): Promise<void> {
-    try {
-      const userRef = doc(db, 'users', uid);
-      await updateDoc(userRef, {
-        ...data,
-        updatedAt: new Date()
-      });
-    } catch (error) {
-      console.error('Error updating user data:', error);
-      throw error;
-    }
+  static async getUserData(uid: string): Promise<IUserDocument | null> {
+    const userRef = doc(db, 'users', uid);
+    const userSnap = await getDoc(userRef);
+    return userSnap.exists() ? userSnap.data() as IUserDocument : null;
   }
 }
+
+
+// --- Firestore Service ---
 
 export class FirestoreService {
-  // Posts
-  static async createPost(userId: string, postData: any): Promise<string> {
-    try {
-      const docRef = await addDoc(collection(db, 'posts'), {
-        ...postData,
-        userId,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      });
-      return docRef.id;
-    } catch (error) {
-      console.error('Error creating post:', error);
-      throw error;
-    }
+
+  // Workspace Methods
+  static async createWorkspace(userId: string, name: string, description: string): Promise<string> {
+    const workspace: Omit<IWorkspaceDocument, 'id' | 'createdAt' | 'updatedAt'> = {
+      _schemaVersion: 1,
+      name,
+      description,
+      ownerId: userId,
+      isPublic: false,
+    };
+    const docRef = await addDoc(collection(db, 'workspaces'), {
+      ...workspace,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
+    return docRef.id;
   }
 
-  static async getPosts(userId?: string, limitCount: number = 10): Promise<any[]> {
-    try {
-      const postsCollection = collection(db, 'posts');
-      const queryConstraints = [
-        orderBy('createdAt', 'desc'),
-        limit(limitCount)
-      ];
-
-      if (userId) {
-        queryConstraints.unshift(where('userId', '==', userId));
-      }
-      const q = query(postsCollection, ...queryConstraints);
-      const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-    } catch (error) {
-      console.error('Error getting posts:', error);
-      throw error;
-    }
+  static async getWorkspacesForUser(userId: string): Promise<IWorkspaceDocument[]> {
+    const q = query(
+      collection(db, 'workspaces'),
+      where('ownerId', '==', userId),
+      orderBy('createdAt', 'desc')
+    );
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as IWorkspaceDocument));
   }
 
-  static async updatePost(postId: string, data: any): Promise<void> {
-    try {
-      const postRef = doc(db, 'posts', postId);
-      await updateDoc(postRef, {
-        ...data,
-        updatedAt: new Date()
-      });
-    } catch (error) {
-      console.error('Error updating post:', error);
-      throw error;
-    }
+  // AI Session Methods
+  static async createAISession(sessionData: Omit<IAISessionDocument, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> {
+    const docRef = await addDoc(collection(db, 'ai-sessions'), {
+      ...sessionData,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
+    return docRef.id;
   }
 
-  static async deletePost(postId: string): Promise<void> {
-    try {
-      const postRef = doc(db, 'posts', postId);
-      await deleteDoc(postRef);
-    } catch (error) {
-      console.error('Error deleting post:', error);
-      throw error;
-    }
+  static async getAISessions(userId: string, limitCount: number = 20): Promise<IAISessionDocument[]> {
+    const q = query(
+      collection(db, 'ai-sessions'),
+      where('userId', '==', userId),
+      orderBy('createdAt', 'desc'),
+      limit(limitCount)
+    );
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as IAISessionDocument));
   }
 
-  // Workflows
-  static async createWorkflow(userId: string, workflowData: any): Promise<string> {
-    try {
-      const docRef = await addDoc(collection(db, 'workflows'), {
-        ...workflowData,
-        userId,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      });
-      return docRef.id;
-    } catch (error) {
-      console.error('Error creating workflow:', error);
-      throw error;
-    }
-  }
-
-  static async getWorkflows(userId: string): Promise<any[]> {
-    try {
-      const q = query(
-        collection(db, 'workflows'),
-        where('userId', '==', userId),
-        orderBy('createdAt', 'desc')
-      );
-
-      const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-    } catch (error) {
-      console.error('Error getting workflows:', error);
-      throw error;
-    }
-  }
-
-  // AI Agents
-  static async createAgent(userId: string, agentData: any): Promise<string> {
-    try {
-      const docRef = await addDoc(collection(db, 'agents'), {
-        ...agentData,
-        userId,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      });
-      return docRef.id;
-    } catch (error) {
-      console.error('Error creating agent:', error);
-      throw error;
-    }
-  }
-
-  static async getAgents(userId: string): Promise<any[]> {
-    try {
-      const q = query(
-        collection(db, 'agents'),
-        where('userId', '==', userId),
-        orderBy('createdAt', 'desc')
-      );
-
-      const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-    } catch (error) {
-      console.error('Error getting agents:', error);
-      throw error;
-    }
-  }
-
-  // Chat Messages
-  static async createChatMessage(userId: string, messageData: any): Promise<string> {
-    try {
-      const docRef = await addDoc(collection(db, 'chatMessages'), {
-        ...messageData,
-        userId,
-        createdAt: new Date()
-      });
-      return docRef.id;
-    } catch (error) {
-      console.error('Error creating chat message:', error);
-      throw error;
-    }
-  }
-
-  static async getChatMessages(userId: string, limitCount: number = 50): Promise<any[]> {
-    try {
-      const q = query(
-        collection(db, 'chatMessages'),
-        where('userId', '==', userId),
-        orderBy('createdAt', 'desc'),
-        limit(limitCount)
-      );
-
-      const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-    } catch (error) {
-      console.error('Error getting chat messages:', error);
-      throw error;
-    }
+  static async updateAISession(sessionId: string, data: Partial<IAISessionDocument>): Promise<void> {
+    const sessionRef = doc(db, 'ai-sessions', sessionId);
+    await updateDoc(sessionRef, {
+      ...data,
+      updatedAt: serverTimestamp(),
+    });
   }
 }
+
+// --- Analytics Service ---
 
 export const trackEvent = (eventName: string, eventParams?: { [key: string]: any }) => {
   logEvent(analytics, eventName, eventParams);
 };
 
-export default app;
+export { app, auth, db, analytics };
