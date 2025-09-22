@@ -1,0 +1,1 @@
+import{j as s}from"./index-BdF0wB4m.js";const a=()=>s.jsxs("div",{className:"p-4",children:[s.jsx("h1",{className:"text-2xl font-bold",children:"Analytics"}),s.jsx("p",{children:"This is the analytics page."})]});export{a as default};

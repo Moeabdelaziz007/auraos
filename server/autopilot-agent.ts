@@ -1,11 +1,11 @@
 
-import { getAdvancedAIAgentSystem, AIAgent, AgentTask } from './advanced-ai-agents.js';
+import { getAdvancedAIAgentSystem, AIAgent, AgentTask } from './advanced-ai-agents.cjs';
 import { getFirestore, Firestore } from 'firebase-admin/firestore';
 import { getAdvancedAutomationEngine } from './advanced-automation.js';
 import { getIntelligentWorkflowOrchestrator } from './intelligent-workflow.js';
 import { getSelfImprovingAISystem } from './self-improving-ai.js';
 import { enhancedLogger } from './enhanced-logger.js';
-import { getMCPProtocol } from './mcp-protocol.js';
+import { getMCPProtocol } from './mcp-protocol.cjs';
 
 export class AutopilotAgent {
   private agentSystem: any;

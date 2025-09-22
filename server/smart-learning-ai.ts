@@ -1,6 +1,11 @@
 import { storage } from './storage.js';
 import { FirestoreService } from '../client/src/lib/firebase.js';
 
+export enum AdaptationStrategy {
+  MetaGradient = 'meta_gradient',
+  PatternMatching = 'pattern_matching',
+}
+
 // ... (LearningContext, MetaLearningState, etc. remain the same)
 
 export interface Reward {
@@ -25,9 +30,45 @@ export interface LearningResult {
 // ... (rest of the interfaces remain the same)
 
 export class SmartLearningAIMetaLoop {
+  private learningStates: Map<string, MetaLearningState> = new Map();
+  private adaptationStrategies: Map<string, any> = new Map();
   // ... (rest of the properties remain the same)
   
   // ... (constructor and initializers remain the same)
+
+  public getAdaptationStrategyNames(): Set<string> {
+    return new Set(this.adaptationStrategies.keys());
+  }
+
+  public addAdaptationStrategy(name: string, strategy: any): void {
+    this.adaptationStrategies.set(name, strategy);
+  }
+
+  public getLearningState(userId: string): MetaLearningState | undefined {
+    return this.learningStates.get(userId);
+  }
+
+  public async initializeLearningState(userId: string): Promise<MetaLearningState> {
+    const newState: any = {
+      userId: userId,
+      version: '1.0.0',
+      learningRate: 0.1,
+      explorationRate: 0.1,
+      taskPatterns: new Map(),
+      performanceMetrics: {
+        overallAccuracy: 0.5,
+        taskSpecificAccuracy: new Map(),
+        confidenceScore: 0.5,
+        executionEfficiency: 0,
+      },
+      adaptationHistory: [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      preferredStrategy: AdaptationStrategy.MetaGradient,
+    };
+    this.learningStates.set(userId, newState);
+    return newState;
+  }
 
   async processLearningRequest(context: LearningContext): Promise<any> {
     // ... (rest of the function remains the same)
@@ -45,7 +86,7 @@ export class SmartLearningAIMetaLoop {
     return result;
   }
 
-  public getAllLearningStates(): Map<string, MetaLearningState> {
+  public getAllLearningStates(): Map<string, any> {
     return this.learningStates;
   }
 

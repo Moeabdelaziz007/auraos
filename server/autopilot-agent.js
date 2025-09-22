@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.autopilotAgent = exports.AutopilotAgent = void 0;
-var advanced_ai_agents_js_1 = require("./advanced-ai-agents.js");
+var advanced_ai_agents_js_1 = require("./advanced-ai-agents.cjs");
 var firestore_1 = require("firebase-admin/firestore");
 var AutopilotAgent = /** @class */ (function () {
     function AutopilotAgent(debug) {

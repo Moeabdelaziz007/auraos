@@ -449,10 +449,6 @@ What's your main goal today? I'm here to make your social media management effor
     context.sessionData = { ...context.sessionData, ...preferences };
   }
 
-  // Get conversation context
-  getConversationContext(chatId: number): ConversationContext | undefined {
-    return this.conversationContexts.get(chatId);
-  }
 }
 
 // Export singleton instance

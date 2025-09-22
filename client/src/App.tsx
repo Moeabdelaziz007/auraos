@@ -28,7 +28,7 @@ const DebugView = lazy(() => import("@/pages/DebugView"));
 const Workspace = lazy(() => import("@/pages/Workspace"));
 const Analytics = lazy(() => import("@/pages/analytics"));
 const Settings = lazy(() => import("@/pages/settings"));
-const Login = lazy(() => import("@/pages/login"));
+const LoginPage = lazy(() => import("@/pages/login"));
 
 // Loading component
 const PageLoader = () => (
@@ -43,26 +43,28 @@ function Router() {
   return (
     <Suspense fallback={<PageLoader />}>
       <Switch>
-        <Route path="/login" component={Login} />
-        <ProtectedRoute>
-          <Switch>
-            <Route path="/" component={withPageTracking(Dashboard, 'Dashboard')} />
-            <Route path="/social-feed" component={withPageTracking(SocialFeed, 'Social Feed')} />
-            <Route path="/workflows" component={withPageTracking(Workflows, 'Workflows')} />
-            <Route path="/ai-agents" component={withPageTracking(AIAgents, 'AI Agents')} />
-            <Route path="/mcp-tools" component={withPageTracking(MCPToolsPage, 'MCP Tools')} />
-            <Route path="/prompt-library" component={withPageTracking(PromptLibraryPage, 'Prompt Library')} />
-            <Route path="/telegram" component={withPageTracking(TelegramPage, 'Telegram')} />
-            <Route path="/smart-learning" component={withPageTracking(SmartLearningPage, 'Smart Learning')} />
-            <Route path="/advanced-ai-tools" component={withPageTracking(AdvancedAIToolsPage, 'Advanced AI Tools')} />
-            <Route path="/learning" component={withPageTracking(LearningDashboard, 'Learning Dashboard')} />
-            <Route path="/debug" component={withPageTracking(DebugView, 'Debug View')} />
-            <Route path="/workspace" component={withPageTracking(Workspace, 'Workspace')} />
-            <Route path="/analytics" component={withPageTracking(Analytics, 'Analytics')} />
-            <Route path="/settings" component={withPageTracking(Settings, 'Settings')} />
-            <Route component={withPageTracking(NotFound, 'Not Found')} />
-          </Switch>
-        </ProtectedRoute>
+        <Route path="/login" component={LoginPage} />
+        <Route>
+          <ProtectedRoute>
+            <Switch>
+              <Route path="/" component={withPageTracking(Dashboard, 'Dashboard')} />
+              <Route path="/social-feed" component={withPageTracking(SocialFeed, 'Social Feed')} />
+              <Route path="/workflows" component={withPageTracking(Workflows, 'Workflows')} />
+              <Route path="/ai-agents" component={withPageTracking(AIAgents, 'AI Agents')} />
+              <Route path="/mcp-tools" component={withPageTracking(MCPToolsPage, 'MCP Tools')} />
+              <Route path="/prompt-library" component={withPageTracking(PromptLibraryPage, 'Prompt Library')} />
+              <Route path="/telegram" component={withPageTracking(TelegramPage, 'Telegram')} />
+              <Route path="/smart-learning" component={withPageTracking(SmartLearningPage, 'Smart Learning')} />
+              <Route path="/advanced-ai-tools" component={withPageTracking(AdvancedAIToolsPage, 'Advanced AI Tools')} />
+              <Route path="/learning" component={withPageTracking(LearningDashboard, 'Learning Dashboard')} />
+              <Route path="/debug" component={withPageTracking(DebugView, 'Debug View')} />
+              <Route path="/workspace" component={withPageTracking(Workspace, 'Workspace')} />
+              <Route path="/analytics" component={withPageTracking(Analytics, 'Analytics')} />
+              <Route path="/settings" component={withPageTracking(Settings, 'Settings')} />
+              <Route component={withPageTracking(NotFound, 'Not Found')} />
+            </Switch>
+          </ProtectedRoute>
+        </Route>
       </Switch>
     </Suspense>
   );

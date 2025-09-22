@@ -1,5 +1,5 @@
 import { getAdvancedAIToolsManager } from './advanced-ai-tools.js';
-import { getMCPProtocol } from './mcp-protocol.js';
+import { getMCPProtocol } from './mcp-protocol.cjs';
 
 export interface AIAgent {
   id: string;

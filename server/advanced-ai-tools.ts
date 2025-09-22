@@ -1,4 +1,4 @@
-import { getMCPProtocol } from './mcp-protocol.js';
+import { getMCPProtocol } from './mcp-protocol.cjs';
 
 export interface AITool {
   id: string;

@@ -1,7 +1,7 @@
 
 import { AutopilotAgent } from './server/autopilot-agent.js';
 import { vi, expect, test, describe, beforeEach, afterEach } from 'vitest';
-import { AIAgent } from './server/advanced-ai-agents.js';
+import { AIAgent } from './server/advanced-ai-agents.cjs';
 
 // Mock external dependencies to isolate the AutopilotAgent during tests.
 const mockAgentSystem = {
@@ -10,7 +10,7 @@ const mockAgentSystem = {
   getAgentsByType: vi.fn(),
   assignTask: vi.fn(),
 };
-vi.mock('./server/advanced-ai-agents.js', () => ({
+vi.mock('./server/advanced-ai-agents.cjs', () => ({
   getAdvancedAIAgentSystem: vi.fn(() => mockAgentSystem),
 }));
 

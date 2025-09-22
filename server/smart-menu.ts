@@ -501,10 +501,6 @@ ${context.stats.favoriteCommands.length > 0 ?
     context.preferences = { ...context.preferences, ...preferences };
   }
 
-  // Get user context for external use
-  getUserContext(chatId: number): UserContext | undefined {
-    return this.userContexts.get(chatId);
-  }
 
   // Track command usage for smart suggestions
   trackCommandUsage(chatId: number, command: string) {

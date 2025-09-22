@@ -1,8 +1,8 @@
 import { Telegraf, Context } from 'telegraf';
 import { getSmartLearningAI } from './smart-learning-ai.js';
-import { getAdvancedAIToolsManager } from './advanced-ai-tools.js';
-import { getAdvancedAIAgentSystem } from './advanced-ai-agents.js';
-import { getMCPProtocol } from './mcp-protocol.js';
+import { getAdvancedAIToolsManager } from './advanced-ai-tools.cjs';
+import { getAdvancedAIAgentSystem } from './advanced-ai-agents.cjs';
+import { getMCPProtocol } from './mcp-protocol.cjs';
 
 // ... (rest of the interfaces remain the same)
 
