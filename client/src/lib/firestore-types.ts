@@ -245,3 +245,66 @@ export interface FirestoreError {
 // Real-time Subscription Types
 export type RealtimeCallback<T> = (data: T[]) => void;
 export type UnsubscribeFunction = () => void;
+
+export interface FlightOption {
+  id: string;
+  airline: string;
+  flightNumber: string;
+  departure: {
+    airport: string;
+    time: string;
+    terminal?: string;
+  };
+  arrival: {
+    airport: string;
+    time: string;
+    terminal?: string;
+  };
+  duration: string;
+  stops: number;
+  price: {
+    amount: number;
+    currency: string;
+    breakdown: {
+      base: number;
+      taxes: number;
+      fees: number;
+    };
+  };
+  aircraft: string;
+  amenities: string[];
+  baggageAllowance: {
+    carryOn: string;
+    checked: string;
+  };
+  aiScore: number;
+  aiInsights: string[];
+}
+
+export interface HotelOption {
+  id:string;
+  name: string;
+  address: string;
+  coordinates: {
+    latitude: number;
+    longitude: number;
+  };
+  starRating: number;
+  price: {
+    amount: number;
+    currency: string;
+    perNight: number;
+    total: number;
+  };
+  amenities: string[];
+  images: string[];
+  reviews: {
+    rating: number;
+    count: number;
+    highlights: string[];
+  };
+  availability: boolean;
+  cancellationPolicy: string;
+  aiScore: number;
+  aiInsights: string[];
+}

@@ -1,5 +1,6 @@
 import { storage } from './storage.js';
 import { generateContent } from './gemini.js';
+import { WebScrapingTools } from './web-scraping-tools.js';
 
 interface TravelDestination {
   id: string;
@@ -329,12 +330,44 @@ export class EnhancedTravelAgency {
    * @returns {Promise<FlightOption[]>} A promise that resolves with a list of flight options.
    */
   async searchFlights(searchParams: FlightSearch): Promise<FlightOption[]> {
-    console.log(`🔍 AI-powered flight search: ${searchParams.origin} → ${searchParams.destination}`);
+    console.log(`🔍 AI-powered flight search with web scraping: ${searchParams.origin} → ${searchParams.destination}`);
     
     try {
-      // Generate AI-powered flight search prompt
-      const prompt = `Find the best flight options from ${searchParams.origin} to ${searchParams.destination} 
+      // Step 1: Use Google Search to find top travel websites for the flight query
+      const searchQuery = `flights from ${searchParams.origin} to ${searchParams.destination} on ${searchParams.departureDate}`;
+      const searchResults = await WebScrapingTools.scrapeGoogleSearch({ query: searchQuery, limit: 3 });
+
+      const travelWebsiteUrls = searchResults
+        .map(result => result.url)
+        .filter(url => url.includes('google.com/flights') || url.includes('kayak.com') || url.includes('expedia.com'));
+
+      if (travelWebsiteUrls.length === 0) {
+        console.warn('Could not find any top travel websites from Google search.');
+        // Fallback to original AI-only search
+        return this.searchFlightsWithoutScraping(searchParams);
+      }
+
+      // Step 2: Scrape the content of these websites
+      const scrapedData = await WebScrapingTools.scrapeMultipleUrls(travelWebsiteUrls);
+
+      const scrapedContent = scrapedData
+        .map(result => result.success ? result.content.text : '')
+        .join('\n\n');
+
+      if (scrapedContent.trim() === '') {
+        console.warn('Could not scrape any content from travel websites.');
+        // Fallback to original AI-only search
+        return this.searchFlightsWithoutScraping(searchParams);
+      }
+
+      // Step 3: Use AI to process the scraped content
+      const prompt = `Based on the following scraped data from travel websites, find the best flight options from ${searchParams.origin} to ${searchParams.destination}
       departing ${searchParams.departureDate}${searchParams.returnDate ? `, returning ${searchParams.returnDate}` : ''}.
+
+      Scraped Content:
+      ---
+      ${scrapedContent.substring(0, 8000)}
+      ---
       
       Passenger details:
       - Passengers: ${searchParams.passengers}
@@ -345,7 +378,7 @@ export class EnhancedTravelAgency {
       - Preferred airlines: ${searchParams.preferences.preferredAirlines?.join(', ') || 'Any'}
       - Max stops: ${searchParams.preferences.maxStops || 'Any'}
       
-      Provide 5 flight options with detailed information including:
+      Provide up to 5 flight options with detailed information including:
       1. Airline and flight number
       2. Departure and arrival times
       3. Duration and stops
@@ -353,7 +386,7 @@ export class EnhancedTravelAgency {
       5. AI recommendations for each option
       6. Pros and cons
       
-      Format as JSON array of flight options.`;
+      Format as JSON array of flight options. If no flights are found, return an empty array.`;
 
       const aiResponse = await generateContent(prompt);
       
@@ -367,13 +400,30 @@ export class EnhancedTravelAgency {
         aiInsights: this.generateFlightInsights(option, searchParams)
       }));
 
-      console.log(`✅ Found ${enhancedOptions.length} flight options`);
+      console.log(`✅ Found ${enhancedOptions.length} flight options with web scraping`);
       return enhancedOptions.sort((a, b) => b.aiScore - a.aiScore);
 
     } catch (error) {
-      console.error('Error in AI flight search:', error);
+      console.error('Error in AI flight search with web scraping:', error);
       return [];
     }
+  }
+
+  async searchFlightsWithoutScraping(searchParams: FlightSearch): Promise<FlightOption[]> {
+    // This is the original AI-only implementation
+    console.log(`🔍 Falling back to AI-only flight search: ${searchParams.origin} → ${searchParams.destination}`);
+    const prompt = `Find the best flight options from ${searchParams.origin} to ${searchParams.destination}
+      departing ${searchParams.departureDate}${searchParams.returnDate ? `, returning ${searchParams.returnDate}` : ''}.
+      ...
+      Format as JSON array of flight options.`;
+    const aiResponse = await generateContent(prompt);
+    const flightOptions = this.parseFlightOptions(aiResponse, searchParams);
+    const enhancedOptions = flightOptions.map(option => ({
+      ...option,
+      aiScore: this.calculateFlightScore(option, searchParams),
+      aiInsights: this.generateFlightInsights(option, searchParams)
+    }));
+    return enhancedOptions.sort((a, b) => b.aiScore - a.aiScore);
   }
 
   /**
@@ -382,11 +432,42 @@ export class EnhancedTravelAgency {
    * @returns {Promise<HotelOption[]>} A promise that resolves with a list of hotel options.
    */
   async searchHotels(searchParams: HotelSearch): Promise<HotelOption[]> {
-    console.log(`🏨 AI-powered hotel search in ${searchParams.destination}`);
+    console.log(`🏨 AI-powered hotel search with web scraping in ${searchParams.destination}`);
     
     try {
-      const prompt = `Find the best hotel options in ${searchParams.destination} 
+      // Step 1: Use Google Search to find top travel websites for the hotel query
+      const searchQuery = `hotels in ${searchParams.destination} from ${searchParams.checkIn} to ${searchParams.checkOut}`;
+      const searchResults = await WebScrapingTools.scrapeGoogleSearch({ query: searchQuery, limit: 3 });
+
+      const travelWebsiteUrls = searchResults
+        .map(result => result.url)
+        .filter(url => url.includes('booking.com') || url.includes('expedia.com') || url.includes('hotels.com'));
+
+      if (travelWebsiteUrls.length === 0) {
+        console.warn('Could not find any top travel websites from Google search.');
+        return this.searchHotelsWithoutScraping(searchParams);
+      }
+
+      // Step 2: Scrape the content of these websites
+      const scrapedData = await WebScrapingTools.scrapeMultipleUrls(travelWebsiteUrls);
+
+      const scrapedContent = scrapedData
+        .map(result => result.success ? result.content.text : '')
+        .join('\n\n');
+
+      if (scrapedContent.trim() === '') {
+        console.warn('Could not scrape any content from travel websites.');
+        return this.searchHotelsWithoutScraping(searchParams);
+      }
+
+      // Step 3: Use AI to process the scraped content
+      const prompt = `Based on the following scraped data from travel websites, find the best hotel options in ${searchParams.destination}
       for check-in ${searchParams.checkIn} and check-out ${searchParams.checkOut}.
+
+      Scraped Content:
+      ---
+      ${scrapedContent.substring(0, 8000)}
+      ---
       
       Guest details:
       - Guests: ${searchParams.guests}
@@ -398,7 +479,7 @@ export class EnhancedTravelAgency {
       - Amenities: ${searchParams.preferences.amenities?.join(', ') || 'Any'}
       - Location: ${searchParams.preferences.location || 'Any'}
       
-      Provide 5 hotel options with detailed information including:
+      Provide up to 5 hotel options with detailed information including:
       1. Hotel name and location
       2. Star rating and price
       3. Amenities and features
@@ -406,7 +487,7 @@ export class EnhancedTravelAgency {
       5. AI recommendations
       6. Best for (business, leisure, families, etc.)
       
-      Format as JSON array of hotel options.`;
+      Format as JSON array of hotel options. If no hotels are found, return an empty array.`;
 
       const aiResponse = await generateContent(prompt);
       
@@ -420,13 +501,29 @@ export class EnhancedTravelAgency {
         aiInsights: this.generateHotelInsights(option, searchParams)
       }));
 
-      console.log(`✅ Found ${enhancedOptions.length} hotel options`);
+      console.log(`✅ Found ${enhancedOptions.length} hotel options with web scraping`);
       return enhancedOptions.sort((a, b) => b.aiScore - a.aiScore);
 
     } catch (error) {
-      console.error('Error in AI hotel search:', error);
+      console.error('Error in AI hotel search with web scraping:', error);
       return [];
     }
+  }
+
+  async searchHotelsWithoutScraping(searchParams: HotelSearch): Promise<HotelOption[]> {
+    console.log(`🏨 Falling back to AI-only hotel search in ${searchParams.destination}`);
+    const prompt = `Find the best hotel options in ${searchParams.destination}
+      for check-in ${searchParams.checkIn} and check-out ${searchParams.checkOut}.
+      ...
+      Format as JSON array of hotel options.`;
+    const aiResponse = await generateContent(prompt);
+    const hotelOptions = this.parseHotelOptions(aiResponse, searchParams);
+    const enhancedOptions = hotelOptions.map(option => ({
+        ...option,
+        aiScore: this.calculateHotelScore(option, searchParams),
+        aiInsights: this.generateHotelInsights(option, searchParams)
+      }));
+    return enhancedOptions.sort((a, b) => b.aiScore - a.aiScore);
   }
 
   /**
