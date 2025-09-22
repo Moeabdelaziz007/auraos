@@ -1,3 +1,4 @@
+import { EventEmitter } from 'events';
 import { getAdvancedAIToolsManager } from './advanced-ai-tools.js';
 import { getMCPProtocol } from './mcp-protocol.js';
 
@@ -103,7 +104,7 @@ export interface AgentCollaboration {
 /**
  * Manages a system of advanced AI agents.
  */
-export class AdvancedAIAgentSystem {
+export class AdvancedAIAgentSystem extends EventEmitter {
   private agents: Map<string, AIAgent> = new Map();
   private tasks: Map<string, AgentTask> = new Map();
   private collaborations: Map<string, AgentCollaboration> = new Map();
@@ -115,6 +116,7 @@ export class AdvancedAIAgentSystem {
    * Creates an instance of AdvancedAIAgentSystem.
    */
   constructor() {
+    super();
     this.aiToolsManager = getAdvancedAIToolsManager();
     this.mcpProtocol = getMCPProtocol();
     this.initializeCoreAgents();
@@ -434,6 +436,7 @@ export class AdvancedAIAgentSystem {
       task.status = 'completed';
       task.completedAt = new Date();
       task.result = result;
+      this.emit('task_update', task);
 
       // Update agent performance
       this.updateAgentPerformance(agent, true, task.completedAt.getTime() - task.startedAt!.getTime());
@@ -445,6 +448,7 @@ export class AdvancedAIAgentSystem {
       task.status = 'failed';
       task.error = error.message;
       task.completedAt = new Date();
+      this.emit('task_update', task);
 
       // Update agent performance
       this.updateAgentPerformance(agent, false, task.completedAt.getTime() - task.startedAt!.getTime());
@@ -933,6 +937,39 @@ export class AdvancedAIAgentSystem {
   getTaskHistory(agentId?: string): AgentTask[] {
     const allTasks = Array.from(this.tasks.values());
     return agentId ? allTasks.filter(task => task.agentId === agentId) : allTasks;
+  }
+
+  getTasks(): AgentTask[] {
+    return this.getTaskHistory();
+  }
+
+  getTask(id: string): AgentTask | undefined {
+    return this.tasks.get(id);
+  }
+
+  updateTaskStatus(id: string, status: 'pending' | 'in_progress' | 'completed' | 'failed' | 'cancelled' | 'paused'): boolean {
+    const task = this.tasks.get(id);
+    if (task) {
+      task.status = status;
+      this.emit('task_update', task);
+      return true;
+    }
+    return false;
+  }
+
+  async retryTask(id: string): Promise<AgentTask | null> {
+    const task = this.tasks.get(id);
+    if (task && task.status === 'failed') {
+      const newTaskData = {
+        agentId: task.agentId,
+        type: task.type,
+        description: task.description,
+        parameters: task.parameters,
+        priority: task.priority,
+      };
+      return this.assignTask(task.agentId, newTaskData as any);
+    }
+    return null;
   }
 
   /**

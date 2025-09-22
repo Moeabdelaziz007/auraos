@@ -8,6 +8,10 @@ module.exports = {
         tsconfig: {
           jsx: 'react-jsx',
           esModuleInterop: true,
+          baseUrl: '.',
+          paths: {
+            '@/*': ['client/src/*'],
+          },
         },
       },
     ],
