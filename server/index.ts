@@ -1,3 +1,4 @@
+console.log("Server script starting...");
 import express, { type Request, Response, NextFunction } from "express";
 import { createServer } from "http";
 import { registerRoutes } from "./routes";
@@ -91,10 +92,10 @@ app.use((req, res, next) => {
     selfImprovingSystem.start();
 
     // Run a self-improvement cycle shortly after startup
-    setTimeout(() => {
+    /* setTimeout(() => {
       enhancedLogger.info('Running initial self-improvement cycle', 'ai');
       selfImprovingSystem.runImprovementCycle();
-    }, 10000);
+    }, 10000); */
 
 
     enhancedLogger.info('Server initialization completed successfully', 'server');
@@ -150,10 +151,19 @@ app.use((req, res, next) => {
   });
 
   if (app.get("env") === "development") {
-    await setupVite(app, server);
-  } else {
-    serveStatic(app);
-  }
+    try {
+      await setupVite(app, server);
+    } catch (viteError) {
+      console.error('Vite setup failed, continuing without dev middleware:', viteError);
+    }
+   } else {
+    try {
+      serveStatic(app);
+    } catch (serveError) {
+      console.error('Static serve failed:', serveError);
+      // continue without static files; API should still work
+    }
+   }
 
   const port = parseInt(process.env.PORT || '5000', 10);
   server.listen({
@@ -169,3 +179,16 @@ app.use((req, res, next) => {
     });
   });
 })();
+
+/* import express from "express";
+
+const app = express();
+const port = 5000;
+
+app.get('/api/system/status', (req, res) => {
+  res.json({ status: 'ok', message: 'Minimal server is running!' });
+});
+
+app.listen(port, () => {
+  console.log(`✅ Minimal server listening at http://localhost:${port}`);
+}); */

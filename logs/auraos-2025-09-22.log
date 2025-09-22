@@ -1,0 +1,86 @@
+{"timestamp":"2025-09-22T17:59:47.975Z","level":"INFO","message":"Enhanced Logger initialized","source":"logger","context":{"config":{"level":"INFO","enableConsole":true,"enableFile":true,"enableDatabase":false}}}
+{"timestamp":"2025-09-22T17:59:47.978Z","level":"INFO","message":"AuraOS Server starting up","source":"server","context":{"nodeVersion":"v20.19.5","platform":"darwin","pid":33159}}
+{"timestamp":"2025-09-22T17:59:47.980Z","level":"INFO","message":"Registering API routes","source":"server"}
+{"timestamp":"2025-09-22T17:59:47.994Z","level":"INFO","message":"Initializing real-time AI streaming","source":"server"}
+{"timestamp":"2025-09-22T17:59:47.994Z","level":"INFO","message":"Starting self-improving AI system","source":"ai"}
+{"timestamp":"2025-09-22T17:59:47.994Z","level":"INFO","message":"Self-Improving AI System started.","source":"ai"}
+{"timestamp":"2025-09-22T17:59:47.994Z","level":"INFO","message":"Server initialization completed successfully","source":"server"}
+{"timestamp":"2025-09-22T17:59:48.121Z","level":"INFO","message":"Amrikyy Server started on port 5000","source":"server","context":{"port":5000,"host":"0.0.0.0","environment":"development"}}
+{"timestamp":"2025-09-22T17:59:58.000Z","level":"INFO","message":"Running initial self-improvement cycle","source":"ai"}
+{"timestamp":"2025-09-22T18:00:30.898Z","level":"INFO","message":"Enhanced Logger initialized","source":"logger","context":{"config":{"level":"INFO","enableConsole":true,"enableFile":true,"enableDatabase":false}}}
+{"timestamp":"2025-09-22T18:00:30.901Z","level":"INFO","message":"AuraOS Server starting up","source":"server","context":{"nodeVersion":"v20.19.5","platform":"darwin","pid":34352}}
+{"timestamp":"2025-09-22T18:00:30.902Z","level":"INFO","message":"Registering API routes","source":"server"}
+{"timestamp":"2025-09-22T18:00:30.917Z","level":"INFO","message":"Initializing real-time AI streaming","source":"server"}
+{"timestamp":"2025-09-22T18:00:30.918Z","level":"INFO","message":"Starting self-improving AI system","source":"ai"}
+{"timestamp":"2025-09-22T18:00:30.918Z","level":"INFO","message":"Self-Improving AI System started.","source":"ai"}
+{"timestamp":"2025-09-22T18:00:30.918Z","level":"INFO","message":"Server initialization completed successfully","source":"server"}
+{"timestamp":"2025-09-22T18:00:31.002Z","level":"INFO","message":"Amrikyy Server started on port 5000","source":"server","context":{"port":5000,"host":"0.0.0.0","environment":"development"}}
+{"timestamp":"2025-09-22T18:00:40.918Z","level":"INFO","message":"Running initial self-improvement cycle","source":"ai"}
+{"timestamp":"2025-09-22T18:01:09.284Z","level":"INFO","message":"Enhanced Logger initialized","source":"logger","context":{"config":{"level":"INFO","enableConsole":true,"enableFile":true,"enableDatabase":false}}}
+{"timestamp":"2025-09-22T18:01:09.287Z","level":"INFO","message":"AuraOS Server starting up","source":"server","context":{"nodeVersion":"v20.19.5","platform":"darwin","pid":34958}}
+{"timestamp":"2025-09-22T18:01:09.288Z","level":"INFO","message":"Registering API routes","source":"server"}
+{"timestamp":"2025-09-22T18:01:09.303Z","level":"INFO","message":"Initializing real-time AI streaming","source":"server"}
+{"timestamp":"2025-09-22T18:01:09.303Z","level":"INFO","message":"Starting self-improving AI system","source":"ai"}
+{"timestamp":"2025-09-22T18:01:09.303Z","level":"INFO","message":"Self-Improving AI System started.","source":"ai"}
+{"timestamp":"2025-09-22T18:01:09.303Z","level":"INFO","message":"Server initialization completed successfully","source":"server"}
+{"timestamp":"2025-09-22T18:01:09.367Z","level":"INFO","message":"Amrikyy Server started on port 5000","source":"server","context":{"port":5000,"host":"0.0.0.0","environment":"development"}}
+{"timestamp":"2025-09-22T18:01:19.303Z","level":"INFO","message":"Running initial self-improvement cycle","source":"ai"}
+{"timestamp":"2025-09-22T18:19:08.175Z","level":"INFO","message":"Enhanced Logger initialized","source":"logger","context":{"config":{"level":"INFO","enableConsole":true,"enableFile":true,"enableDatabase":false}}}
+{"timestamp":"2025-09-22T18:19:08.181Z","level":"INFO","message":"AuraOS Server starting up","source":"server","context":{"nodeVersion":"v20.19.5","platform":"darwin","pid":37685}}
+{"timestamp":"2025-09-22T18:19:08.183Z","level":"INFO","message":"Registering API routes","source":"server"}
+{"timestamp":"2025-09-22T18:19:08.200Z","level":"INFO","message":"Initializing real-time AI streaming","source":"server"}
+{"timestamp":"2025-09-22T18:19:08.200Z","level":"INFO","message":"Starting self-improving AI system","source":"ai"}
+{"timestamp":"2025-09-22T18:19:08.200Z","level":"INFO","message":"Self-Improving AI System started.","source":"ai"}
+{"timestamp":"2025-09-22T18:19:08.200Z","level":"INFO","message":"Server initialization completed successfully","source":"server"}
+{"timestamp":"2025-09-22T18:19:08.333Z","level":"INFO","message":"Amrikyy Server started on port 5000","source":"server","context":{"port":5000,"host":"0.0.0.0","environment":"development"}}
+{"timestamp":"2025-09-22T18:19:18.201Z","level":"INFO","message":"Running initial self-improvement cycle","source":"ai"}
+{"timestamp":"2025-09-22T18:22:45.086Z","level":"INFO","message":"Enhanced Logger initialized","source":"logger","context":{"config":{"level":"INFO","enableConsole":true,"enableFile":true,"enableDatabase":false}}}
+{"timestamp":"2025-09-22T18:22:45.091Z","level":"INFO","message":"AuraOS Server starting up","source":"server","context":{"nodeVersion":"v20.19.5","platform":"darwin","pid":39031}}
+{"timestamp":"2025-09-22T18:22:45.093Z","level":"INFO","message":"Registering API routes","source":"server"}
+{"timestamp":"2025-09-22T18:22:45.108Z","level":"INFO","message":"Initializing real-time AI streaming","source":"server"}
+{"timestamp":"2025-09-22T18:22:45.108Z","level":"INFO","message":"Starting self-improving AI system","source":"ai"}
+{"timestamp":"2025-09-22T18:22:45.108Z","level":"INFO","message":"Self-Improving AI System started.","source":"ai"}
+{"timestamp":"2025-09-22T18:22:45.108Z","level":"INFO","message":"Server initialization completed successfully","source":"server"}
+{"timestamp":"2025-09-22T18:22:45.183Z","level":"INFO","message":"Amrikyy Server started on port 5000","source":"server","context":{"port":5000,"host":"0.0.0.0","environment":"development"}}
+{"timestamp":"2025-09-22T18:22:55.181Z","level":"INFO","message":"Running initial self-improvement cycle","source":"ai"}
+{"timestamp":"2025-09-22T18:50:47.337Z","level":"INFO","message":"Enhanced Logger initialized","source":"logger","context":{"config":{"level":"INFO","enableConsole":true,"enableFile":true,"enableDatabase":false}}}
+{"timestamp":"2025-09-22T18:50:47.340Z","level":"INFO","message":"AuraOS Server starting up","source":"server","context":{"nodeVersion":"v20.19.5","platform":"darwin","pid":42575}}
+{"timestamp":"2025-09-22T18:50:47.341Z","level":"INFO","message":"Registering API routes","source":"server"}
+{"timestamp":"2025-09-22T18:50:47.357Z","level":"INFO","message":"Initializing real-time AI streaming","source":"server"}
+{"timestamp":"2025-09-22T18:50:47.357Z","level":"INFO","message":"Starting self-improving AI system","source":"ai"}
+{"timestamp":"2025-09-22T18:50:47.357Z","level":"INFO","message":"Self-Improving AI System started.","source":"ai"}
+{"timestamp":"2025-09-22T18:50:47.357Z","level":"INFO","message":"Server initialization completed successfully","source":"server"}
+{"timestamp":"2025-09-22T18:50:47.437Z","level":"INFO","message":"Amrikyy Server started on port 5000","source":"server","context":{"port":5000,"host":"0.0.0.0","environment":"development"}}
+{"timestamp":"2025-09-22T18:50:57.359Z","level":"INFO","message":"Running initial self-improvement cycle","source":"ai"}
+{"timestamp":"2025-09-22T18:51:46.081Z","level":"INFO","message":"Enhanced Logger initialized","source":"logger","context":{"config":{"level":"INFO","enableConsole":true,"enableFile":true,"enableDatabase":false}}}
+{"timestamp":"2025-09-22T18:51:46.085Z","level":"INFO","message":"AuraOS Server starting up","source":"server","context":{"nodeVersion":"v20.19.5","platform":"darwin","pid":43184}}
+{"timestamp":"2025-09-22T18:51:46.087Z","level":"INFO","message":"Registering API routes","source":"server"}
+{"timestamp":"2025-09-22T18:51:46.127Z","level":"INFO","message":"Initializing real-time AI streaming","source":"server"}
+{"timestamp":"2025-09-22T18:51:46.128Z","level":"INFO","message":"Starting self-improving AI system","source":"ai"}
+{"timestamp":"2025-09-22T18:51:46.128Z","level":"INFO","message":"Self-Improving AI System started.","source":"ai"}
+{"timestamp":"2025-09-22T18:51:46.128Z","level":"INFO","message":"Server initialization completed successfully","source":"server"}
+{"timestamp":"2025-09-22T18:51:46.197Z","level":"INFO","message":"Amrikyy Server started on port 5000","source":"server","context":{"port":5000,"host":"0.0.0.0","environment":"development"}}
+{"timestamp":"2025-09-22T18:51:56.129Z","level":"INFO","message":"Running initial self-improvement cycle","source":"ai"}
+{"timestamp":"2025-09-22T18:53:08.264Z","level":"INFO","message":"Enhanced Logger initialized","source":"logger","context":{"config":{"level":"INFO","enableConsole":true,"enableFile":true,"enableDatabase":false}}}
+{"timestamp":"2025-09-22T18:53:08.267Z","level":"INFO","message":"AuraOS Server starting up","source":"server","context":{"nodeVersion":"v20.19.5","platform":"darwin","pid":43869}}
+{"timestamp":"2025-09-22T18:53:08.269Z","level":"INFO","message":"Registering API routes","source":"server"}
+{"timestamp":"2025-09-22T18:53:08.287Z","level":"INFO","message":"Initializing real-time AI streaming","source":"server"}
+{"timestamp":"2025-09-22T18:53:08.287Z","level":"INFO","message":"Starting self-improving AI system","source":"ai"}
+{"timestamp":"2025-09-22T18:53:08.287Z","level":"INFO","message":"Self-Improving AI System started.","source":"ai"}
+{"timestamp":"2025-09-22T18:53:08.287Z","level":"INFO","message":"Server initialization completed successfully","source":"server"}
+{"timestamp":"2025-09-22T18:53:08.371Z","level":"INFO","message":"Amrikyy Server started on port 5000","source":"server","context":{"port":5000,"host":"0.0.0.0","environment":"development"}}
+{"timestamp":"2025-09-22T18:53:19.833Z","level":"INFO","message":"HTTP GET /api/system/status","source":"http","context":{"method":"GET","url":"/api/system/status","statusCode":500,"duration":21}}
+{"timestamp":"2025-09-22T19:13:02.918Z","level":"INFO","message":"Enhanced Logger initialized","source":"logger","context":{"config":{"level":"INFO","enableConsole":true,"enableFile":true,"enableDatabase":false}}}
+{"timestamp":"2025-09-22T19:13:02.921Z","level":"INFO","message":"AuraOS Server starting up","source":"server","context":{"nodeVersion":"v20.19.5","platform":"darwin","pid":47676}}
+{"timestamp":"2025-09-22T19:13:02.924Z","level":"INFO","message":"Registering API routes","source":"server"}
+{"timestamp":"2025-09-22T19:13:02.944Z","level":"INFO","message":"Initializing real-time AI streaming","source":"server"}
+{"timestamp":"2025-09-22T19:13:02.945Z","level":"INFO","message":"Starting self-improving AI system","source":"ai"}
+{"timestamp":"2025-09-22T19:13:02.945Z","level":"INFO","message":"Self-Improving AI System started.","source":"ai"}
+{"timestamp":"2025-09-22T19:13:02.945Z","level":"INFO","message":"Server initialization completed successfully","source":"server"}
+{"timestamp":"2025-09-22T19:13:28.460Z","level":"INFO","message":"Enhanced Logger initialized","source":"logger","context":{"config":{"level":"INFO","enableConsole":true,"enableFile":true,"enableDatabase":false}}}
+{"timestamp":"2025-09-22T19:13:28.468Z","level":"INFO","message":"AuraOS Server starting up","source":"server","context":{"nodeVersion":"v20.19.5","platform":"darwin","pid":48260}}
+{"timestamp":"2025-09-22T19:13:28.470Z","level":"INFO","message":"Registering API routes","source":"server"}
+{"timestamp":"2025-09-22T19:13:28.483Z","level":"INFO","message":"Initializing real-time AI streaming","source":"server"}
+{"timestamp":"2025-09-22T19:13:28.484Z","level":"INFO","message":"Starting self-improving AI system","source":"ai"}
+{"timestamp":"2025-09-22T19:13:28.485Z","level":"INFO","message":"Self-Improving AI System started.","source":"ai"}
+{"timestamp":"2025-09-22T19:13:28.485Z","level":"INFO","message":"Server initialization completed successfully","source":"server"}

@@ -38,1403 +38,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const telegramToken = process.env.TELEGRAM_BOT_TOKEN;
   if (telegramToken) {
     try {
-      // Initialize both basic and smart Telegram bots
-      initializeTelegramBot(telegramToken);
-      const smartBot = initializeSmartTelegramBot(telegramToken);
-      await smartBot.launch();
-      console.log('🤖 Smart Learning Telegram bot initialized successfully');
+      await initializeSmartTelegramBot(telegramToken);
+      console.log('🤖 Smart Learning Telegram Bot initialized');
     } catch (error) {
-      console.error('❌ Failed to initialize Smart Telegram bot:', error);
+      console.error('❌ Failed to initialize Smart Learning Telegram Bot:', error);
     }
   } else {
-    console.warn('⚠️ TELEGRAM_BOT_TOKEN not found in environment variables');
+    console.warn('⚠️ TELEGRAM_BOT_TOKEN not set, Smart Learning Telegram Bot not initialized');
   }
 
-  // Initialize MCP Protocol
+  // Initialize AI Modules
   try {
-    await initializeMCP();
-    console.log('🔗 MCP Protocol initialized successfully');
-  } catch (error) {
-    console.error('❌ Failed to initialize MCP Protocol:', error);
-  }
+    // Initialize Advanced Automation Engine
+    const automationEngine = getAdvancedAutomationEngine();
+    console.log('🚀 Advanced Automation Engine initialized');
 
-  // Initialize Advanced AI Tools Manager
-  try {
+    // Initialize Advanced AI Tools Manager
     const aiToolsManager = getAdvancedAIToolsManager();
-    console.log('🛠️ Advanced AI Tools Manager initialized successfully');
-  } catch (error) {
-    console.error('❌ Failed to initialize AI Tools Manager:', error);
-  }
+    console.log('🛠️ Advanced AI Tools Manager initialized');
 
-  // Initialize Advanced AI Agent System
-  try {
+    // Initialize Advanced AI Agent System
     const aiAgentSystem = getAdvancedAIAgentSystem();
-    console.log('🤖 Advanced AI Agent System initialized successfully');
+    console.log('🤖 Advanced AI Agent System initialized');
+
+    // Initialize Multi-Modal AI Engine
+    await initializeMultiModalAI();
+    console.log('🎭 Multi-Modal AI Engine initialized');
   } catch (error) {
-    console.error('❌ Failed to initialize AI Agent System:', error);
+    console.error('❌ Failed to initialize AI modules:', error);
   }
-
-  // Initialize Multi-Modal AI Engine
-  try {
-    const multiModalAI = initializeMultiModalAI();
-    console.log('🧠 Multi-Modal AI Engine initialized successfully');
-  } catch (error) {
-    console.error('❌ Failed to initialize Multi-Modal AI Engine:', error);
-  }
-
-  // Initialize Real-Time AI Streaming
-  try {
-    const realTimeStreaming = initializeRealTimeAIStreaming();
-    await realTimeStreaming.start();
-    console.log('🚀 Real-Time AI Streaming initialized successfully');
-  } catch (error) {
-    console.error('❌ Failed to initialize Real-Time AI Streaming:', error);
-  }
-
-  // Initialize AI Model Management System
-  try {
-    const modelManagement = initializeAIModelManagement();
-    console.log('🤖 AI Model Management System initialized successfully');
-  } catch (error) {
-    console.error('❌ Failed to initialize AI Model Management System:', error);
-  }
-
-  // Initialize Learning Automation System
-  try {
-    const learningSystem = initializeLearningSystem();
-    console.log('📚 Learning Automation System initialized successfully');
-  } catch (error) {
-    console.error('❌ Failed to initialize Learning Automation System:', error);
-  }
-
-  // WebSocket server for real-time updates
-  const wss = new WebSocketServer({
-    server: httpServer,
-    path: '/ws',
-    perMessageDeflate: true
-  });
-  
-  const clients = new Set<WebSocket>();
-
-  wss.on('connection', (ws, request) => {
-    console.log('🔗 New WebSocket connection from:', request.headers.origin || request.socket.remoteAddress);
-    clients.add(ws);
-    
-    // Send welcome message
-    ws.send(JSON.stringify({
-      type: 'connection',
-      message: 'Connected to AuraOS WebSocket',
-      timestamp: new Date().toISOString()
-    }));
-
-    // Handle ping/pong for heartbeat
-    ws.on('message', (data) => {
-      try {
-        const message = JSON.parse(data.toString());
-        if (message.type === 'ping') {
-          ws.send(JSON.stringify({ type: 'pong', timestamp: Date.now() }));
-        }
-      } catch (error) {
-        console.error('Error parsing WebSocket message:', error);
-      }
-    });
-    
-    ws.on('close', (code, reason) => {
-      console.log('🔌 WebSocket disconnected:', code, reason.toString());
-      clients.delete(ws);
-    });
-
-    ws.on('error', (error) => {
-      console.error('❌ WebSocket error:', error);
-      clients.delete(ws);
-    });
-  });
-
-  function broadcast(data: any) {
-    const message = JSON.stringify(data);
-    clients.forEach(client => {
-      if (client.readyState === WebSocket.OPEN) {
-        try {
-          client.send(message);
-        } catch (error) {
-          console.error('Error sending message to client:', error);
-          clients.delete(client);
-        }
-      }
-    });
-  }
-
-  // Heartbeat to keep connections alive
-  setInterval(() => {
-    broadcast({
-      type: 'heartbeat',
-      timestamp: Date.now(),
-      activeConnections: clients.size
-    });
-  }, 30000); // Every 30 seconds
-
-  // Learning System Integration with WebSocket
-  const learningSystem = getLearningSystem();
-  
-  // Listen for learning events and broadcast them
-  learningSystem.on('levelUp', (data) => {
-    broadcast({
-      type: 'levelUp',
-      ...data,
-      timestamp: Date.now()
-    });
-  });
-
-  learningSystem.on('badgeUnlocked', (data) => {
-    broadcast({
-      type: 'badgeUnlocked',
-      ...data,
-      timestamp: Date.now()
-    });
-  });
-
-  learningSystem.on('achievementUnlocked', (data) => {
-    broadcast({
-      type: 'achievementUnlocked',
-      ...data,
-      timestamp: Date.now()
-    });
-  });
-
-  // Autopilot System Integration with WebSocket
-  const automationEngine = getAdvancedAutomationEngine();
-  const orchestrator = getIntelligentWorkflowOrchestrator();
-  
-  // Subscribe to autopilot updates and broadcast them
-  automationEngine.subscribeToUpdates((status) => {
-    broadcast({
-      type: 'autopilot_update',
-      data: status,
-      timestamp: Date.now()
-    });
-  });
-
-  orchestrator.subscribeToWorkflowUpdates((status) => {
-    broadcast({
-      type: 'workflow_update',
-      data: status,
-      timestamp: Date.now()
-    });
-  });
-
-  // Enterprise System Integration with WebSocket
-  const teamManager = getEnterpriseTeamManager();
-  const adminDashboard = getEnterpriseAdminDashboard();
-  const collaborationSystem = getEnterpriseCollaborationSystem();
-  const travelAgency = getEnhancedTravelAgency();
-  const travelDashboard = getTravelDashboard();
-
-  // Subscribe to enterprise updates and broadcast them
-  adminDashboard.subscribeToUpdates((update) => {
-    broadcast({
-      type: 'admin_dashboard_update',
-      data: update,
-      timestamp: Date.now()
-    });
-  });
-
-  collaborationSystem.subscribeToUpdates((update) => {
-    broadcast({
-      type: 'collaboration_update',
-      data: update,
-      timestamp: Date.now()
-    });
-  });
-
-  travelDashboard.subscribeToUpdates((update) => {
-    broadcast({
-      type: 'travel_dashboard_update',
-      data: update,
-      timestamp: Date.now()
-    });
-  });
-
-  // User routes
-  app.get('/api/users/current', async (req, res) => {
-    try {
-      // For demo purposes, return the default user
-      const user = await storage.getUser('user-1');
-      if (!user) {
-        return res.status(404).json({ message: 'User not found' });
-      }
-      res.json(user);
-    } catch (error) {
-      res.status(500).json({ message: 'Failed to get current user' });
-    }
-  });
-
-  app.get('/api/users/:id/stats', async (req, res) => {
-    try {
-      const { id } = req.params;
-      const stats = await storage.getUserStats(id);
-      res.json(stats);
-    } catch (error) {
-      res.status(500).json({ message: 'Failed to get user stats' });
-    }
-  });
-
-  // Learning System API Routes
-  app.get('/api/learning/progress/:userId', async (req, res) => {
-    try {
-      const { userId } = req.params;
-      const progress = learningSystem.getUserProgress(userId);
-      res.json(progress);
-    } catch (error) {
-      res.status(500).json({ message: 'Failed to get learning progress' });
-    }
-  });
-
-  app.get('/api/learning/activities/:userId', async (req, res) => {
-    try {
-      const { userId } = req.params;
-      const limit = parseInt(req.query.limit as string) || 50;
-      const activities = learningSystem.getUserActivities(userId, limit);
-      res.json(activities);
-    } catch (error) {
-      res.status(500).json({ message: 'Failed to get learning activities' });
-    }
-  });
-
-  app.get('/api/learning/recommendations/:userId', async (req, res) => {
-    try {
-      const { userId } = req.params;
-      const recommendations = learningSystem.getUserRecommendations(userId);
-      res.json(recommendations);
-    } catch (error) {
-      res.status(500).json({ message: 'Failed to get learning recommendations' });
-    }
-  });
-
-  app.post('/api/learning/activity', async (req, res) => {
-    try {
-      const activity = await learningSystem.recordActivity(req.body);
-      res.json(activity);
-    } catch (error) {
-      res.status(500).json({ message: 'Failed to record learning activity' });
-    }
-  });
-
-  app.get('/api/learning/leaderboard', async (req, res) => {
-    try {
-      const limit = parseInt(req.query.limit as string) || 10;
-      const leaderboard = learningSystem.getLeaderboard(limit);
-      res.json(leaderboard);
-    } catch (error) {
-      res.status(500).json({ message: 'Failed to get leaderboard' });
-    }
-  });
-
-  app.get('/api/learning/challenges', async (req, res) => {
-    try {
-      const challenges = learningSystem.getActiveChallenges();
-      res.json(challenges);
-    } catch (error) {
-      res.status(500).json({ message: 'Failed to get challenges' });
-    }
-  });
-
-  // Posts routes
-  app.get('/api/posts', async (req, res) => {
-    try {
-      const limit = parseInt(req.query.limit as string) || 10;
-      const posts = await storage.getPostsWithAuthor(limit);
-      res.json(posts);
-    } catch (error) {
-      res.status(500).json({ message: 'Failed to get posts' });
-    }
-  });
-
-  app.post('/api/posts', async (req, res) => {
-    try {
-      const validatedData = insertPostSchema.parse(req.body);
-      const post = await storage.createPost(validatedData);
-      
-      // Broadcast new post to all connected clients
-      broadcast({ type: 'new_post', data: post });
-      
-      res.status(201).json(post);
-    } catch (error) {
-      res.status(400).json({ message: 'Invalid post data' });
-    }
-  });
-
-  app.post('/api/posts/:id/like', async (req, res) => {
-    try {
-      const { id } = req.params;
-      const post = await storage.getPost(id);
-      if (!post) {
-        return res.status(404).json({ message: 'Post not found' });
-      }
-      
-      const newLikes = post.likes + 1;
-      await storage.updatePostStats(id, newLikes, post.shares, post.comments);
-      
-      broadcast({ type: 'post_liked', data: { postId: id, likes: newLikes } });
-      
-      res.json({ likes: newLikes });
-    } catch (error) {
-      res.status(500).json({ message: 'Failed to like post' });
-    }
-  });
-
-  // AI Content Generation
-  // This endpoint uses AI to generate content for social media posts or other purposes.
-  app.post('/api/ai/generate-content', async (req, res) => {
-    try {
-      const { prompt, type = 'post' } = req.body;
-      
-      if (!prompt) {
-        return res.status(400).json({ message: 'Prompt is required' });
-      }
-
-      const systemPrompt = type === 'post' 
-        ? 'You are a social media content creator. Generate engaging, professional social media posts. Respond with JSON in this format: {"content": "your generated content", "hashtags": ["tag1", "tag2"]}'
-        : 'You are a helpful AI assistant. Provide helpful and informative responses. Respond with JSON in this format: {"response": "your response"}';
-
-      // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
-      const response = await openai.chat.completions.create({
-        model: "gpt-5",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: prompt }
-        ],
-        response_format: { type: "json_object" },
-      });
-
-      const result = JSON.parse(response.choices[0].message.content || '{}');
-      res.json(result);
-    } catch (error) {
-      console.error('AI generation error:', error);
-      res.status(500).json({ message: 'Failed to generate content' });
-    }
-  });
-
-  // Agent Templates routes
-  app.get('/api/agent-templates', async (req, res) => {
-    try {
-      const templates = await storage.getAgentTemplates();
-      res.json(templates);
-    } catch (error) {
-      res.status(500).json({ message: 'Failed to get agent templates' });
-    }
-  });
-
-  app.post('/api/agent-templates/:id/use', async (req, res) => {
-    try {
-      const { id } = req.params;
-      await storage.incrementTemplateUsage(id);
-      res.json({ message: 'Template usage incremented' });
-    } catch (error) {
-      res.status(500).json({ message: 'Failed to increment template usage' });
-    }
-  });
-
-  // User Agents routes
-  app.get('/api/user-agents', async (req, res) => {
-    try {
-      const userId = req.query.userId as string || 'user-1';
-      const agents = await storage.getUserAgents(userId);
-      res.json(agents);
-    } catch (error) {
-      res.status(500).json({ message: 'Failed to get user agents' });
-    }
-  });
-
-  app.post('/api/user-agents', async (req, res) => {
-    try {
-      const validatedData = insertUserAgentSchema.parse(req.body);
-      const agent = await storage.createUserAgent(validatedData);
-      res.status(201).json(agent);
-    } catch (error) {
-      res.status(400).json({ message: 'Invalid agent data' });
-    }
-  });
-
-  // Workflows routes
-  app.get('/api/workflows', async (req, res) => {
-    try {
-      const userId = req.query.userId as string || 'user-1';
-      const workflows = await storage.getWorkflowsByUser(userId);
-      res.json(workflows);
-    } catch (error) {
-      res.status(500).json({ message: 'Failed to get workflows' });
-    }
-  });
-
-  app.post('/api/workflows', async (req, res) => {
-    try {
-      const validatedData = insertWorkflowSchema.parse(req.body);
-      const workflow = await storage.createWorkflow(validatedData);
-      res.status(201).json(workflow);
-    } catch (error) {
-      res.status(400).json({ message: 'Invalid workflow data' });
-    }
-  });
-
-  app.put('/api/workflows/:id', async (req, res) => {
-    try {
-      const { id } = req.params;
-      await storage.updateWorkflow(id, req.body);
-      const workflow = await storage.getWorkflow(id);
-      res.json(workflow);
-    } catch (error) {
-      res.status(500).json({ message: 'Failed to update workflow' });
-    }
-  });
-
-  app.delete('/api/workflows/:id', async (req, res) => {
-    try {
-      const { id } = req.params;
-      await storage.deleteWorkflow(id);
-      res.json({ message: 'Workflow deleted' });
-    } catch (error) {
-      res.status(500).json({ message: 'Failed to delete workflow' });
-    }
-  });
-
-  // Chat routes
-  app.post('/api/chat', async (req, res) => {
-    try {
-      const { message, userId = 'user-1' } = req.body;
-      
-      if (!message) {
-        return res.status(400).json({ message: 'Message is required' });
-      }
-
-      const messages = [
-        { 
-          role: "system", 
-          content: "You are a helpful AI assistant for AuraOS, a social media automation platform. Help users with content creation, automation setup, and platform features." 
-        },
-        { role: "user", content: message }
-      ];
-
-      const aiTextResponse = await chatWithAssistant(messages);
-      
-      // Save chat message
-      await storage.createChatMessage({
-        userId,
-        message,
-        response: aiTextResponse
-      });
-
-      res.json({ response: aiTextResponse });
-    } catch (error) {
-      console.error('Chat error:', error);
-      res.status(500).json({ message: 'Failed to process chat message' });
-    }
-  });
-
-  app.get('/api/chat/history', async (req, res) => {
-    try {
-      const userId = req.query.userId as string || 'user-1';
-      const limit = parseInt(req.query.limit as string) || 20;
-      const messages = await storage.getChatMessages(userId, limit);
-      res.json(messages);
-    } catch (error) {
-      res.status(500).json({ message: 'Failed to get chat history' });
-    }
-  });
-
-  // Telegram Bot API routes
-  app.get('/api/telegram/status', async (req, res) => {
-    try {
-      const telegramService = getTelegramService();
-      if (!telegramService) {
-        return res.status(404).json({ message: 'Telegram bot not initialized' });
-      }
-
-      const botInfo = await telegramService.getBotInfo();
-      const isConnected = telegramService.isBotConnected();
-
-      res.json({
-        connected: isConnected,
-        botInfo: {
-          id: botInfo.id,
-          username: botInfo.username,
-          firstName: botInfo.first_name,
-          canJoinGroups: botInfo.can_join_groups,
-          canReadAllGroupMessages: botInfo.can_read_all_group_messages
-        }
-      });
-    } catch (error) {
-      res.status(500).json({ message: 'Failed to get Telegram bot status' });
-    }
-  });
-
-  app.post('/api/telegram/send-message', async (req, res) => {
-    try {
-      const { chatId, message, options } = req.body;
-      
-      if (!chatId || !message) {
-        return res.status(400).json({ message: 'chatId and message are required' });
-      }
-
-      const telegramService = getTelegramService();
-      if (!telegramService) {
-        return res.status(404).json({ message: 'Telegram bot not initialized' });
-      }
-
-      const result = await telegramService.sendMessage(chatId, message, options);
-      res.json({ success: true, messageId: result.message_id });
-    } catch (error) {
-      console.error('Telegram send message error:', error);
-      res.status(500).json({ message: 'Failed to send Telegram message' });
-    }
-  });
-
-  app.post('/api/telegram/send-photo', async (req, res) => {
-    try {
-      const { chatId, photo, caption, options } = req.body;
-      
-      if (!chatId || !photo) {
-        return res.status(400).json({ message: 'chatId and photo are required' });
-      }
-
-      const telegramService = getTelegramService();
-      if (!telegramService) {
-        return res.status(404).json({ message: 'Telegram bot not initialized' });
-      }
-
-      const result = await telegramService.sendPhoto(chatId, photo, { caption, ...options });
-      res.json({ success: true, messageId: result.message_id });
-    } catch (error) {
-      console.error('Telegram send photo error:', error);
-      res.status(500).json({ message: 'Failed to send Telegram photo' });
-    }
-  });
-
-  app.post('/api/telegram/broadcast', async (req, res) => {
-    try {
-      const { message, chatIds, options } = req.body;
-      
-      if (!message || !Array.isArray(chatIds)) {
-        return res.status(400).json({ message: 'message and chatIds array are required' });
-      }
-
-      const telegramService = getTelegramService();
-      if (!telegramService) {
-        return res.status(404).json({ message: 'Telegram bot not initialized' });
-      }
-
-      const results = [];
-      for (const chatId of chatIds) {
-        try {
-          const result = await telegramService.sendMessage(chatId, message, options);
-          results.push({ chatId, success: true, messageId: result.message_id });
-        } catch (error) {
-          results.push({ chatId, success: false, error: error.message });
-        }
-      }
-
-      res.json({ success: true, results });
-    } catch (error) {
-      console.error('Telegram broadcast error:', error);
-      res.status(500).json({ message: 'Failed to broadcast Telegram messages' });
-    }
-  });
-
-  // Smart Learning AI Meta Loop API routes
-  // These endpoints are for the self-improving AI system, allowing it to learn and adapt.
-  app.post('/api/ai/smart-learning', async (req, res) => {
-    try {
-      const { userId, taskType, inputData, expectedOutput, metadata } = req.body;
-      
-      if (!userId || !taskType || !inputData) {
-        return res.status(400).json({ message: 'userId, taskType, and inputData are required' });
-      }
-
-      const smartAI = getSmartLearningAI();
-      const context = {
-        userId,
-        sessionId: `session_${Date.now()}`,
-        taskType,
-        inputData,
-        expectedOutput,
-        timestamp: new Date(),
-        metadata: metadata || {}
-      };
-
-      const result = await smartAI.processLearningRequest(context);
-      res.json(result);
-    } catch (error) {
-      console.error('Smart learning error:', error);
-      res.status(500).json({ message: 'Failed to process smart learning request' });
-    }
-  });
-
-  app.get('/api/ai/learning-state/:userId', async (req, res) => {
-    try {
-      const { userId } = req.params;
-      const smartAI = getSmartLearningAI();
-      const state = await smartAI.getLearningState(userId);
-      
-      if (!state) {
-        return res.status(404).json({ message: 'Learning state not found' });
-      }
-
-      res.json(state);
-    } catch (error) {
-      console.error('Get learning state error:', error);
-      res.status(500).json({ message: 'Failed to get learning state' });
-    }
-  });
-
-  app.get('/api/ai/performance-metrics/:userId', async (req, res) => {
-    try {
-      const { userId } = req.params;
-      const smartAI = getSmartLearningAI();
-      const metrics = await smartAI.getPerformanceMetrics(userId);
-      
-      if (!metrics) {
-        return res.status(404).json({ message: 'Performance metrics not found' });
-      }
-
-      res.json(metrics);
-    } catch (error) {
-      console.error('Get performance metrics error:', error);
-      res.status(500).json({ message: 'Failed to get performance metrics' });
-    }
-  });
-
-  app.post('/api/ai/zero-shot/content-generation', async (req, res) => {
-    try {
-      const { userId, prompt, topic, style } = req.body;
-      
-      if (!userId || !prompt) {
-        return res.status(400).json({ message: 'userId and prompt are required' });
-      }
-
-      const smartAI = getSmartLearningAI();
-      const context = {
-        userId,
-        sessionId: `session_${Date.now()}`,
-        taskType: 'content_generation',
-        inputData: prompt,
-        timestamp: new Date(),
-        metadata: { topic, style }
-      };
-
-      const result = await smartAI.processLearningRequest(context);
-      res.json(result);
-    } catch (error) {
-      console.error('Zero-shot content generation error:', error);
-      res.status(500).json({ message: 'Failed to generate content' });
-    }
-  });
-
-  app.post('/api/ai/zero-shot/sentiment-analysis', async (req, res) => {
-    try {
-      const { userId, text } = req.body;
-      
-      if (!userId || !text) {
-        return res.status(400).json({ message: 'userId and text are required' });
-      }
-
-      const smartAI = getSmartLearningAI();
-      const context = {
-        userId,
-        sessionId: `session_${Date.now()}`,
-        taskType: 'sentiment_analysis',
-        inputData: text,
-        timestamp: new Date(),
-        metadata: {}
-      };
-
-      const result = await smartAI.processLearningRequest(context);
-      res.json(result);
-    } catch (error) {
-      console.error('Zero-shot sentiment analysis error:', error);
-      res.status(500).json({ message: 'Failed to analyze sentiment' });
-    }
-  });
-
-  app.post('/api/ai/zero-shot/intent-classification', async (req, res) => {
-    try {
-      const { userId, text } = req.body;
-      
-      if (!userId || !text) {
-        return res.status(400).json({ message: 'userId and text are required' });
-      }
-
-      const smartAI = getSmartLearningAI();
-      const context = {
-        userId,
-        sessionId: `session_${Date.now()}`,
-        taskType: 'intent_classification',
-        inputData: text,
-        timestamp: new Date(),
-        metadata: {}
-      };
-
-      const result = await smartAI.processLearningRequest(context);
-      res.json(result);
-    } catch (error) {
-      console.error('Zero-shot intent classification error:', error);
-      res.status(500).json({ message: 'Failed to classify intent' });
-    }
-  });
-
-  app.post('/api/ai/zero-shot/style-transfer', async (req, res) => {
-    try {
-      const { userId, text, targetStyle } = req.body;
-      
-      if (!userId || !text || !targetStyle) {
-        return res.status(400).json({ message: 'userId, text, and targetStyle are required' });
-      }
-
-      const smartAI = getSmartLearningAI();
-      const context = {
-        userId,
-        sessionId: `session_${Date.now()}`,
-        taskType: 'style_transfer',
-        inputData: text,
-        timestamp: new Date(),
-        metadata: { style: targetStyle }
-      };
-
-      const result = await smartAI.processLearningRequest(context);
-      res.json(result);
-    } catch (error) {
-      console.error('Zero-shot style transfer error:', error);
-      res.status(500).json({ message: 'Failed to transfer style' });
-    }
-  });
-
-  app.post('/api/ai/feedback', async (req, res) => {
-    try {
-      const { userId, sessionId, feedback, taskType } = req.body;
-      
-      if (!userId || !sessionId || feedback === undefined) {
-        return res.status(400).json({ message: 'userId, sessionId, and feedback are required' });
-      }
-
-      const smartAI = getSmartLearningAI();
-      const state = await smartAI.getLearningState(userId);
-      
-      if (!state) {
-        return res.status(404).json({ message: 'Learning state not found' });
-      }
-
-      // Update learning state with feedback
-      const feedbackContext = {
-        userId,
-        sessionId,
-        taskType: taskType || 'general',
-        inputData: {},
-        feedback: feedback,
-        timestamp: new Date(),
-        metadata: { feedbackType: 'user_feedback' }
-      };
-
-      // This would update the learning state with feedback
-      res.json({ success: true, message: 'Feedback recorded successfully' });
-    } catch (error) {
-      console.error('Feedback error:', error);
-      res.status(500).json({ message: 'Failed to record feedback' });
-    }
-  });
-
-  app.post('/api/ai/reset-learning/:userId', async (req, res) => {
-    try {
-      const { userId } = req.params;
-      const smartAI = getSmartLearningAI();
-      
-      await smartAI.resetLearningState(userId);
-      res.json({ success: true, message: 'Learning state reset successfully' });
-    } catch (error) {
-      console.error('Reset learning error:', error);
-      res.status(500).json({ message: 'Failed to reset learning state' });
-    }
-  });
-
-  app.get('/api/ai/export-learning/:userId', async (req, res) => {
-    try {
-      const { userId } = req.params;
-      const smartAI = getSmartLearningAI();
-      
-      const data = await smartAI.exportLearningData(userId);
-      res.json({ data });
-    } catch (error) {
-      console.error('Export learning error:', error);
-      res.status(500).json({ message: 'Failed to export learning data' });
-    }
-  });
-
-  app.post('/api/ai/import-learning/:userId', async (req, res) => {
-    try {
-      const { userId } = req.params;
-      const { data } = req.body;
-      
-      if (!data) {
-        return res.status(400).json({ message: 'Data is required' });
-      }
-
-      const smartAI = getSmartLearningAI();
-      await smartAI.importLearningData(userId, data);
-      
-      res.json({ success: true, message: 'Learning data imported successfully' });
-    } catch (error) {
-      console.error('Import learning error:', error);
-      res.status(500).json({ message: 'Failed to import learning data' });
-    }
-  });
-
-  // Travel Services API Routes
-  app.get('/api/travel/services', async (req, res) => {
-    try {
-      const travelServiceManager = getTravelFoodServiceManager();
-      const services = travelServiceManager.getTravelServices();
-      res.json(services);
-    } catch (error) {
-      res.status(500).json({ message: 'Failed to get travel services' });
-    }
-  });
-
-  app.get('/api/travel/services/:id', async (req, res) => {
-    try {
-      const { id } = req.params;
-      const travelServiceManager = getTravelFoodServiceManager();
-      const service = travelServiceManager.getTravelService(id);
-      
-      if (!service) {
-        return res.status(404).json({ message: 'Travel service not found' });
-      }
-      
-      res.json(service);
-    } catch (error) {
-      res.status(500).json({ message: 'Failed to get travel service' });
-    }
-  });
-
-  app.post('/api/travel/recommendations', async (req, res) => {
-    try {
-      const { destination, budget, preferences } = req.body;
-      
-      if (!destination || !budget) {
-        return res.status(400).json({ message: 'destination and budget are required' });
-      }
-
-      const travelServiceManager = getTravelFoodServiceManager();
-      const recommendations = await travelServiceManager.generateTravelRecommendations(
-        destination, 
-        budget, 
-        preferences || {}
-      );
-      
-      res.json(recommendations);
-    } catch (error) {
-      console.error('Travel recommendations error:', error);
-      res.status(500).json({ message: 'Failed to generate travel recommendations' });
-    }
-  });
-
-  // Food Services API Routes
-  app.get('/api/food/services', async (req, res) => {
-    try {
-      const travelFoodServiceManager = getTravelFoodServiceManager();
-      const services = travelFoodServiceManager.getFoodServices();
-      res.json(services);
-    } catch (error) {
-      res.status(500).json({ message: 'Failed to get food services' });
-    }
-  });
-
-  app.get('/api/food/services/:id', async (req, res) => {
-    try {
-      const { id } = req.params;
-      const travelFoodServiceManager = getTravelFoodServiceManager();
-      const service = travelFoodServiceManager.getFoodService(id);
-      
-      if (!service) {
-        return res.status(404).json({ message: 'Food service not found' });
-      }
-      
-      res.json(service);
-    } catch (error) {
-      res.status(500).json({ message: 'Failed to get food service' });
-    }
-  });
-
-  app.post('/api/food/recommendations', async (req, res) => {
-    try {
-      const { location, budget, preferences } = req.body;
-      
-      if (!location || !budget) {
-        return res.status(400).json({ message: 'location and budget are required' });
-      }
-
-      const travelFoodServiceManager = getTravelFoodServiceManager();
-      const recommendations = await travelFoodServiceManager.generateFoodRecommendations(
-        location, 
-        budget, 
-        preferences || {}
-      );
-      
-      res.json(recommendations);
-    } catch (error) {
-      console.error('Food recommendations error:', error);
-      res.status(500).json({ message: 'Failed to generate food recommendations' });
-    }
-  });
-
-  // Smart Shopping Agents API Routes
-  app.get('/api/shopping/agents', async (req, res) => {
-    try {
-      const travelFoodServiceManager = getTravelFoodServiceManager();
-      const agents = travelFoodServiceManager.getSmartAgents();
-      res.json(agents);
-    } catch (error) {
-      res.status(500).json({ message: 'Failed to get smart agents' });
-    }
-  });
-
-  app.get('/api/shopping/agents/:id', async (req, res) => {
-    try {
-      const { id } = req.params;
-      const travelFoodServiceManager = getTravelFoodServiceManager();
-      const agent = travelFoodServiceManager.getSmartAgent(id);
-      
-      if (!agent) {
-        return res.status(404).json({ message: 'Smart agent not found' });
-      }
-      
-      res.json(agent);
-    } catch (error) {
-      res.status(500).json({ message: 'Failed to get smart agent' });
-    }
-  });
-
-  app.post('/api/shopping/agents', async (req, res) => {
-    try {
-      const { name, category, capabilities, integrations, automationRules } = req.body;
-      
-      if (!name || !category) {
-        return res.status(400).json({ message: 'name and category are required' });
-      }
-
-      const travelFoodServiceManager = getTravelFoodServiceManager();
-      const agent = travelFoodServiceManager.createCustomAgentTemplate(
-        name,
-        category,
-        capabilities || {},
-        integrations || [],
-        automationRules || []
-      );
-      
-      res.status(201).json(agent);
-    } catch (error) {
-      console.error('Create smart agent error:', error);
-      res.status(500).json({ message: 'Failed to create smart agent' });
-    }
-  });
-
-  // Travel and Food Automation Workflows
-  app.post('/api/automation/travel-workflow', async (req, res) => {
-    try {
-      const { destination, budget, preferences, automationRules } = req.body;
-      
-      if (!destination || !budget) {
-        return res.status(400).json({ message: 'destination and budget are required' });
-      }
-
-      // Create travel automation workflow
-      const workflow = {
-        id: `travel_workflow_${Date.now()}`,
-        name: `Travel Automation for ${destination}`,
-        type: 'travel',
-        destination,
-        budget,
-        preferences,
-        automationRules: automationRules || [
-          'Monitor flight prices',
-          'Auto-book when price drops',
-          'Send deal alerts',
-          'Manage hotel reservations',
-          'Coordinate activities'
-        ],
-        status: 'active',
-        createdAt: new Date().toISOString()
-      };
-
-      // Save workflow to database
-      await storage.createWorkflow({
-        userId: 'user-1',
-        name: workflow.name,
-        description: `Automated travel planning for ${destination}`,
-        steps: workflow.automationRules,
-        isActive: true,
-        triggerType: 'schedule',
-        triggerConfig: JSON.stringify({ frequency: 'daily' })
-      });
-
-      res.status(201).json(workflow);
-    } catch (error) {
-      console.error('Travel workflow error:', error);
-      res.status(500).json({ message: 'Failed to create travel workflow' });
-    }
-  });
-
-  app.post('/api/automation/food-workflow', async (req, res) => {
-    try {
-      const { location, budget, preferences, automationRules } = req.body;
-      
-      if (!location || !budget) {
-        return res.status(400).json({ message: 'location and budget are required' });
-      }
-
-      // Create food automation workflow
-      const workflow = {
-        id: `food_workflow_${Date.now()}`,
-        name: `Food Automation for ${location}`,
-        type: 'food',
-        location,
-        budget,
-        preferences,
-        automationRules: automationRules || [
-          'Monitor restaurant deals',
-          'Auto-order repeat meals',
-          'Send food recommendations',
-          'Manage grocery lists',
-          'Track dietary preferences'
-        ],
-        status: 'active',
-        createdAt: new Date().toISOString()
-      };
-
-      // Save workflow to database
-      await storage.createWorkflow({
-        userId: 'user-1',
-        name: workflow.name,
-        description: `Automated food management for ${location}`,
-        steps: workflow.automationRules,
-        isActive: true,
-        triggerType: 'schedule',
-        triggerConfig: JSON.stringify({ frequency: 'daily' })
-      });
-
-      res.status(201).json(workflow);
-    } catch (error) {
-      console.error('Food workflow error:', error);
-      res.status(500).json({ message: 'Failed to create food workflow' });
-    }
-  });
-
-  // Advanced Automation Engine API Routes
-  app.get('/api/automation/engine/stats', async (req, res) => {
-    try {
-      const automationEngine = getAdvancedAutomationEngine();
-      const stats = automationEngine.getAutomationStats();
-      res.json(stats);
-    } catch (error) {
-      res.status(500).json({ message: 'Failed to get automation stats' });
-    }
-  });
-
-  app.get('/api/automation/engine/performance', async (req, res) => {
-    try {
-      const automationEngine = getAdvancedAutomationEngine();
-      const performance = automationEngine.getPerformanceMetrics();
-      res.json(performance);
-    } catch (error) {
-      res.status(500).json({ message: 'Failed to get performance metrics' });
-    }
-  });
-
-  app.post('/api/automation/engine/rules', async (req, res) => {
-    try {
-      const { name, condition, action, enabled } = req.body;
-      
-      if (!name || !condition || !action) {
-        return res.status(400).json({ message: 'name, condition, and action are required' });
-      }
-
-      const automationEngine = getAdvancedAutomationEngine();
-      const rule = {
-        id: `rule_${Date.now()}`,
-        name,
-        condition,
-        action,
-        enabled: enabled !== false,
-        successRate: 0.0,
-        executionCount: 0
-      };
-
-      automationEngine.addAutomationRule(rule);
-      res.status(201).json(rule);
-    } catch (error) {
-      console.error('Create automation rule error:', error);
-      res.status(500).json({ message: 'Failed to create automation rule' });
-    }
-  });
-
-  // Live Autopilot Control API Routes
-  app.get('/api/autopilot/live/status', async (req, res) => {
-    try {
-      const automationEngine = getAdvancedAutomationEngine();
-      const orchestrator = getIntelligentWorkflowOrchestrator();
-      
-      const liveStatus = {
-        automation: automationEngine.getLiveStatus(),
-        workflows: orchestrator.getLiveStatus(),
-        timestamp: new Date().toISOString()
-      };
-      
-      res.json(liveStatus);
-    } catch (error) {
-      console.error('Get live status error:', error);
-      res.status(500).json({ message: 'Failed to get live status' });
-    }
-  });
-
-  app.post('/api/autopilot/emergency-stop', async (req, res) => {
-    try {
-      const { stop } = req.body;
-      
-      if (typeof stop !== 'boolean') {
-        return res.status(400).json({ message: 'stop parameter must be a boolean' });
-      }
-
-      const automationEngine = getAdvancedAutomationEngine();
-      automationEngine.setEmergencyStop(stop);
-      
-      res.json({ 
-        success: true, 
-        emergencyStop: stop,
-        message: `Autopilot ${stop ? 'stopped' : 'resumed'}` 
-      });
-    } catch (error) {
-      console.error('Emergency stop error:', error);
-      res.status(500).json({ message: 'Failed to set emergency stop' });
-    }
-  });
-
-  app.post('/api/autopilot/rule/:ruleId/toggle', async (req, res) => {
-    try {
-      const { ruleId } = req.params;
-      const { enabled } = req.body;
-      
-      if (typeof enabled !== 'boolean') {
-        return res.status(400).json({ message: 'enabled parameter must be a boolean' });
-      }
-
-      const automationEngine = getAdvancedAutomationEngine();
-      const success = automationEngine.toggleRule(ruleId, enabled);
-      
-      if (success) {
-        res.json({ 
-          success: true, 
-          ruleId, 
-          enabled,
-          message: `Rule ${enabled ? 'enabled' : 'disabled'}` 
-        });
-      } else {
-        res.status(404).json({ message: 'Rule not found' });
-      }
-    } catch (error) {
-      console.error('Toggle rule error:', error);
-      res.status(500).json({ message: 'Failed to toggle rule' });
-    }
-  });
-
-  app.post('/api/autopilot/rule/:ruleId/override', async (req, res) => {
-    try {
-      const { ruleId } = req.params;
-      const { override } = req.body;
-      
-      const automationEngine = getAdvancedAutomationEngine();
-      automationEngine.setUserOverride(ruleId, override);
-      
-      res.json({ 
-        success: true, 
-        ruleId, 
-        override,
-        message: 'User override set successfully' 
-      });
-    } catch (error) {
-      console.error('Set override error:', error);
-      res.status(500).json({ message: 'Failed to set override' });
-    }
-  });
-
-  app.delete('/api/autopilot/rule/:ruleId/override', async (req, res) => {
-    try {
-      const { ruleId } = req.params;
-      
-      const automationEngine = getAdvancedAutomationEngine();
-      automationEngine.clearUserOverride(ruleId);
-      
-      res.json({ 
-        success: true, 
-        ruleId,
-        message: 'User override cleared successfully' 
-      });
-    } catch (error) {
-      console.error('Clear override error:', error);
-      res.status(500).json({ message: 'Failed to clear override' });
-    }
-  });
-
-  // Workflow Control API Routes
-  app.post('/api/workflows/:workflowId/pause', async (req, res) => {
-    try {
-      const { workflowId } = req.params;
-      
-      const orchestrator = getIntelligentWorkflowOrchestrator();
-      const success = orchestrator.pauseWorkflow(workflowId);
-      
-      if (success) {
-        res.json({ 
-          success: true, 
-          workflowId,
-          message: 'Workflow paused successfully' 
-        });
-      } else {
-        res.status(404).json({ message: 'Workflow not found' });
-      }
-    } catch (error) {
-      console.error('Pause workflow error:', error);
-      res.status(500).json({ message: 'Failed to pause workflow' });
-    }
-  });
-
-  app.post('/api/workflows/:workflowId/resume', async (req, res) => {
-    try {
-      const { workflowId } = req.params;
-      
-      const orchestrator = getIntelligentWorkflowOrchestrator();
-      const success = orchestrator.resumeWorkflow(workflowId);
-      
-      if (success) {
-        res.json({ 
-          success: true, 
-          workflowId,
-          message: 'Workflow resumed successfully' 
-        });
-      } else {
-        res.status(404).json({ message: 'Workflow not found' });
-      }
-    } catch (error) {
-      console.error('Resume workflow error:', error);
-      res.status(500).json({ message: 'Failed to resume workflow' });
-    }
-  });
-
-  app.get('/api/workflows/:workflowId/status', async (req, res) => {
-    try {
-      const { workflowId } = req.params;
-      
-      const orchestrator = getIntelligentWorkflowOrchestrator();
-      const status = orchestrator.getWorkflowStatus(workflowId);
-      
-      if (status) {
-        res.json(status);
-      } else {
-        res.status(404).json({ message: 'Workflow not found' });
-      }
-    } catch (error) {
-      console.error('Get workflow status error:', error);
-      res.status(500).json({ message: 'Failed to get workflow status' });
-    }
-  });
-
-  // Intelligent Workflow Orchestrator API Routes
-  app.get('/api/workflows/intelligent/stats', async (req, res) => {
-    try {
-      const orchestrator = getIntelligentWorkflowOrchestrator();
-      const stats = orchestrator.getWorkflowStats();
-      res.json(stats);
-    } catch (error) {
-      res.status(500).json({ message: 'Failed to get workflow stats' });
-    }
-  });
-
-  app.post('/api/workflows/intelligent/create', async (req, res) => {
-    try {
-      const { name, type, steps, triggers } = req.body;
-      
-      if (!name || !type || !steps || !triggers) {
-        return res.status(400).json({ message: 'name, type, steps, and triggers are required' });
-      }
-
-      const orchestrator = getIntelligentWorkflowOrchestrator();
-      const workflow = await orchestrator.createCustomWorkflow(name, type, steps, triggers);
-      
-      res.status(201).json(workflow);
-    } catch (error) {
-      console.error('Create intelligent workflow error:', error);
-      res.status(500).json({ message: 'Failed to create intelligent workflow' });
-    }
-  });
-
-  // System Intelligence API Routes
-  app.get('/api/system/intelligence/overview', async (req, res) => {
-    try {
-      const automationEngine = getAdvancedAutomationEngine();
-      const orchestrator = getIntelligentWorkflowOrchestrator();
-      
-      const overview = {
-        automation: automationEngine.getAutomationStats(),
-        workflows: orchestrator.getWorkflowStats(),
-        systemHealth: {
-          status: 'excellent',
-          uptime: '99.9%',
-          performance: 'optimal',
-          aiLearning: 'active'
-        },
-        capabilities: {
-          predictiveAnalytics: true,
-          intelligentAutomation: true,
-          selfOptimization: true,
-          adaptiveLearning: true,
-          realTimeDecisionMaking: true
-        },
-        metrics: {
-          totalAutomations: automationEngine.getAutomationStats().totalRules,
-          activeWorkflows: orchestrator.getWorkflowStats().activeWorkflows,
-          aiAccuracy: 0.94,
-          systemEfficiency: 0.96,
-          userSatisfaction: 0.92
-        }
-      };
-
-      res.json(overview);
-    } catch (error) {
-      console.error('System intelligence overview error:', error);
-      res.status(500).json({ message: 'Failed to get system intelligence overview' });
-    }
-  });
-
-  app.post('/api/system/intelligence/optimize', async (req, res) => {
-    try {
-      const { category, parameters } = req.body;
-      
-      if (!category) {
-        return res.status(400).json({ message: 'category is required' });
-      }
-
-      // Simulate system optimization
-      const optimization = {
-        id: `optimization_${Date.now()}`,
-        category,
-        parameters: parameters || {},
-        status: 'running',
-        estimatedTime: '5-10 minutes',
-        expectedImprovement: '15-25%',
-        createdAt: new Date().toISOString()
-      };
-
-      res.status(201).json(optimization);
-    } catch (error) {
-      console.error('System optimization error:', error);
-      res.status(500).json({ message: 'Failed to start system optimization' });
-    }
-  });
 
   // AI-Powered Decision Making API
   app.post('/api/ai/decision', async (req, res) => {
@@ -2130,7 +762,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const metrics = multiModalAI.getPerformanceMetrics();
       res.json(Object.fromEntries(metrics));
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: (error as Error).message });
     }
   });
 
@@ -2229,7 +861,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/ai/deployments', async (req, res) => {
+  app.get('/api/deployments', async (req, res) => {
     try {
       const modelManagement = getAIModelManagementSystem();
       const deployments = modelManagement.getDeployments();
@@ -2239,7 +871,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/ai/deployments/active', async (req, res) => {
+  app.get('/api/deployments/active', async (req, res) => {
     try {
       const modelManagement = getAIModelManagementSystem();
       const deployments = modelManagement.getActiveDeployments();
@@ -2249,7 +881,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/ai/deployments', async (req, res) => {
+  app.post('/api/deployments', async (req, res) => {
     try {
       const { modelId, versionId, environment, config } = req.body;
       const modelManagement = getAIModelManagementSystem();
@@ -2260,7 +892,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/ai/deployments/:deploymentId', async (req, res) => {
+  app.delete('/api/deployments/:deploymentId', async (req, res) => {
     try {
       const { deploymentId } = req.params;
       const modelManagement = getAIModelManagementSystem();
@@ -2276,7 +908,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/ai/training', async (req, res) => {
+  app.get('/api/training', async (req, res) => {
     try {
       const modelManagement = getAIModelManagementSystem();
       const jobs = modelManagement.getTrainingJobs();
@@ -2286,7 +918,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/ai/training/active', async (req, res) => {
+  app.get('/api/training/active', async (req, res) => {
     try {
       const modelManagement = getAIModelManagementSystem();
       const jobs = modelManagement.getActiveTrainingJobs();
@@ -2296,7 +928,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/ai/training', async (req, res) => {
+  app.post('/api/training', async (req, res) => {
     try {
       const { modelId, config } = req.body;
       const modelManagement = getAIModelManagementSystem();
@@ -2307,7 +939,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/ai/training/:jobId', async (req, res) => {
+  app.delete('/api/training/:jobId', async (req, res) => {
     try {
       const { jobId } = req.params;
       const modelManagement = getAIModelManagementSystem();
@@ -2323,7 +955,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/ai/federated-learning', async (req, res) => {
+  app.get('/api/federated-learning', async (req, res) => {
     try {
       const modelManagement = getAIModelManagementSystem();
       const rounds = modelManagement.getFederatedLearningRounds();
@@ -2333,7 +965,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/ai/federated-learning/active', async (req, res) => {
+  app.get('/api/federated-learning/active', async (req, res) => {
     try {
       const modelManagement = getAIModelManagementSystem();
       const rounds = modelManagement.getActiveFederatedLearningRounds();
@@ -2343,7 +975,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/ai/federated-learning', async (req, res) => {
+  app.post('/api/federated-learning', async (req, res) => {
     try {
       const { modelId, participants } = req.body;
       const modelManagement = getAIModelManagementSystem();
@@ -2354,7 +986,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/ai/system-metrics', async (req, res) => {
+  app.get('/api/system-metrics', async (req, res) => {
     try {
       const modelManagement = getAIModelManagementSystem();
       const metrics = modelManagement.getSystemMetrics();
@@ -2364,7 +996,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/ai/models/:modelId/optimize', async (req, res) => {
+  app.post('/api/models/:modelId/optimize', async (req, res) => {
     try {
       const { modelId } = req.params;
       const { optimizationConfig } = req.body;
@@ -2376,7 +1008,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/ai/models/:modelId/archive', async (req, res) => {
+  app.post('/api/models/:modelId/archive', async (req, res) => {
     try {
       const { modelId } = req.params;
       const modelManagement = getAIModelManagementSystem();
@@ -2392,7 +1024,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/ai/models/:modelId/restore', async (req, res) => {
+  app.post('/api/models/:modelId/restore', async (req, res) => {
     try {
       const { modelId } = req.params;
       const modelManagement = getAIModelManagementSystem();
@@ -3274,9 +1906,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const toolId = req.params.id;
       const params = req.body?.params || {};
       const mcpProtocol = getMCPProtocol();
-      const tool = mcpProtocol.tools.get(toolId);
+      // Try to find the tool by id or name from the public getter
+      const allTools = await mcpProtocol.getTools();
+      const tool = allTools.find((t: any) => t.id === toolId || t.name === toolId);
       if (!tool) return res.status(404).json({ error: 'Tool not found' });
       const context = req.body?.context || {};
+      if (typeof tool.execute !== 'function') {
+        return res.status(400).json({ error: 'Tool is not executable' });
+      }
       const result = await tool.execute(params, context);
       res.json({ result });
     } catch (error) {
