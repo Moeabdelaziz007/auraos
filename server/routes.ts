@@ -3239,5 +3239,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Free AI Chat endpoint (using open-source model or free API)
+  app.post('/api/ai/chat', async (req, res) => {
+    try {
+      const { prompt } = req.body;
+      if (!prompt) return res.status(400).json({ error: 'Prompt is required' });
+      // Example: Use HuggingFace Inference API with a free model (e.g., mistralai/Mistral-7B-Instruct-v0.2)
+      const response = await fetch('https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          // 'Authorization': 'Bearer YOUR_HUGGINGFACE_TOKEN', // Omit for public/free models or use env var
+        },
+        body: JSON.stringify({ inputs: prompt })
+      });
+      const data = await response.json();
+      const text = Array.isArray(data) && data[0]?.generated_text ? data[0].generated_text : (data.generated_text || data[0]?.text || '');
+      res.json({ text });
+    } catch (error) {
+      console.error('AI chat error:', error);
+      res.status(500).json({ error: 'Failed to get AI response' });
+    }
+  });
+
+  // MCP Tool Execution endpoint
+  app.post('/api/mcp/tools/:id/execute', async (req, res) => {
+    try {
+      const toolId = req.params.id;
+      const params = req.body?.params || {};
+      const mcpProtocol = getMCPProtocol();
+      const tool = mcpProtocol.tools.get(toolId);
+      if (!tool) return res.status(404).json({ error: 'Tool not found' });
+      const context = req.body?.context || {};
+      const result = await tool.execute(params, context);
+      res.json({ result });
+    } catch (error) {
+      console.error('MCP tool execution error:', error);
+      res.status(500).json({ error: 'Failed to execute tool' });
+    }
+  });
+
   return httpServer;
 }

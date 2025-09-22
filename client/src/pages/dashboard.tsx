@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Sidebar from "@/components/layout/sidebar";
 import Header from "@/components/layout/header";
 import StatsGrid from "@/components/dashboard/stats-grid";
@@ -18,6 +18,12 @@ export default function Dashboard() {
   const [showAnalytics, setShowAnalytics] = useState(false);
   const [showAIFeatures, setShowAIFeatures] = useState(false);
   const [showWorkflows, setShowWorkflows] = useState(false);
+  const [aiInput, setAiInput] = useState("");
+  const [aiResponse, setAiResponse] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [executingToolId, setExecutingToolId] = useState<string | null>(null);
+  const [toolResults, setToolResults] = useState<Record<string, any>>({});
+  const aiInputRef = useRef<HTMLInputElement>(null);
 
   const { data: posts, isLoading: postsLoading } = useQuery<PostWithAuthor[]>({
     queryKey: ['/api/posts'],
@@ -31,6 +37,53 @@ export default function Dashboard() {
     queryKey: ['/api/user-agents'],
     queryFn: () => fetch('/api/user-agents?userId=user-1').then(res => res.json()),
   });
+
+  const { data: mcpTools, isLoading: toolsLoading, error: toolsError } = useQuery<any[]>({
+    queryKey: ['/api/mcp/tools'],
+    queryFn: () => fetch('/api/mcp/tools').then(res => res.json()),
+  });
+
+  // AI Assistant handler
+  async function handleAiChat(e: React.FormEvent) {
+    e.preventDefault();
+    if (!aiInput.trim()) return;
+    setAiLoading(true);
+    setAiResponse("");
+    try {
+      const res = await fetch("/api/ai/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: aiInput })
+      });
+      const data = await res.json();
+      setAiResponse(data.text || "No response");
+    } catch (err) {
+      setAiResponse("Error: Could not reach AI model.");
+    } finally {
+      setAiLoading(false);
+      setAiInput("");
+      aiInputRef.current?.focus();
+    }
+  }
+
+  // MCP tool execution handler
+  async function handleExecuteTool(toolId: string) {
+    setExecutingToolId(toolId);
+    setToolResults(r => ({ ...r, [toolId]: { loading: true, result: null, error: null } }));
+    try {
+      const res = await fetch(`/api/mcp/tools/${toolId}/execute`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ params: {} }) // Extend to support params if needed
+      });
+      const data = await res.json();
+      setToolResults(r => ({ ...r, [toolId]: { loading: false, result: data.result, error: null } }));
+    } catch (err) {
+      setToolResults(r => ({ ...r, [toolId]: { loading: false, result: null, error: "Execution failed" } }));
+    } finally {
+      setExecutingToolId(null);
+    }
+  }
 
   return (
     <div className="flex h-screen overflow-hidden bg-background carbon-texture">
@@ -348,11 +401,85 @@ export default function Dashboard() {
                 </Card>
               </div>
             </div>
+
+            {/* MCP Tools Section */}
+            <Card className="mb-8">
+              <CardHeader>
+                <CardTitle>MCP Tools</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {toolsLoading && <div>Loading MCP tools...</div>}
+                {toolsError && <div className="text-red-500">Failed to load MCP tools.</div>}
+                {mcpTools && mcpTools.length === 0 && <div>No MCP tools available.</div>}
+                {mcpTools && mcpTools.length > 0 && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {mcpTools.map(tool => (
+                      <Card key={tool.id} className="border border-primary/30">
+                        <CardHeader>
+                          <CardTitle>{tool.name}</CardTitle>
+                          <div className="text-xs text-muted-foreground">{tool.category} | v{tool.version}</div>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="mb-2">{tool.description}</div>
+                          <div className="mb-2">
+                            <Badge variant={tool.isActive ? "default" : "secondary"}>
+                              {tool.isActive ? 'Active' : 'Inactive'}
+                            </Badge>
+                          </div>
+                          <div className="text-xs">
+                            <div>Capabilities: {tool.capabilities?.join(', ')}</div>
+                            <div>Total Calls: {tool.usage?.totalCalls ?? 0}</div>
+                            <div>Success Rate: {tool.usage?.successRate != null ? `${(tool.usage.successRate * 100).toFixed(1)}%` : 'N/A'}</div>
+                            <div>Avg. Execution: {tool.usage?.averageExecutionTime ?? 'N/A'} ms</div>
+                            <div>Last Used: {tool.usage?.lastUsed ? new Date(tool.usage.lastUsed).toLocaleString() : 'Never'}</div>
+                          </div>
+                          <div className="mt-2">
+                            <Button size="sm" variant="outline" onClick={() => handleExecuteTool(tool.id)} disabled={executingToolId === tool.id}>
+                              {executingToolId === tool.id ? 'Executing...' : 'Execute'}
+                            </Button>
+                          </div>
+                          {toolResults[tool.id]?.loading && <div className="text-xs text-muted-foreground mt-1">Running...</div>}
+                          {toolResults[tool.id]?.result && (
+                            <div className="text-xs mt-2 bg-muted/30 p-2 rounded">Result: {JSON.stringify(toolResults[tool.id].result)}</div>
+                          )}
+                          {toolResults[tool.id]?.error && (
+                            <div className="text-xs text-red-500 mt-2">{toolResults[tool.id].error}</div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
               </>
             )}
           </div>
         </main>
       </div>
+
+      {/* Right Sidebar: AI Assistant */}
+      <Card className="fixed right-0 top-0 h-full w-80 z-40 shadow-xl border-l border-primary/20 bg-background flex flex-col">
+        <CardHeader>
+          <CardTitle>AI Assistant (Free Model)</CardTitle>
+        </CardHeader>
+        <CardContent className="flex-1 flex flex-col">
+          <form onSubmit={handleAiChat} className="flex mb-2">
+            <input
+              ref={aiInputRef}
+              className="flex-1 border rounded-l px-2 py-1 text-sm"
+              placeholder="Ask the AI anything..."
+              value={aiInput}
+              onChange={e => setAiInput(e.target.value)}
+              disabled={aiLoading}
+            />
+            <Button type="submit" size="sm" className="rounded-l-none" disabled={aiLoading || !aiInput.trim()}>Send</Button>
+          </form>
+          <div className="flex-1 overflow-auto text-sm p-2 bg-muted/10 rounded">
+            {aiLoading ? <div>Thinking...</div> : aiResponse && <div>{aiResponse}</div>}
+          </div>
+        </CardContent>
+      </Card>
 
       <ChatWidget />
     </div>

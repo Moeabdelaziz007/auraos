@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useState } from "react";
 
 interface WebSocketOptions {
   reconnectInterval?: number;
@@ -12,6 +12,7 @@ export function useWebSocket(path: string, onMessage: (data: any) => void, optio
   const heartbeatTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const reconnectAttemptsRef = useRef(0);
   const isManualCloseRef = useRef(false);
+  const [errorDetails, setErrorDetails] = useState<{ message: string; errorId: string; stack?: string } | null>(null);
 
   const {
     reconnectInterval = 3000,
@@ -56,45 +57,45 @@ export function useWebSocket(path: string, onMessage: (data: any) => void, optio
       ws.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
-          
-          // Handle heartbeat pong
           if (data.type === 'pong') {
             return;
           }
-          
           onMessage(data);
         } catch (error) {
-          console.error('Failed to parse WebSocket message:', error);
+          const errorId = `ERR-WS-${Date.now()}-${Math.floor(Math.random()*10000)}`;
+          setErrorDetails({ message: 'Failed to parse WebSocket message', errorId, stack: (error as Error).stack });
+          console.error(`[${errorId}] Failed to parse WebSocket message:`, error);
         }
       };
 
       ws.onclose = (event) => {
         console.log('WebSocket disconnected:', event.code, event.reason);
-        
-        // Clear heartbeat
         if (heartbeatTimeoutRef.current) {
           clearTimeout(heartbeatTimeoutRef.current);
         }
-        
-        // Attempt reconnection if not manual close and within retry limit
         if (!isManualCloseRef.current && reconnectAttemptsRef.current < maxReconnectAttempts) {
           reconnectAttemptsRef.current++;
           console.log(`Attempting reconnection ${reconnectAttemptsRef.current}/${maxReconnectAttempts} in ${reconnectInterval}ms`);
-          
           reconnectTimeoutRef.current = setTimeout(() => {
             connect();
           }, reconnectInterval);
         } else if (reconnectAttemptsRef.current >= maxReconnectAttempts) {
-          console.error('Max reconnection attempts reached. WebSocket connection failed.');
+          const errorId = `ERR-WS-${Date.now()}-${Math.floor(Math.random()*10000)}`;
+          setErrorDetails({ message: 'Max reconnection attempts reached. WebSocket connection failed.', errorId });
+          console.error(`[${errorId}] Max reconnection attempts reached. WebSocket connection failed.`);
         }
       };
 
       ws.onerror = (error) => {
-        console.error('WebSocket error:', error);
+        const errorId = `ERR-WS-${Date.now()}-${Math.floor(Math.random()*10000)}`;
+        setErrorDetails({ message: 'WebSocket error', errorId, stack: (error as Error).stack });
+        console.error(`[${errorId}] WebSocket error:`, error);
       };
 
     } catch (error) {
-      console.error('Failed to create WebSocket connection:', error);
+      const errorId = `ERR-WS-${Date.now()}-${Math.floor(Math.random()*10000)}`;
+      setErrorDetails({ message: 'Failed to create WebSocket connection', errorId, stack: (error as Error).stack });
+      console.error(`[${errorId}] Failed to create WebSocket connection:`, error);
     }
   }, [path, onMessage, reconnectInterval, maxReconnectAttempts]);
 
@@ -135,10 +136,6 @@ export function useWebSocket(path: string, onMessage: (data: any) => void, optio
     };
   }, [connect, disconnect]);
 
-  return {
-    ws: wsRef.current,
-    connect,
-    disconnect,
-    isConnected: wsRef.current?.readyState === WebSocket.OPEN
-  };
+  // يمكن إرجاع errorDetails من hook لاستخدامه في إشعارات أو رسائل واجهة المستخدم
+  return { connect, errorDetails };
 }

@@ -529,7 +529,7 @@ export class FreeAITools {
 
   // Utility functions for code generation
   private static camelCase(str: string): string {
-    return str.replace(/(?:^\w|[A-Z]|\b\w)/g, (word, index) => {
+    return str.replace(/^\w|[A-Z]|\b\w/g, (word, index) => {
       return index === 0 ? word.toLowerCase() : word.toUpperCase();
     }).replace(/\s+/g, '');
   }

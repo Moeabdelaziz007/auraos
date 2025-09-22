@@ -191,11 +191,23 @@ export class RealTimeAIStreaming extends EventEmitter {
       }
 
     } catch (error) {
-      this.sendError(connectionId, `Message processing error: ${(error as Error).message}`);
+      const errorId = `ERR-RTS-${Date.now()}-${Math.floor(Math.random()*10000)}`;
+      this.sendError(connectionId, `Message processing error: ${(error as Error).message}`, errorId, (error as Error).stack);
+      // Centralized logging
+      if (typeof console !== 'undefined') {
+        console.error(`[${errorId}] Real-Time Streaming message error:`, error);
+      }
+      // Optionally emit to debug stream if available
+      this.emit('debug', {
+        errorId,
+        message: (error as Error).message,
+        stack: (error as Error).stack,
+        context: 'handleMessage',
+        connectionId
+      });
     }
   }
 
-  // ... (rest of the methods remain the same)
   private async handleStartSession(connectionId: string, data: any): Promise<void> {
     const connection = this.connections.get(connectionId);
     if (!connection) return;
@@ -350,11 +362,18 @@ export class RealTimeAIStreaming extends EventEmitter {
   }
 
   private handleConnectionError(connectionId: string, error: Error): void {
-    const connection = this.connections.get(connectionId);
-    if (connection) {
-      this.emit('connectionError', { connectionId, error });
-      console.error(`❌ Streaming connection error: ${connectionId}`, error);
+    const errorId = `ERR-RTS-${Date.now()}-${Math.floor(Math.random()*10000)}`;
+    this.sendError(connectionId, `Connection error: ${error.message}`, errorId, error.stack);
+    if (typeof console !== 'undefined') {
+      console.error(`[${errorId}] Real-Time Streaming connection error:`, error);
     }
+    this.emit('debug', {
+      errorId,
+      message: error.message,
+      stack: error.stack,
+      context: 'handleConnectionError',
+      connectionId
+    });
   }
 
   private sendMessage(connectionId: string, message: StreamingMessage): void {
@@ -368,16 +387,27 @@ export class RealTimeAIStreaming extends EventEmitter {
     }
   }
 
-  private sendError(connectionId: string, errorMessage: string): void {
-    this.sendMessage(connectionId, {
+  private sendError(connectionId: string, errorMessage: string, errorId?: string, stack?: string): void {
+    const connection = this.connections.get(connectionId);
+    if (!connection) return;
+    const errorPayload = {
       id: uuidv4(),
       type: 'error',
       data: {
         error: errorMessage,
+        errorId: errorId || `ERR-RTS-${Date.now()}-${Math.floor(Math.random()*10000)}`,
+        stack: stack || undefined,
         timestamp: new Date()
       },
       timestamp: new Date()
-    });
+    };
+    try {
+      connection.ws.send(JSON.stringify(errorPayload));
+    } catch (sendErr) {
+      if (typeof console !== 'undefined') {
+        console.error('Failed to send error payload:', sendErr);
+      }
+    }
   }
 
   private startHeartbeat(): void {

@@ -99,29 +99,54 @@ app.use((req, res, next) => {
 
     enhancedLogger.info('Server initialization completed successfully', 'server');
   } catch (error) {
-    enhancedLogger.error('Failed to initialize server', 'server', undefined, error as Error);
+    const errorId = `ERR-${Date.now()}-${Math.floor(Math.random()*10000)}`;
+    enhancedLogger.error('Failed to initialize server', 'server', { errorId }, error as Error);
+    if (app.get('env') === 'development') {
+      debugStream.broadcast({
+        timestamp: new Date().toISOString(),
+        error: (error as Error).message,
+        stack: (error as Error).stack,
+        errorId,
+        context: 'server initialization'
+      });
+    }
     process.exit(1);
   }
 
-  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+  app.use((err: any, req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
+    const errorId = `ERR-${Date.now()}-${Math.floor(Math.random()*10000)}`;
 
-    // Enhanced error logging
+    // Enhanced error logging with stack trace and errorId
     enhancedLogger.error(`HTTP Error ${status}: ${message}`, 'http', {
       status,
-      url: _req.url,
-      method: _req.method
+      url: req.url,
+      method: req.method,
+      errorId
     }, err);
 
-    // Also send the error to the debug stream
-    debugStream.broadcast({ 
-      timestamp: new Date().toISOString(), 
-      error: message,
-      status: status,
-    });
+    // Also send the error to the debug stream with more details in development
+    if (app.get('env') === 'development') {
+      debugStream.broadcast({
+        timestamp: new Date().toISOString(),
+        error: message,
+        status: status,
+        stack: err.stack,
+        errorId,
+        url: req.url,
+        method: req.method
+      });
+    } else {
+      debugStream.broadcast({
+        timestamp: new Date().toISOString(),
+        error: message,
+        status: status,
+        errorId
+      });
+    }
 
-    res.status(status).json({ message });
+    res.status(status).json({ message, errorId });
   });
 
   if (app.get("env") === "development") {

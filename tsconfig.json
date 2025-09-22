@@ -2,7 +2,8 @@
   "compilerOptions": {
     "module": "CommonJS",
     "moduleResolution": "Node",
-    "target": "ES2022"
+    "target": "ES2022",
+    "jsx": "react"
   },
   "exclude": ["apps", "packages", "services"]
 }

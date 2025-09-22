@@ -70,20 +70,19 @@ export function UserHistoryExample() {
       <CardContent className="space-y-4">
         <p className="text-muted-foreground">
           This component demonstrates how to use the user history tracking system.
-          Click the buttons below to see different types of tracking in action.
+            Click the buttons below to see different types of tracking in action.
         </p>
 
-        <div className="grid grid-cols-2 gap-4">
-          <Button 
-            onClick={handleExampleClick}
-            className="w-full"
-          >
-            Track Click
-          </Button>
+          <div className="grid grid-cols-2 gap-4">
+              <Button
+                  onClick={handleExampleClick}
+                  className="w-full"
+              >
+                  Track Click
+              </Button>
 
           <Button 
-            onClick={handleAIDemo}
-            variant="secondary"
+            onClick={handleAe
             className="w-full"
           >
             Track AI Interaction

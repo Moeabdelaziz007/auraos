@@ -22,6 +22,7 @@ export function useUserHistory() {
   const [isInitialized, setIsInitialized] = useState(false);
   const [currentSession, setCurrentSession] = useState<UserSession | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [errorDetails, setErrorDetails] = useState<{ message: string; errorId: string; stack?: string } | null>(null);
 
   // Initialize history tracking when user logs in
   useEffect(() => {
@@ -30,10 +31,13 @@ export function useUserHistory() {
         .then(() => {
           setIsInitialized(true);
           setError(null);
+          setErrorDetails(null);
         })
         .catch((err) => {
+          const errorId = `ERR-UH-${Date.now()}-${Math.floor(Math.random()*10000)}`;
           setError(err.message);
-          console.error('Failed to initialize user history:', err);
+          setErrorDetails({ message: err.message, errorId, stack: err.stack });
+          console.error(`[${errorId}] Failed to initialize user history:`, err);
         });
     } else if (!user && isInitialized) {
       setIsInitialized(false);
@@ -110,7 +114,11 @@ export function useUserHistory() {
     details?: Record<string, any>
   ) => {
     if (user && isInitialized) {
-      UserHistoryService.trackError(user.uid, error, context, details);
+      const errorId = `ERR-UH-${Date.now()}-${Math.floor(Math.random()*10000)}`;
+      UserHistoryService.trackError(user.uid, error, context, { ...details, errorId });
+      setError(error.message);
+      setErrorDetails({ message: error.message, errorId, stack: error.stack });
+      // يمكن هنا إضافة إشعار للمستخدم أو إرسال الخطأ إلى نظام مراقبة مركزي
     }
   }, [user, isInitialized]);
 
@@ -118,6 +126,7 @@ export function useUserHistory() {
     isInitialized,
     currentSession,
     error,
+    errorDetails,
     trackNavigation,
     trackContentInteraction,
     trackAIInteraction,

@@ -54,8 +54,9 @@ describe('SmartNotes CRUD operations', () => {
     expect(allNotes.length).toBe(0);
   });
 
-  it('should return false when trying to delete a non-existent note', async () => {
-    const result = await deleteNote('non-existent-id');
+
+    it('should return false when trying to delete a non-existent note', async () => {
+        const [result] = await Promise.all([deleteNote('non-existent-id')]);
     expect(result).toBe(false);
   });
 });
