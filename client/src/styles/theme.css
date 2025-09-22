@@ -1,113 +1,103 @@
-/* Theme variables for medium gray and neon green */
-:root {
-  --color-medium-gray: #6b7280; /* Tailwind gray-500 */
-  --color-neon-green: #00ff7f; /* neon-ish green */
-  --color-neon-green-600: #00e36a;
-  --bg-muted: #f3f4f6; /* light background for muted elements */
+/* polished carbon + neon green theme */
+:root{
+  /* Core palette */
+  --carbon-900:#0f1113; /* darkest plate */
+  --carbon-800:#15171a;
+  --carbon-700:#1f2226;
+  --carbon-600:#292c31;
+  --carbon-500:#35393f; /* medium gray */
+  --carbon-400:#4b4f55;
+  --carbon-300:#6b7280; /* legacy medium gray */
+
+  --surface: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  --glass-overlay: rgba(255,255,255,0.03);
+  --border: rgba(255,255,255,0.04);
+
+  /* neon accent */
+  --neon: #00ff7f;
+  --neon-600: #00e36a;
+  --neon-700: #00c358;
+
+  /* semantic */
+  --muted: rgba(255,255,255,0.04);
+  --muted-foreground: rgba(255,255,255,0.65);
+  --text-primary: #e6eef3;
+  --text-secondary: rgba(230,238,243,0.8);
 }
 
-/* Utility text colors */
-.text-medium-gray { color: var(--color-medium-gray); }
-.text-neon-green { color: var(--color-neon-green); }
-
-/* Button/interactive */
-.bg-neon-green { background-color: var(--color-neon-green); }
-
-/* Muted background used by skeletons */
-.bg-muted { background-color: var(--bg-muted); }
-
-/* Progress bar defaults */
-.progress-bar {
-  height: 8px;
-  background-color: rgba(0,0,0,0.06);
-  border-radius: 9999px;
-  overflow: hidden;
-}
-.progress-bar > .fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--color-neon-green), var(--color-neon-green-600));
-  width: 0%;
-  transition: width 600ms ease;
+/* Carbon textured background (subtle) */
+.carbon-texture{
+  background-color:var(--carbon-800);
+  background-image:linear-gradient(135deg, rgba(255,255,255,0.015) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.015) 50%, rgba(255,255,255,0.015) 75%, transparent 75%, transparent 100%), linear-gradient(180deg, rgba(0,0,0,0.35), rgba(0,0,0,0.25));
+  background-size: 6px 6px, cover;
 }
 
-/* Accessible focus */
-:focus {
-  outline: 2px solid rgba(0,255,127,0.25);
-  outline-offset: 2px;
-}
-
-/* Chat widget styles */
-.chat-card {
-  width: 20rem; /* 320px */
-  max-width: 90vw;
+/* Glass card used pervasively */
+.glass-card{
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
   border-radius: 12px;
-  overflow: hidden;
-  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-  backdrop-filter: blur(6px);
-  border: 1px solid rgba(255,255,255,0.04);
+  box-shadow: 0 6px 18px rgba(2,6,23,0.6);
 }
 
-.chat-header {
-  padding: 0.75rem 1rem;
+/* Neon text (headings) */
+.neon-text{
+  color: var(--text-primary);
+  text-shadow: 0 0 6px rgba(0,255,127,0.08), 0 2px 12px rgba(0,255,127,0.03);
 }
 
-.chat-avatar {
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+/* Cyber/neon gradient used on primary CTA */
+.gradient-cyber-primary{
+  background: linear-gradient(90deg, rgba(0,255,127,0.12), rgba(0,227,106,0.06));
+  border: 1px solid rgba(0,255,127,0.12);
+  color: var(--text-primary);
+}
+.gradient-cyber-secondary{
+  background: linear-gradient(90deg, rgba(0,227,106,0.14), rgba(0,195,88,0.06));
+  border: 1px solid rgba(0,227,106,0.12);
+  color: var(--text-primary);
 }
 
-.chat-content {
-  background: transparent;
+/* Neon button utility */
+.neon-button{
+  background: linear-gradient(90deg,var(--neon),var(--neon-600));
+  color:#02120a;
+  font-weight:600;
+  border-radius:10px;
+  padding:0.5rem 0.75rem;
+  box-shadow:0 6px 20px rgba(0,255,127,0.08), inset 0 -2px 6px rgba(0,0,0,0.12);
+  border:1px solid rgba(255,255,255,0.03);
 }
+.neon-button:hover{ transform:translateY(-1px); box-shadow:0 10px 28px rgba(0,255,127,0.12); }
 
-/* Chat bubbles */
-.chat-bubble {
-  display: inline-flex;
-  flex-direction: column;
-  gap: 6px;
-  padding: 10px 12px;
-  border-radius: 14px;
-  box-shadow: 0 1px 4px rgba(2,6,23,0.06);
-  max-width: 80%;
-  line-height: 1.35;
-  transition: transform 160ms ease, box-shadow 160ms ease;
-}
-.chat-bubble:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(2,6,23,0.08); }
+/* Accent outlines */
+.neon-outline{ box-shadow: 0 0 18px rgba(0,255,127,0.06); border:1px solid rgba(0,255,127,0.08); }
 
-.chat-bubble.ai {
-  background: var(--bg-muted);
-  color: var(--color-medium-gray);
-  border: 1px solid rgba(0,0,0,0.04);
-}
+/* Muted text helper */
+.text-muted-foreground{ color: var(--muted-foreground); }
 
-.chat-bubble.user {
-  background: linear-gradient(90deg, var(--color-neon-green), var(--color-neon-green-600));
-  color: #062c15; /* dark green text for contrast */
-  align-self: flex-end;
-}
+/* Card title tweak */
+.card-title{ color:var(--text-primary); font-weight:700; }
 
-.chat-bubble.error { background: rgba(255, 75, 75, 0.08); border: 1px solid rgba(255,75,75,0.15); color: #b91c1c; }
+/* Buttons (ghost/outline tweaks to fit theme) */
+button[variant="ghost"], .button-ghost{ background:transparent; border:1px solid transparent; color:var(--text-primary); }
+button[variant="outline"], .button-outline{ border:1px solid rgba(255,255,255,0.04); background:transparent; }
 
-.chat-bubble-content { white-space: pre-wrap; word-break: break-word; }
+/* Progress bar tweaks (use neon fill) */
+.progress-bar{ height:8px; background:rgba(255,255,255,0.03); border-radius:9999px; overflow:hidden; }
+.progress-bar>.fill{ background:linear-gradient(90deg,var(--neon),var(--neon-600)); transition:width:600ms ease; }
 
-.chat-bubble-meta { display: flex; gap: 8px; align-items: center; justify-content: flex-end; margin-top: 4px; }
-.chat-timestamp { font-size: 11px; color: rgba(55,65,81,0.7); }
+/* small UI pieces */
+.border-muted{ border-color: rgba(255,255,255,0.04); }
 
-/* Avatars in messages */
-.chat-message-avatar { border-radius: 9999px; }
-.user-avatar { background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); }
+/* Chat tweaks keep previous but adapt colors */
+.chat-card{ width:20rem; max-width:90vw; border-radius:12px; overflow:hidden; background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border:1px solid rgba(255,255,255,0.035); }
+.chat-bubble.ai{ background: rgba(255,255,255,0.03); color: var(--text-secondary); border:1px solid rgba(255,255,255,0.02); }
+.chat-bubble.user{ background: linear-gradient(90deg,var(--neon),var(--neon-600)); color:#03120a; }
 
-/* Input area */
-.chat-input-area { background: linear-gradient(180deg, rgba(0,0,0,0.02), rgba(0,0,0,0.01)); }
-.chat-input { border-radius: 9999px; padding-left: 12px; padding-right: 12px; }
-.chat-send-button { padding: 0.5rem 0.75rem; border-radius: 9999px; }
+/* subtle utility for small glowing badges */
+.badge-neon{ background: rgba(0,255,127,0.06); color: var(--neon); border:1px solid rgba(0,255,127,0.12); padding:0.2rem 0.45rem; border-radius:9999px; font-weight:600; }
 
-/* Focus visible */
-.chat-input:focus, .chat-send-button:focus, .chat-card:focus { outline: 2px solid rgba(0,255,127,0.12); outline-offset: 2px; }
-
-/* Small screen adjustments */
-@media (max-width: 420px) {
-  .chat-card { right: 1rem; bottom: 1rem; width: 90vw; }
-  .chat-content .chat-bubble { max-width: 100%; }
-  .w-80 { width: 90vw !important; }
-}
+/* Responsive adjustments */
+@media (max-width:420px){ .w-80{ width:90vw!important; } .chat-card{ right:1rem; bottom:1rem; width:90vw; } }

@@ -1,3 +1,16 @@
+  {
+    id: 'hashtag_generator',
+    name: 'Hashtag Generator',
+    description: 'Generate trending hashtags for content based on keywords (free)',
+    category: 'Content',
+    icon: <FileText className="w-5 h-5" />,
+    parameters: [
+      { name: 'keywords', type: 'string', required: true, description: 'Comma-separated keywords' },
+      { name: 'limit', type: 'number', required: false, description: 'Max number of hashtags to generate' }
+    ],
+    examples: [
+      { title: 'Generate Hashtags', params: { keywords: 'AI,automation', limit: 10 }, description: 'Get suggested hashtags' }
+    ]
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -94,10 +107,53 @@ const mcpTools: MCPTool[] = [
       },
       {
         title: 'Sentiment Analysis',
-        params: { action: 'analyze_sentiment', content: 'This is great content!' },
+          output: `**AI Generation Results**\n\nPrompt: ${params.prompt}\nModel: ${params.model || 'gpt-4'}\nMax Tokens: ${params.max_tokens || 1000}\n\n**Generated Content:**\nThis is AI-generated content based on your prompt.`,
         description: 'Analyze sentiment and emotional tone of content'
       }
     ]
+      // NEW tool mock outputs
+      case 'seo_auditor':
+        return {
+          ...baseResult,
+          output: `**SEO Audit**\nURL: ${params.url}\nIssues Found: ${Math.floor(Math.random() * 10)}\nRecommendations: Improve title tags, compress images, add meta descriptions.`,
+          score: Math.floor(50 + Math.random() * 40)
+        };
+
+      case 'image_optimizer':
+        return {
+          ...baseResult,
+          output: `**Image Optimization**\nOriginal Size: ${Math.floor(Math.random() * 800) + 200}KB\nOptimized Size: ${Math.floor(Math.random() * 200) + 50}KB\nSavings: ${Math.floor(Math.random() * 70) + 10}%`,
+          optimized_url: params.image_url
+        };
+
+      case 'social_scheduler':
+        return {
+          ...baseResult,
+          output: `Scheduled post for ${params.platform} at ${params.publish_at || 'ASAP'}. Post content: ${params.content}`,
+          scheduled: true
+        };
+
+      case 'auto_responder':
+        return {
+          ...baseResult,
+          output: `Generated ${params.tone || 'friendly'} auto-reply template for trigger: ${params.trigger}`,
+          templates: [ `Thanks for reaching out about ${params.trigger}. Here is a quick overview...`, 'Follow up message template' ]
+        };
+
+      case 'bulk_url_checker':
+        return {
+          ...baseResult,
+          output: `Checked ${params.urls?.length || 0} URLs. Sample: ${params.urls?.slice(0,3).map((u:string,i:number)=>`\n - ${u}: ${200 + (i%3)}`)}`,
+          results: (params.urls || []).map((u:string, i:number) => ({ url: u, status: [200, 301, 404][i % 3] }))
+        };
+
+      case 'hashtag_generator':
+        return {
+          ...baseResult,
+          output: `Generated hashtags for: ${params.keywords}`,
+          hashtags: (params.keywords || '').split(',').slice(0,5).map((k:string) => `#${k.trim().replace(/\s+/g,'')}`)
+        };
+
   },
   {
     id: 'web_scraper',
@@ -198,6 +254,79 @@ const mcpTools: MCPTool[] = [
         description: 'Generate code snippets and components'
       }
     ]
+  },
+
+  // NEW free MCP tools added by request
+  {
+    id: 'seo_auditor',
+    name: 'SEO Auditor',
+    description: 'Run a quick SEO audit for a URL (free)',
+    category: 'Automation',
+    icon: <BarChart3 className="w-5 h-5" />,
+    parameters: [
+      { name: 'url', type: 'string', required: true, description: 'URL to audit' },
+      { name: 'depth', type: 'number', required: false, description: 'Crawl depth (pages to analyze)' }
+    ],
+    examples: [
+      { title: 'Quick SEO Check', params: { url: 'https://example.com' }, description: 'Run a lightweight SEO audit' }
+    ]
+  },
+  {
+    id: 'image_optimizer',
+    name: 'Image Optimizer',
+    description: 'Optimize images for web (lossless / lossy) without external API',
+    category: 'Automation',
+    icon: <Settings className="w-5 h-5" />,
+    parameters: [
+      { name: 'image_url', type: 'string', required: true, description: 'Image URL to optimize' },
+      { name: 'quality', type: 'number', required: false, description: 'Quality level 1-100' }
+    ],
+    examples: [
+      { title: 'Optimize Image', params: { image_url: 'https://example.com/image.jpg', quality: 80 }, description: 'Compress images for faster delivery' }
+    ]
+  },
+  {
+    id: 'social_scheduler',
+    name: 'Social Scheduler',
+    description: 'Create scheduled posts (drafts) for social networks',
+    category: 'Automation',
+    icon: <Globe className="w-5 h-5" />,
+    parameters: [
+      { name: 'platform', type: 'string', required: true, description: 'Platform to schedule to', options: ['twitter','facebook','linkedin','instagram'] },
+      { name: 'content', type: 'string', required: true, description: 'Post content' },
+      { name: 'publish_at', type: 'string', required: false, description: 'ISO datetime to publish' }
+    ],
+    examples: [
+      { title: 'Schedule Post', params: { platform: 'twitter', content: 'Announcing our new feature!', publish_at: new Date().toISOString() }, description: 'Save as draft or schedule' }
+    ]
+  },
+  {
+    id: 'auto_responder',
+    name: 'Auto Responder',
+    description: 'Generate automated reply templates for incoming messages',
+    category: 'Automation',
+    icon: <CheckCircle className="w-5 h-5" />,
+    parameters: [
+      { name: 'trigger', type: 'string', required: true, description: 'Trigger keyword or event' },
+      { name: 'tone', type: 'string', required: false, description: 'Reply tone', options: ['friendly','formal','casual'] }
+    ],
+    examples: [
+      { title: 'Setup Auto Reply', params: { trigger: 'pricing', tone: 'friendly' }, description: 'Auto-reply with pricing details' }
+    ]
+  },
+  {
+    id: 'bulk_url_checker',
+    name: 'Bulk URL Checker',
+    description: 'Validate a list of URLs and return status codes (free)',
+    category: 'Automation',
+    icon: <Link className="w-5 h-5" />,
+    parameters: [
+      { name: 'urls', type: 'array', required: true, description: 'List of URLs to check' }
+    ],
+    examples: [
+      { title: 'Check URLs', params: { urls: ['https://example.com','https://example.org'] }, description: 'Return status and redirects' }
+    ]
+  },
   }
 ];
 
