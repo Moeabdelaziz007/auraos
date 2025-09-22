@@ -13,8 +13,12 @@ import UserHistoryAnalytics from "@/components/analytics/user-history-analytics"
 import AIPersonalizationDashboard from "@/components/ai/ai-personalization-dashboard";
 import WorkflowMarketplace from "@/components/workflow/workflow-marketplace";
 import type { PostWithAuthor, AgentTemplate, UserAgent } from "@shared/schema";
+import { SmartNotes } from "@/components/notes/smart-notes";
+import { useAuth } from "@/hooks/use-auth";
+import { FirestoreService } from "@/lib/firebase";
 
 export default function Dashboard() {
+  const { user } = useAuth();
   const [showAnalytics, setShowAnalytics] = useState(false);
   const [showAIFeatures, setShowAIFeatures] = useState(false);
   const [showWorkflows, setShowWorkflows] = useState(false);
@@ -30,6 +34,12 @@ export default function Dashboard() {
   const { data: userAgents, isLoading: agentsLoading } = useQuery<UserAgent[]>({
     queryKey: ['/api/user-agents'],
     queryFn: () => fetch('/api/user-agents?userId=user-1').then(res => res.json()),
+  });
+
+  const { data: notesData, refetch: refetchNotes } = useQuery({
+    queryKey: ['notes', user?.uid],
+    queryFn: () => FirestoreService.getNotes(user!.uid),
+    enabled: !!user,
   });
 
   return (
@@ -301,6 +311,9 @@ export default function Dashboard() {
                     )}
                   </CardContent>
                 </Card>
+
+                {/* Smart Notes */}
+                <SmartNotes notes={notesData || []} refetchNotes={refetchNotes} />
 
                 {/* Quick Actions */}
                 <Card className="relative overflow-hidden">

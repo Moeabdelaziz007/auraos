@@ -33,5 +33,12 @@ service cloud.firestore {
       allow read: if request.auth.uid == resource.data.userId;
       allow create: if request.auth.uid == request.resource.data.userId;
     }
+
+    // Users can create, read, update, and delete their own notes.
+    match /notes/{noteId} {
+      allow read: if request.auth.uid == resource.data.userId;
+      allow create: if request.auth.uid == request.resource.data.userId;
+      allow update, delete: if request.auth.uid == resource.data.userId;
+    }
   }
 }
