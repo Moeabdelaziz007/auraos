@@ -50,4 +50,14 @@ describe('calculateNextOccurrence', () => {
     const nextOccurrence = calculateNextOccurrence(event);
     expect(nextOccurrence).toEqual(new Date('2024-01-15T18:00:00Z'));
   });
+
+  it('should handle monthly recurrence for months with different day counts', () => {
+    const event: CalendarEvent = {
+      title: 'Monthly review',
+      startDate: new Date('2024-01-31T10:00:00Z'),
+      recurring: 'monthly',
+    };
+    const nextOccurrence = calculateNextOccurrence(event);
+    expect(nextOccurrence).toEqual(new Date('2024-02-29T10:00:00Z'));
+  });
 });
