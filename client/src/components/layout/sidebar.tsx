@@ -35,7 +35,7 @@ import {
 } from "@/components/ui/tooltip";
 
 const navigation = [
-  { name: "Dashboard", href: "/", icon: Home },
+  { name: "Dashboard", href: "/dashboard", icon: Home },
   { name: "AI Browser", href: "/ai-browser", icon: Compass },
   { name: "AI Notes", href: "/ai-notes", icon: FileTextIcon },
   { name: "Social Feed", href: "/social-feed", icon: Users },
@@ -70,7 +70,7 @@ export default function Sidebar() {
     >
       {/* Header */}
       <div className="flex h-16 items-center border-b px-6">
-         <Link href="/">
+         <Link href="/dashboard">
             <a className="flex items-center gap-2">
                 <Bot className="h-8 w-8 text-primary" />
                 <h1

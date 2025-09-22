@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useLocation } from 'wouter';
 import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,8 +9,15 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Bot, LogIn } from 'lucide-react';
 
 export default function LoginPage() {
-  const { signInWithGoogle, loading } = useAuth();
+  const { signInWithGoogle, loading, isAuthenticated } = useAuth();
+  const [, setLocation] = useLocation();
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      setLocation('/dashboard');
+    }
+  }, [isAuthenticated, setLocation]);
 
   const handleGoogleSignIn = async () => {
     try {

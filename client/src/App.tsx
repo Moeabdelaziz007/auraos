@@ -10,6 +10,8 @@ import ProtectedRoute from "@/components/auth/protected-route";
 import MainLayout from "@/components/layout/main-layout";
 
 // Lazy load pages
+const LandingPage = lazy(() => import("@/pages/landing"));
+const LoadingPage = lazy(() => import("@/pages/loading"));
 const Dashboard = lazy(() => import("@/pages/dashboard"));
 const AIBrowserPage = lazy(() => import("@/pages/ai-browser"));
 const AINotesPage = lazy(() => import("@/pages/ai-notes"));
@@ -39,11 +41,13 @@ function AppRoutes() {
   return (
     <Suspense fallback={<PageLoader />}>
       <Switch>
+        <Route path="/" component={LandingPage} />
         <Route path="/login" component={Login} />
+        <Route path="/loading" component={LoadingPage} />
         <ProtectedRoute>
           <MainLayout>
             <Switch>
-              <Route path="/" component={Dashboard} />
+              <Route path="/dashboard" component={Dashboard} />
               <Route path="/ai-browser" component={AIBrowserPage} />
               <Route path="/ai-notes" component={AINotesPage} />
               <Route path="/social-feed" component={SocialFeed} />
