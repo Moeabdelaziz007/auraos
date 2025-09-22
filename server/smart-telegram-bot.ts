@@ -3,7 +3,6 @@ import { getSmartLearningAI } from './smart-learning-ai.js';
 import { getAdvancedAIToolsManager } from './advanced-ai-tools.js';
 import { getAdvancedAIAgentSystem } from './advanced-ai-agents.js';
 import { getMCPProtocol } from './mcp-protocol.js';
-import { autopilotAgent } from './autopilot-agent.js';
 
 // ... (rest of the interfaces remain the same)
 
@@ -24,10 +23,6 @@ export class SmartLearningTelegramBot {
   private setupBot() {
     // ... (rest of the commands remain the same)
     this.bot.command('test_learning', this.handleTestLearningCommand.bind(this));
-    this.bot.command('autopilot_status', this.handleAutopilotStatusCommand.bind(this));
-    this.bot.command('autopilot_start', this.handleAutopilotStartCommand.bind(this));
-    this.bot.command('autopilot_stop', this.handleAutopilotStopCommand.bind(this));
-    this.bot.command('autopilot_task', this.handleAutopilotTaskCommand.bind(this));
 
     // ... (rest of the message handlers remain the same)
   }
@@ -67,59 +62,6 @@ export class SmartLearningTelegramBot {
     }
   }
 
-  private async handleAutopilotStatusCommand(ctx: Context) {
-    try {
-      const health = await autopilotAgent.monitorSystemHealth();
-      const statusText = `*Autopilot Status*
-- *Status:* ${health.status}
-- *Automation Success Rate:* ${health.automation.averageSuccessRate.toFixed(2)}%
-- *Workflow Success Rate:* ${health.workflows.averageSuccessRate.toFixed(2)}%
-      `;
-      await ctx.replyWithMarkdown(statusText);
-    } catch (error) {
-      await ctx.reply(`Error getting autopilot status: ${error.message}`);
-    }
-  }
-
-  private async handleAutopilotStartCommand(ctx: Context) {
-    try {
-      autopilotAgent.start();
-      await ctx.reply('Autopilot agent started.');
-    } catch (error) {
-      await ctx.reply(`Error starting autopilot: ${error.message}`);
-    }
-  }
-
-  private async handleAutopilotStopCommand(ctx: Context) {
-    try {
-      autopilotAgent.stop();
-      await ctx.reply('Autopilot agent stopped.');
-    } catch (error) {
-      await ctx.reply(`Error stopping autopilot: ${error.message}`);
-    }
-  }
-
-  private async handleAutopilotTaskCommand(ctx: Context) {
-    const messageText = (ctx.message as any)?.text || '';
-    const taskDescription = messageText.replace('/autopilot_task', '').trim();
-
-    if (!taskDescription) {
-      await ctx.reply('Please provide a task description. Usage: /autopilot_task <description>');
-      return;
-    }
-
-    try {
-      const result = await autopilotAgent.createTaskFromTelegram(taskDescription, ctx.chat.id);
-      if (result.success) {
-        await ctx.reply(`Task created with ID: ${result.taskId}`);
-      } else {
-        await ctx.reply(`Failed to create task: ${result.message}`);
-      }
-    } catch (error) {
-      await ctx.reply(`Error creating task: ${error.message}`);
-    }
-  }
-
   private async handleTextMessage(ctx: Context) {
     const chatId = ctx.chat!.id;
     const userContext = this.userContexts.get(chatId);
@@ -148,14 +90,6 @@ export class SmartLearningTelegramBot {
     } catch (error) {
         await ctx.reply('An error occurred while processing your message. Please try again later.');
         console.error('Error in handleTextMessage:', error);
-    }
-  }
-
-  public async sendMessage(chatId: number, text: string) {
-    try {
-      await this.bot.telegram.sendMessage(chatId, text);
-    } catch (error) {
-      console.error(`Failed to send message to chat ${chatId}:`, error);
     }
   }
 

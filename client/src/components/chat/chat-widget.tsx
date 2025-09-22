@@ -10,9 +10,11 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { useWebSocket } from "@/hooks/use-websocket";
 import { apiRequest } from "@/lib/queryClient";
 import { ErrorHandler } from "@/lib/error-handling";
+import { useToast } from "@/hooks/use-toast";
 import type { ChatMessage } from "@shared/schema";
 
 export default function ChatWidget() {
+  const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<Array<{ id: string; type: 'user' | 'ai'; content: string; timestamp: Date }>>([]);
@@ -86,6 +88,13 @@ export default function ChatWidget() {
     }
   };
 
+  const handleCopy = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast({
+      description: "Copied to clipboard!",
+    });
+  };
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
@@ -152,8 +161,18 @@ export default function ChatWidget() {
                           </AvatarFallback>
                         </Avatar>
                       )}
-                      <div className={`max-w-[80%] p-3 rounded-lg text-sm ${msg.type === 'user' ? 'bg-primary text-primary-foreground ml-auto' : 'bg-muted text-foreground'}`}>
+                      <div className={`group relative max-w-[80%] p-3 rounded-lg text-sm ${msg.type === 'user' ? 'bg-primary text-primary-foreground ml-auto' : 'bg-muted text-foreground'}`}>
                         {msg.content}
+                        {msg.type === 'ai' && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                            onClick={() => handleCopy(msg.content)}
+                          >
+                            <i className="fas fa-copy text-xs"></i>
+                          </Button>
+                        )}
                       </div>
                     </div>
                   ))}
