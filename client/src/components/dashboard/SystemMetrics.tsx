@@ -8,7 +8,7 @@ interface Stats {
   automationsRun: number;
 }
 
-export default function StatsGrid() {
+export default function SystemMetrics() {
   const { data: stats, isLoading } = useQuery<Stats>({
     queryKey: ['/api/users/user-1/stats'],
   });

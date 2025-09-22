@@ -254,6 +254,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
+  // Task Queue Integration with WebSocket
+  const agentSystem = getAdvancedAIAgentSystem();
+  agentSystem.on('task_update', (task) => {
+    broadcast({
+      type: 'task_update',
+      data: task,
+      timestamp: Date.now()
+    });
+  });
+
   // User routes
   app.get('/api/users/current', async (req, res) => {
     try {
@@ -539,6 +549,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       res.status(500).json({ message: 'Failed to get chat history' });
     }
+  });
+
+  // Task Queue API Routes
+  app.get('/api/tasks', (req, res) => {
+    const agentSystem = getAdvancedAIAgentSystem();
+    res.json(agentSystem.getTasks());
+  });
+
+  app.get('/api/tasks/:id', (req, res) => {
+    const agentSystem = getAdvancedAIAgentSystem();
+    const task = agentSystem.getTask(req.params.id);
+    if (task) {
+      res.json(task);
+    } else {
+      res.status(404).json({ message: 'Task not found' });
+    }
+  });
+
+  app.post('/api/tasks', async (req, res) => {
+    try {
+      const agentSystem = getAdvancedAIAgentSystem();
+      // This is a simplified version. In a real implementation, we'd need to know which agent to assign the task to.
+      const assistants = agentSystem.getAgentsByType('assistant');
+      if (assistants.length === 0) {
+        return res.status(400).json({ message: 'No assistant agents available to handle the task.' });
+      }
+      const agentId = assistants[0].id;
+      const task = await agentSystem.assignTask(agentId, req.body);
+      res.status(201).json(task);
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to create task' });
+    }
+  });
+
+  app.put('/api/tasks/:id/status', (req, res) => {
+    const agentSystem = getAdvancedAIAgentSystem();
+    const { status } = req.body;
+    const success = agentSystem.updateTaskStatus(req.params.id, status);
+    if (success) {
+      res.json({ message: 'Task status updated' });
+    } else {
+      res.status(404).json({ message: 'Task not found' });
+    }
+  });
+
+  app.post('/api/tasks/:id/retry', async (req, res) => {
+    try {
+      const agentSystem = getAdvancedAIAgentSystem();
+      const task = await agentSystem.retryTask(req.params.id);
+      if (task) {
+        res.json(task);
+      } else {
+        res.status(404).json({ message: 'Task not found or not failed' });
+      }
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to retry task' });
+    }
+  });
+
+  app.get('/api/tasks/analytics', (req, res) => {
+    const agentSystem = getAdvancedAIAgentSystem();
+    res.json(agentSystem.getTaskAnalytics());
   });
 
   // Telegram Bot API routes
