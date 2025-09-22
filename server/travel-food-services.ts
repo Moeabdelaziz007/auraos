@@ -1,6 +1,6 @@
 
-import { User, users } from '@/shared/schema';
-import { UserPersona } from '@/shared/personas';
+import { User, users } from '../shared/schema.js';
+import { UserPersona } from '../shared/personas.js';
 import { storage } from './storage.js';
 import { eq } from 'drizzle-orm';
 

@@ -96,7 +96,7 @@ export class TelegramService {
   private async handleCallbackQuery(callbackQuery: TelegramBot.CallbackQuery) {
     const chatId = callbackQuery.message?.chat.id;
     const data = callbackQuery.data;
-   re CLI free const from = callbackQuery.from;
+    const from = callbackQuery.from;
 
     if (!chatId) return;
 

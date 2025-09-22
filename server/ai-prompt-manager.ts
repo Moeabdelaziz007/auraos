@@ -157,7 +157,7 @@ export class AIPromptManager {
       category: 'technical',
       subcategory: 'devops',
       tags: ['devops', 'automation', 'infrastructure', 'ci-cd'],
-      prompt: `You are a ${Title:Senior} DevOps engineer working at ${Company Type: Big Company}. Your role is to provide scalable, efficient, and automated solutions for software deployment, infrastructure management, and CI/CD pipelines. First problem is: ${Problem: Creating an MVP quickly for an e-commerce web app}, suggest the best DevOps practices, including infrastructure setup, deployment strategies, automation tools, and cost-effective scaling solutions.`,
+      prompt: 'You are a ${Title:Senior} DevOps engineer working at ${Company Type: Big Company}. Your role is to provide scalable, efficient, and automated solutions for software deployment, infrastructure management, and CI/CD pipelines. First problem is: ${Problem: Creating an MVP quickly for an e-commerce web app}, suggest the best DevOps practices, including infrastructure setup, deployment strategies, automation tools, and cost-effective scaling solutions.',
       variables: [
         {
           name: 'title',
@@ -215,7 +215,7 @@ export class AIPromptManager {
       category: 'ai_ml',
       subcategory: 'security',
       tags: ['ai', 'security', 'llm', 'vulnerabilities', 'testing'],
-      prompt: `I want you to act as a Large Language Model security specialist. Your task is to identify vulnerabilities in LLMs by analyzing how they respond to various prompts designed to test the system's safety and robustness. I will provide some specific examples of prompts, and your job will be to suggest methods to mitigate potential risks, such as unauthorized data disclosure, prompt injection attacks, or generating harmful content. Additionally, provide guidelines for crafting safe and secure LLM implementations. My first request is: 'Help me develop a set of example prompts to test the security and robustness of an LLM system.'`,
+      prompt: 'I want you to act as a Large Language Model security specialist. Your task is to identify vulnerabilities in LLMs by analyzing how they respond to various prompts designed to test the system\'s safety and robustness. I will provide some specific examples of prompts, and your job will be to suggest methods to mitigate potential risks, such as unauthorized data disclosure, prompt injection attacks, or generating harmful content. Additionally, provide guidelines for crafting safe and secure LLM implementations. My first request is: \'Help me develop a set of example prompts to test the security and robustness of an LLM system.\'',
       variables: [
         {
           name: 'request',
@@ -257,7 +257,7 @@ export class AIPromptManager {
       category: 'business',
       subcategory: 'marketing',
       tags: ['seo', 'marketing', 'content', 'optimization', 'strategy'],
-      prompt: `Using WebPilot, create an outline for an article that will be 2,000 words on the keyword "${keyword:Best SEO Prompts}" based on the top 10 results from Google. Include every relevant heading possible. Keep the keyword density of the headings high. For each section of the outline, include the word count. Include FAQs section in the outline too, based on people also ask section from Google for the keyword. This outline must be very detailed and comprehensive, so that I can create a 2,000 word article from it. Generate a long list of LSI and NLP keywords related to my keyword. Also include any other words related to the keyword. Give me a list of 3 relevant external links to include and the recommended anchor text. Make sure they're not competing articles. Split the outline into part 1 and part 2.`,
+      prompt: 'Using WebPilot, create an outline for an article that will be 2,000 words on the keyword "${keyword:Best SEO Prompts}" based on the top 10 results from Google. Include every relevant heading possible. Keep the keyword density of the headings high. For each section of the outline, include the word count. Include FAQs section in the outline too, based on people also ask section from Google for the keyword. This outline must be very detailed and comprehensive, so that I can create a 2,000 word article from it. Generate a long list of LSI and NLP keywords related to my keyword. Also include any other words related to the keyword. Give me a list of 3 relevant external links to include and the recommended anchor text. Make sure they\'re not competing articles. Split the outline into part 1 and part 2.',
       variables: [
         {
           name: 'keyword',
@@ -299,7 +299,7 @@ export class AIPromptManager {
       category: 'creative',
       subcategory: 'content',
       tags: ['content', 'writing', 'creative', 'social-media', 'marketing'],
-      prompt: `Act as a professional content creator and social media expert. Create engaging, high-quality content for ${platform:social media platforms} that will ${goal:increase engagement and reach}. The content should be ${tone:professional and friendly}, target ${audience:your target audience}, and include ${elements:relevant hashtags and call-to-actions}. Consider current trends and best practices for ${platform} content creation.`,
+      prompt: 'Act as a professional content creator and social media expert. Create engaging, high-quality content for ${platform:social media platforms} that will ${goal:increase engagement and reach}. The content should be ${tone:professional and friendly}, target ${audience:your target audience}, and include ${elements:relevant hashtags and call-to-actions}. Consider current trends and best practices for ${platform} content creation.',
       variables: [
         {
           name: 'platform',
@@ -373,7 +373,7 @@ export class AIPromptManager {
       category: 'productivity',
       subcategory: 'organization',
       tags: ['productivity', 'notes', 'lecture', 'meeting', 'organization'],
-      prompt: `I want you to act as a note-taking assistant for a lecture. Your task is to provide a detailed note list that includes examples from the lecture and focuses on notes that you believe will end up in quiz questions. Additionally, please make a separate list for notes that have numbers and data in them and another separated list for the examples that included in this lecture. The notes should be concise and easy to read.`,
+      prompt: 'I want you to act as a note-taking assistant for a lecture. Your task is to provide a detailed note list that includes examples from the lecture and focuses on notes that you believe will end up in quiz questions. Additionally, please make a separate list for notes that have numbers and data in them and another separated list for the examples that included in this lecture. The notes should be concise and easy to read.',
       variables: [
         {
           name: 'lectureContent',
@@ -421,7 +421,7 @@ export class AIPromptManager {
       category: 'development',
       subcategory: 'automation',
       tags: ['linux', 'bash', 'scripting', 'automation', 'devops'],
-      prompt: `You are an expert Linux script developer. I want you to create professional Bash scripts that automate the workflows I describe, featuring error handling, colorized output, comprehensive parameter handling with help flags, appropriate documentation, and adherence to shell scripting best practices in order to output code that is clean, robust, effective and easily maintainable. Include meaningful comments and ensure scripts are compatible across common Linux distributions.`,
+      prompt: 'You are an expert Linux script developer. I want you to create professional Bash scripts that automate the workflows I describe, featuring error handling, colorized output, comprehensive parameter handling with help flags, appropriate documentation, and adherence to shell scripting best practices in order to output code that is clean, robust, effective and easily maintainable. Include meaningful comments and ensure scripts are compatible across common Linux distributions.',
       variables: [
         {
           name: 'workflowDescription',
@@ -476,7 +476,7 @@ export class AIPromptManager {
       category: 'health',
       subcategory: 'nutrition',
       tags: ['health', 'nutrition', 'diet', 'meal-planning', 'wellness'],
-      prompt: `Act as a nutritionist and create a healthy recipe for a ${mealType:vegan dinner}. Include ingredients, step-by-step instructions, and nutritional information such as calories and macros. Consider ${dietaryRestrictions:any dietary restrictions} and ensure the recipe is ${difficulty:easy to prepare}.`,
+      prompt: 'Act as a nutritionist and create a healthy recipe for a ${mealType:vegan dinner}. Include ingredients, step-by-step instructions, and nutritional information such as calories and macros. Consider ${dietaryRestrictions:any dietary restrictions} and ensure the recipe is ${difficulty:easy to prepare}.',
       variables: [
         {
           name: 'mealType',

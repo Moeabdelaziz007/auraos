@@ -84,8 +84,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Initialize Real-Time AI Streaming
   try {
-    const realTimeStreaming = initializeRealTimeAIStreaming();
-    await realTimeStreaming.start();
+    const realTimeStreaming = initializeRealTimeAIStreaming(httpServer);
     console.log('🚀 Real-Time AI Streaming initialized successfully');
   } catch (error) {
     console.error('❌ Failed to initialize Real-Time AI Streaming:', error);

@@ -1,7 +1,26 @@
 import { storage } from './storage.js';
 import { FirestoreService } from '../client/src/lib/firebase.js';
 
-// ... (LearningContext, MetaLearningState, etc. remain the same)
+export interface LearningContext {
+  taskId: string;
+  taskType: string;
+  input: any;
+  userId?: string;
+  feedback?: any;
+  metadata?: Record<string, any>;
+}
+
+export interface MetaLearningState {
+  strategy: string;
+  confidence: number;
+  taskPatterns: Map<string, any>;
+  performanceMetrics: any;
+}
+
+export enum AdaptationStrategy {
+  MetaGradient = 'meta_gradient',
+  PatternMatching = 'pattern_matching',
+}
 
 export interface Reward {
   value: number; // -1 to 1, where 1 is best
