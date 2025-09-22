@@ -1,6 +1,8 @@
 import { storage } from './storage.js';
 
-// AI Prompt Management System inspired by awesome-chatgpt-prompts
+/**
+ * Represents an AI prompt.
+ */
 export interface AIPrompt {
   id: string;
   title: string;
@@ -35,12 +37,18 @@ export interface AIPrompt {
   };
 }
 
+/**
+ * Represents the category of a prompt.
+ */
 export type PromptCategory = 
   | 'technical' | 'creative' | 'business' | 'productivity' 
   | 'education' | 'health' | 'marketing' | 'development'
   | 'ai_ml' | 'security' | 'content' | 'social_media'
   | 'analytics' | 'automation' | 'communication';
 
+/**
+ * Represents a variable in a prompt.
+ */
 export interface PromptVariable {
   name: string;
   displayName: string;
@@ -58,6 +66,9 @@ export interface PromptVariable {
   };
 }
 
+/**
+ * Represents an example of a prompt.
+ */
 export interface PromptExample {
   title: string;
   description: string;
@@ -67,6 +78,9 @@ export interface PromptExample {
   rating?: number;
 }
 
+/**
+ * Represents feedback for a prompt.
+ */
 export interface PromptFeedback {
   userId: string;
   rating: number; // 1-5
@@ -75,6 +89,9 @@ export interface PromptFeedback {
   improvements?: string[];
 }
 
+/**
+ * Represents a template for a prompt.
+ */
 export interface PromptTemplate {
   id: string;
   name: string;
@@ -89,6 +106,9 @@ export interface PromptTemplate {
   };
 }
 
+/**
+ * Represents a step in a prompt template workflow.
+ */
 export interface PromptStep {
   id: string;
   name: string;
@@ -98,6 +118,9 @@ export interface PromptStep {
   outputMapping?: Record<string, string>;
 }
 
+/**
+ * Manages AI prompts and templates.
+ */
 export class AIPromptManager {
   private prompts: Map<string, AIPrompt> = new Map();
   private templates: Map<string, PromptTemplate> = new Map();
@@ -106,6 +129,9 @@ export class AIPromptManager {
   private usageStats: Map<string, any> = new Map();
   private monitoringSubscribers: Set<any> = new Set();
 
+  /**
+   * Creates an instance of AIPromptManager.
+   */
   constructor() {
     this.initializeDefaultPrompts();
     this.initializePromptTemplates();
@@ -598,7 +624,10 @@ export class AIPromptManager {
     });
   }
 
-  // Public API Methods
+  /**
+   * Registers a new AI prompt.
+   * @param {AIPrompt} prompt The prompt to register.
+   */
   registerPrompt(prompt: AIPrompt): void {
     this.prompts.set(prompt.id, prompt);
     
@@ -611,35 +640,67 @@ export class AIPromptManager {
     console.log(`📝 Registered prompt: ${prompt.title}`);
   }
 
+  /**
+   * Registers a new prompt template.
+   * @param {PromptTemplate} template The template to register.
+   */
   registerTemplate(template: PromptTemplate): void {
     this.templates.set(template.id, template);
     console.log(`📋 Registered template: ${template.name}`);
   }
 
+  /**
+   * Gets a prompt by its ID.
+   * @param {string} promptId The ID of the prompt to get.
+   * @returns {AIPrompt | undefined} The prompt, or undefined if not found.
+   */
   getPrompt(promptId: string): AIPrompt | undefined {
     return this.prompts.get(promptId);
   }
 
+  /**
+   * Gets all prompts.
+   * @returns {AIPrompt[]} A list of all prompts.
+   */
   getAllPrompts(): AIPrompt[] {
     return Array.from(this.prompts.values());
   }
 
+  /**
+   * Gets all prompts in a category.
+   * @param {PromptCategory} category The category to get prompts from.
+   * @returns {AIPrompt[]} A list of prompts in the category.
+   */
   getPromptsByCategory(category: PromptCategory): AIPrompt[] {
     return this.categories.get(category) || [];
   }
 
+  /**
+   * Gets popular prompts.
+   * @param {number} [limit=10] The maximum number of prompts to return.
+   * @returns {AIPrompt[]} A list of popular prompts.
+   */
   getPopularPrompts(limit: number = 10): AIPrompt[] {
     return Array.from(this.prompts.values())
       .sort((a, b) => b.usage.popularity - a.usage.popularity)
       .slice(0, limit);
   }
 
+  /**
+   * Gets featured prompts.
+   * @returns {AIPrompt[]} A list of featured prompts.
+   */
   getFeaturedPrompts(): AIPrompt[] {
     return Array.from(this.prompts.values())
       .filter(p => p.metadata.isOfficial && !p.metadata.isPremium)
       .sort((a, b) => b.usage.popularity - a.usage.popularity);
   }
 
+  /**
+   * Searches for prompts.
+   * @param {string} query The search query.
+   * @returns {AIPrompt[]} A list of matching prompts.
+   */
   searchPrompts(query: string): AIPrompt[] {
     const lowercaseQuery = query.toLowerCase();
     return Array.from(this.prompts.values()).filter(prompt =>
@@ -650,7 +711,13 @@ export class AIPromptManager {
     );
   }
 
-  // Prompt Execution
+  /**
+   * Executes a prompt.
+   * @param {string} promptId The ID of the prompt to execute.
+   * @param {Record<string, any>} variables The variables to use in the prompt.
+   * @param {string} [userId] The ID of the user executing the prompt.
+   * @returns {Promise<{ success: boolean; result?: string; error?: string }>} A promise that resolves with the execution result.
+   */
   async executePrompt(promptId: string, variables: Record<string, any>, userId?: string): Promise<{ success: boolean; result?: string; error?: string }> {
     const prompt = this.getPrompt(promptId);
     if (!prompt) {
@@ -684,6 +751,13 @@ export class AIPromptManager {
     }
   }
 
+  /**
+   * Executes a prompt template.
+   * @param {string} templateId The ID of the template to execute.
+   * @param {Record<string, any>} variables The variables to use in the template.
+   * @param {string} [userId] The ID of the user executing the template.
+   * @returns {Promise<{ success: boolean; results?: Record<string, any>; error?: string }>} A promise that resolves with the execution results.
+   */
   async executeTemplate(templateId: string, variables: Record<string, any>, userId?: string): Promise<{ success: boolean; results?: Record<string, any>; error?: string }> {
     const template = this.templates.get(templateId);
     if (!template) {
@@ -768,7 +842,12 @@ export class AIPromptManager {
     }
   }
 
-  // Feedback System
+  /**
+   * Submits feedback for a prompt.
+   * @param {string} promptId The ID of the prompt to submit feedback for.
+   * @param {Omit<PromptFeedback, 'timestamp'>} feedback The feedback to submit.
+   * @returns {boolean} True if the feedback was submitted, false otherwise.
+   */
   submitFeedback(promptId: string, feedback: Omit<PromptFeedback, 'timestamp'>): boolean {
     const prompt = this.getPrompt(promptId);
     if (!prompt) return false;
@@ -788,7 +867,10 @@ export class AIPromptManager {
     return true;
   }
 
-  // Statistics and Analytics
+  /**
+   * Gets system-wide statistics.
+   * @returns {any} System-wide statistics.
+   */
   getSystemStatistics(): any {
     const prompts = Array.from(this.prompts.values());
     const categories = Array.from(this.categories.keys());
@@ -813,6 +895,11 @@ export class AIPromptManager {
     };
   }
 
+  /**
+   * Gets statistics for a specific prompt.
+   * @param {string} promptId The ID of the prompt to get statistics for.
+   * @returns {any} Statistics for the prompt.
+   */
   getPromptStatistics(promptId: string): any {
     const prompt = this.getPrompt(promptId);
     if (!prompt) return null;
@@ -838,6 +925,10 @@ export class AIPromptManager {
     };
   }
 
+  /**
+   * Gets the system status.
+   * @returns {any} The system status.
+   */
   getSystemStatus(): any {
     return {
       isLive: this.isLive,
@@ -847,7 +938,11 @@ export class AIPromptManager {
     };
   }
 
-  // Monitoring
+  /**
+   * Subscribes to updates from the prompt manager.
+   * @param {(status: any) => void} callback The callback to call with updates.
+   * @returns {() => void} A function to unsubscribe.
+   */
   subscribeToUpdates(callback: (status: any) => void): () => void {
     this.monitoringSubscribers.add(callback);
     return () => this.monitoringSubscribers.delete(callback);
@@ -857,6 +952,10 @@ export class AIPromptManager {
 // Export singleton instance
 let aiPromptManager: AIPromptManager | null = null;
 
+/**
+ * Gets the singleton instance of the AIPromptManager.
+ * @returns {AIPromptManager} The singleton instance of the AIPromptManager.
+ */
 export function getAIPromptManager(): AIPromptManager {
   if (!aiPromptManager) {
     aiPromptManager = new AIPromptManager();

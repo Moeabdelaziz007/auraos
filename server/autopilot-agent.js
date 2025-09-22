@@ -11,7 +11,23 @@ var AutopilotAgent = /** @class */ (function () {
         this.agent = this.agentSystem.createAgent({
             name: 'Autopilot Agent',
             description: 'An advanced AI agent that autonomously manages and optimizes complex projects.',
-            // ... (rest of the agent configuration)
+            type: 'coordinator',
+            capabilities: ['system_monitoring', 'performance_analysis', 'automated_optimization', 'resource_management'],
+            tools: ['data_analyzer', 'workflow_automator', 'realtime_monitor', 'api_integrator'],
+            personality: {
+                tone: 'professional',
+                communicationStyle: 'concise',
+                expertise: ['system optimization', 'AI management', 'automation'],
+                limitations: ['creative content', 'user interaction'],
+                preferences: { efficiency: 'maximum', reliability: 'high' }
+            },
+            knowledge: {
+                domains: ['system architecture', 'performance metrics', 'AI workflows'],
+                skills: ['monitoring', 'analysis', 'optimization', 'coordination'],
+                experience: 95,
+                certifications: ['System Optimization Expert', 'AI Workflow Certified'],
+                specializations: ['performance tuning', 'automated recovery', 'proactive maintenance']
+            }
         });
         try {
             this.db = (0, firestore_1.getFirestore)();

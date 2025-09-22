@@ -2,6 +2,10 @@ import admin from 'firebase-admin';
 
 let isFirebaseInitialized = false;
 
+/**
+ * Initializes the Firebase Admin SDK.
+ * @returns {{ admin: typeof admin; isFirebaseInitialized: boolean; }} An object containing the Firebase admin instance and a boolean indicating whether Firebase is initialized.
+ */
 export function initializeFirebase() {
   if (admin.apps.length === 0) {
     try {
@@ -25,6 +29,11 @@ export function initializeFirebase() {
   };
 }
 
+/**
+ * Verifies a Firebase ID token.
+ * @param {string} token The ID token to verify.
+ * @returns {Promise<admin.auth.DecodedIdToken>} A promise that resolves with the decoded ID token.
+ */
 export async function verifyToken(token: string) {
     if (!isFirebaseInitialized) {
         initializeFirebase();

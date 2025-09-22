@@ -24,11 +24,19 @@ export interface LearningResult {
 
 // ... (rest of the interfaces remain the same)
 
+/**
+ * Implements a meta-learning loop for a self-improving AI system.
+ */
 export class SmartLearningAIMetaLoop {
   // ... (rest of the properties remain the same)
   
   // ... (constructor and initializers remain the same)
 
+  /**
+   * Processes a learning request, which involves selecting a strategy, executing it, and learning from the result.
+   * @param {LearningContext} context The context for the learning request.
+   * @returns {Promise<any>} A promise that resolves with the result of the learning request.
+   */
   async processLearningRequest(context: LearningContext): Promise<any> {
     // ... (rest of the function remains the same)
     
@@ -45,6 +53,10 @@ export class SmartLearningAIMetaLoop {
     return result;
   }
 
+  /**
+   * Gets all learning states.
+   * @returns {Map<string, MetaLearningState>} A map of all learning states.
+   */
   public getAllLearningStates(): Map<string, MetaLearningState> {
     return this.learningStates;
   }
@@ -130,6 +142,10 @@ export class SmartLearningAIMetaLoop {
 // Export singleton instance
 let smartLearningAI: SmartLearningAIMetaLoop | null = null;
 
+/**
+ * Gets the singleton instance of the SmartLearningAIMetaLoop.
+ * @returns {SmartLearningAIMetaLoop} The singleton instance of the SmartLearningAIMetaLoop.
+ */
 export function getSmartLearningAI(): SmartLearningAIMetaLoop {
   if (!smartLearningAI) {
     smartLearningAI = new SmartLearningAIMetaLoop();

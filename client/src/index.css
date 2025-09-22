@@ -391,10 +391,6 @@
     animation: hologram-flicker 0.5s ease-in-out infinite;
   }
   
-  .animate-neon-flicker {
-    animation: neon-flicker 2s ease-in-out infinite alternate;
-  }
-  
   /* Green-Focused Cyberpunk Gradients */
   .gradient-cyber-primary {
     background: linear-gradient(135deg, 

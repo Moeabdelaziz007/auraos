@@ -2,6 +2,9 @@ import { EventEmitter } from 'events';
 import { v4 as uuidv4 } from 'uuid';
 import { getMultiModalAIEngine } from './multi-modal-ai.js';
 
+/**
+ * Represents a version of an AI model.
+ */
 export interface ModelVersion {
   id: string;
   version: string;
@@ -22,6 +25,9 @@ export interface ModelVersion {
   };
 }
 
+/**
+ * Represents a deployment of an AI model.
+ */
 export interface ModelDeployment {
   id: string;
   modelId: string;
@@ -44,6 +50,9 @@ export interface ModelDeployment {
   };
 }
 
+/**
+ * Represents a training job for an AI model.
+ */
 export interface ModelTrainingJob {
   id: string;
   modelId: string;
@@ -66,6 +75,9 @@ export interface ModelTrainingJob {
   };
 }
 
+/**
+ * Represents a round of federated learning.
+ */
 export interface FederatedLearningRound {
   id: string;
   modelId: string;
@@ -83,6 +95,9 @@ export interface FederatedLearningRound {
   };
 }
 
+/**
+ * Manages the lifecycle of AI models, including versioning, deployment, training, and federated learning.
+ */
 export class AIModelManagementSystem extends EventEmitter {
   private aiEngine: any;
   private modelVersions: Map<string, ModelVersion[]> = new Map();
@@ -91,6 +106,9 @@ export class AIModelManagementSystem extends EventEmitter {
   private federatedRounds: Map<string, FederatedLearningRound> = new Map();
   private modelRegistry: Map<string, any> = new Map();
 
+  /**
+   * Creates an instance of AIModelManagementSystem.
+   */
   constructor() {
     super();
     this.aiEngine = getMultiModalAIEngine();
@@ -132,7 +150,14 @@ export class AIModelManagementSystem extends EventEmitter {
     });
   }
 
-  // Model Version Management
+  /**
+   * Registers a new version of a model.
+   * @param {string} modelId The ID of the model.
+   * @param {string} version The version string.
+   * @param {any} performance The performance metrics for the version.
+   * @param {any} metadata The metadata for the version.
+   * @returns {ModelVersion} The newly registered model version.
+   */
   registerModelVersion(
     modelId: string, 
     version: string, 
@@ -161,15 +186,31 @@ export class AIModelManagementSystem extends EventEmitter {
     return modelVersion;
   }
 
+  /**
+   * Gets all versions of a model.
+   * @param {string} modelId The ID of the model.
+   * @returns {ModelVersion[]} A list of model versions.
+   */
   getModelVersions(modelId: string): ModelVersion[] {
     return this.modelVersions.get(modelId) || [];
   }
 
+  /**
+   * Gets the latest version of a model.
+   * @param {string} modelId The ID of the model.
+   * @returns {ModelVersion | undefined} The latest model version, or undefined if not found.
+   */
   getLatestModelVersion(modelId: string): ModelVersion | undefined {
     const versions = this.getModelVersions(modelId);
     return versions.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())[0];
   }
 
+  /**
+   * Activates a model version.
+   * @param {string} modelId The ID of the model.
+   * @param {string} versionId The ID of the version to activate.
+   * @returns {boolean} True if the version was activated, false otherwise.
+   */
   activateModelVersion(modelId: string, versionId: string): boolean {
     const versions = this.getModelVersions(modelId);
     const version = versions.find(v => v.id === versionId);
@@ -189,7 +230,14 @@ export class AIModelManagementSystem extends EventEmitter {
     return true;
   }
 
-  // Model Deployment Management
+  /**
+   * Deploys a model version.
+   * @param {string} modelId The ID of the model to deploy.
+   * @param {string} versionId The ID of the version to deploy.
+   * @param {string} environment The environment to deploy to.
+   * @param {any} config The deployment configuration.
+   * @returns {Promise<ModelDeployment>} A promise that resolves with the deployment information.
+   */
   async deployModel(
     modelId: string, 
     versionId: string, 
@@ -220,15 +268,29 @@ export class AIModelManagementSystem extends EventEmitter {
     return deployment;
   }
 
+  /**
+   * Gets all deployments for a model.
+   * @param {string} [modelId] The ID of the model to get deployments for. If not provided, all deployments are returned.
+   * @returns {ModelDeployment[]} A list of deployments.
+   */
   getDeployments(modelId?: string): ModelDeployment[] {
     const deployments = Array.from(this.deployments.values());
     return modelId ? deployments.filter(d => d.modelId === modelId) : deployments;
   }
 
+  /**
+   * Gets all active deployments.
+   * @returns {ModelDeployment[]} A list of active deployments.
+   */
   getActiveDeployments(): ModelDeployment[] {
     return Array.from(this.deployments.values()).filter(d => d.status === 'active');
   }
 
+  /**
+   * Undeploys a model.
+   * @param {string} deploymentId The ID of the deployment to undeploy.
+   * @returns {Promise<boolean>} A promise that resolves with true if the model was undeployed, false otherwise.
+   */
   async undeployModel(deploymentId: string): Promise<boolean> {
     const deployment = this.deployments.get(deploymentId);
     if (!deployment) {
@@ -241,7 +303,12 @@ export class AIModelManagementSystem extends EventEmitter {
     return true;
   }
 
-  // Model Training Management
+  /**
+   * Starts a training job for a model.
+   * @param {string} modelId The ID of the model to train.
+   * @param {any} config The training configuration.
+   * @returns {Promise<ModelTrainingJob>} A promise that resolves with the training job information.
+   */
   async startTrainingJob(
     modelId: string, 
     config: any
@@ -298,15 +365,29 @@ export class AIModelManagementSystem extends EventEmitter {
     }, 2000);
   }
 
+  /**
+   * Gets all training jobs for a model.
+   * @param {string} [modelId] The ID of the model to get training jobs for. If not provided, all training jobs are returned.
+   * @returns {ModelTrainingJob[]} A list of training jobs.
+   */
   getTrainingJobs(modelId?: string): ModelTrainingJob[] {
     const jobs = Array.from(this.trainingJobs.values());
     return modelId ? jobs.filter(j => j.modelId === modelId) : jobs;
   }
 
+  /**
+   * Gets all active training jobs.
+   * @returns {ModelTrainingJob[]} A list of active training jobs.
+   */
   getActiveTrainingJobs(): ModelTrainingJob[] {
     return Array.from(this.trainingJobs.values()).filter(j => j.status === 'running');
   }
 
+  /**
+   * Cancels a training job.
+   * @param {string} jobId The ID of the training job to cancel.
+   * @returns {Promise<boolean>} A promise that resolves with true if the job was cancelled, false otherwise.
+   */
   async cancelTrainingJob(jobId: string): Promise<boolean> {
     const job = this.trainingJobs.get(jobId);
     if (!job || job.status !== 'running') {
@@ -319,7 +400,12 @@ export class AIModelManagementSystem extends EventEmitter {
     return true;
   }
 
-  // Federated Learning Management
+  /**
+   * Starts a round of federated learning.
+   * @param {string} modelId The ID of the model to train.
+   * @param {string[]} participants The participants in the federated learning round.
+   * @returns {Promise<FederatedLearningRound>} A promise that resolves with the federated learning round information.
+   */
   async startFederatedLearningRound(
     modelId: string, 
     participants: string[]
@@ -384,16 +470,29 @@ export class AIModelManagementSystem extends EventEmitter {
     }, 10000);
   }
 
+  /**
+   * Gets all federated learning rounds for a model.
+   * @param {string} [modelId] The ID of the model to get federated learning rounds for. If not provided, all rounds are returned.
+   * @returns {FederatedLearningRound[]} A list of federated learning rounds.
+   */
   getFederatedLearningRounds(modelId?: string): FederatedLearningRound[] {
     const rounds = Array.from(this.federatedRounds.values());
     return modelId ? rounds.filter(r => r.modelId === modelId) : rounds;
   }
 
+  /**
+   * Gets all active federated learning rounds.
+   * @returns {FederatedLearningRound[]} A list of active federated learning rounds.
+   */
   getActiveFederatedLearningRounds(): FederatedLearningRound[] {
     return Array.from(this.federatedRounds.values()).filter(r => r.status === 'running');
   }
 
-  // Model Registry Management
+  /**
+   * Registers a model in the model registry.
+   * @param {string} modelId The ID of the model to register.
+   * @param {any} modelData The data for the model.
+   */
   registerModel(modelId: string, modelData: any): void {
     this.modelRegistry.set(modelId, {
       ...modelData,
@@ -403,10 +502,19 @@ export class AIModelManagementSystem extends EventEmitter {
     this.emit('modelRegistered', { modelId, modelData });
   }
 
+  /**
+   * Gets a model from the model registry.
+   * @param {string} modelId The ID of the model to get.
+   * @returns {any} The model data.
+   */
   getModel(modelId: string): any {
     return this.modelRegistry.get(modelId);
   }
 
+  /**
+   * Gets all models from the model registry.
+   * @returns {any[]} A list of all models.
+   */
   getAllModels(): any[] {
     return Array.from(this.modelRegistry.entries()).map(([id, data]) => ({
       id,
@@ -421,6 +529,10 @@ export class AIModelManagementSystem extends EventEmitter {
     }, 30000); // Every 30 seconds
   }
 
+  /**
+   * Gets system-wide metrics.
+   * @returns {any} System-wide metrics.
+   */
   getSystemMetrics(): any {
     return {
       models: {
@@ -456,7 +568,12 @@ export class AIModelManagementSystem extends EventEmitter {
     };
   }
 
-  // Model Optimization
+  /**
+   * Optimizes a model.
+   * @param {string} modelId The ID of the model to optimize.
+   * @param {any} optimizationConfig The optimization configuration.
+   * @returns {Promise<any>} A promise that resolves with the optimization result.
+   */
   async optimizeModel(modelId: string, optimizationConfig: any): Promise<any> {
     const model = this.getModel(modelId);
     if (!model) {
@@ -480,7 +597,11 @@ export class AIModelManagementSystem extends EventEmitter {
     return optimizationResult;
   }
 
-  // Model Lifecycle Management
+  /**
+   * Archives a model.
+   * @param {string} modelId The ID of the model to archive.
+   * @returns {Promise<boolean>} A promise that resolves with true if the model was archived, false otherwise.
+   */
   async archiveModel(modelId: string): Promise<boolean> {
     const model = this.getModel(modelId);
     if (!model) {
@@ -502,6 +623,11 @@ export class AIModelManagementSystem extends EventEmitter {
     return true;
   }
 
+  /**
+   * Restores an archived model.
+   * @param {string} modelId The ID of the model to restore.
+   * @returns {Promise<boolean>} A promise that resolves with true if the model was restored, false otherwise.
+   */
   async restoreModel(modelId: string): Promise<boolean> {
     const model = this.getModel(modelId);
     if (!model) {
@@ -523,6 +649,10 @@ export class AIModelManagementSystem extends EventEmitter {
 // Singleton instance
 let aiModelManagementSystem: AIModelManagementSystem | null = null;
 
+/**
+ * Gets the singleton instance of the AIModelManagementSystem.
+ * @returns {AIModelManagementSystem} The singleton instance of the AIModelManagementSystem.
+ */
 export function getAIModelManagementSystem(): AIModelManagementSystem {
   if (!aiModelManagementSystem) {
     aiModelManagementSystem = new AIModelManagementSystem();
@@ -530,6 +660,10 @@ export function getAIModelManagementSystem(): AIModelManagementSystem {
   return aiModelManagementSystem;
 }
 
+/**
+ * Initializes the AI model management system.
+ * @returns {AIModelManagementSystem} The initialized AI model management system.
+ */
 export function initializeAIModelManagement(): AIModelManagementSystem {
   const system = getAIModelManagementSystem();
   console.log('🤖 AI Model Management System initialized successfully');

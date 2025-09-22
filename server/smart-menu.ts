@@ -31,9 +31,15 @@ interface SmartMenuOption {
   context?: string[];
 }
 
+/**
+ * Manages a smart menu system for a Telegram bot.
+ */
 export class SmartMenuService {
   private userContexts: Map<number, UserContext> = new Map();
 
+  /**
+   * Creates an instance of SmartMenuService.
+   */
   constructor() {
     // Initialize with default contexts
   }
@@ -72,7 +78,13 @@ export class SmartMenuService {
     context.stats.totalInteractions++;
   }
 
-  // Generate smart menu based on context
+  /**
+   * Generates a smart menu based on the user's context.
+   * @param {number} chatId The ID of the chat.
+   * @param {string} username The username of the user.
+   * @param {string} [menuType='main'] The type of menu to generate.
+   * @returns {Promise<{ text: string; keyboard: any; }>} A promise that resolves with the menu text and keyboard.
+   */
   async generateSmartMenu(chatId: number, username: string, menuType: string = 'main'): Promise<{
     text: string;
     keyboard: any;
@@ -495,18 +507,30 @@ ${context.stats.favoriteCommands.length > 0 ?
     return diffHours < 24;
   }
 
-  // Update user preferences
+  /**
+   * Updates a user's preferences.
+   * @param {number} chatId The ID of the chat.
+   * @param {Partial<UserContext['preferences']>} preferences The preferences to update.
+   */
   async updateUserPreferences(chatId: number, preferences: Partial<UserContext['preferences']>) {
     const context = this.getUserContext(chatId, '');
     context.preferences = { ...context.preferences, ...preferences };
   }
 
-  // Get user context for external use
+  /**
+   * Gets the user context for a chat.
+   * @param {number} chatId The ID of the chat.
+   * @returns {UserContext | undefined} The user context, or undefined if not found.
+   */
   getUserContext(chatId: number): UserContext | undefined {
     return this.userContexts.get(chatId);
   }
 
-  // Track command usage for smart suggestions
+  /**
+   * Tracks command usage for smart suggestions.
+   * @param {number} chatId The ID of the chat.
+   * @param {string} command The command that was used.
+   */
   trackCommandUsage(chatId: number, command: string) {
     const context = this.getUserContext(chatId, '');
     if (!context.stats.favoriteCommands.includes(command)) {
@@ -522,6 +546,10 @@ ${context.stats.favoriteCommands.length > 0 ?
 // Export singleton instance
 let smartMenuService: SmartMenuService | null = null;
 
+/**
+ * Gets the singleton instance of the SmartMenuService.
+ * @returns {SmartMenuService} The singleton instance of the SmartMenuService.
+ */
 export function getSmartMenuService(): SmartMenuService {
   if (!smartMenuService) {
     smartMenuService = new SmartMenuService();

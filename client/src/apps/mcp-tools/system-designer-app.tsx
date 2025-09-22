@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { motion, AnimatePresence } from "framer-motion";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Play, CheckCircle, XCircle, Settings } from "lucide-react";
+import { Loader2, Play, CheckCircle, XCircle, Settings, Cpu, Server, Database as DatabaseIcon, Container, Monitor, Clock, Component } from "lucide-react";
 
 export default function SystemDesignerApp() {
   const [requirements, setRequirements] = useState("");
@@ -57,14 +58,14 @@ export default function SystemDesignerApp() {
   };
 
   return (
-    <Card className="w-full">
+    <Card className="w-full border-0 shadow-lg">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Settings className="h-5 w-5" /> System Designer
         </CardTitle>
-        <p className="text-muted-foreground">
-          AI-powered system architecture designer for technical creativity and solution planning.
-        </p>
+        <CardDescription>
+          Design complex software architectures by defining your requirements and technology stack.
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div>
@@ -78,7 +79,7 @@ export default function SystemDesignerApp() {
           />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4">
           <div>
             <label htmlFor="complexity" className="block text-sm font-medium text-foreground mb-1">Complexity</label>
             <Select value={complexity} onValueChange={setComplexity}>
@@ -93,52 +94,51 @@ export default function SystemDesignerApp() {
               </SelectContent>
             </Select>
           </div>
-          <div>
-            <label htmlFor="frontend" className="block text-sm font-medium text-foreground mb-1">Frontend</label>
-            <Select value={frontend} onValueChange={setFrontend}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select frontend" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="React">React</SelectItem>
-                <SelectItem value="Vue">Vue</SelectItem>
-                <SelectItem value="Angular">Angular</SelectItem>
-                <SelectItem value="Svelte">Svelte</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label htmlFor="backend" className="block text-sm font-medium text-foreground mb-1">Backend</label>
-            <Select value={backend} onValueChange={setBackend}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select backend" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="FastAPI">FastAPI</SelectItem>
-                <SelectItem value="Express">Express</SelectItem>
-                <SelectItem value="Django">Django</SelectItem>
-                <SelectItem value="Spring">Spring</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <label htmlFor="database" className="block text-sm font-medium text-foreground mb-1">Database</label>
-            <Select value={database} onValueChange={setDatabase}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select database" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="PostgreSQL">PostgreSQL</SelectItem>
-                <SelectItem value="MySQL">MySQL</SelectItem>
-                <SelectItem value="MongoDB">MongoDB</SelectItem>
-                <SelectItem value="Redis">Redis</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
+        <Card className="bg-muted/30">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base font-medium">Technology Stack</CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label htmlFor="frontend" className="block text-sm font-medium text-foreground mb-1">Frontend</label>
+              <Select value={frontend} onValueChange={setFrontend}>
+                <SelectTrigger className="w-full"><SelectValue placeholder="Select frontend" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="React">React</SelectItem>
+                  <SelectItem value="Vue">Vue</SelectItem>
+                  <SelectItem value="Angular">Angular</SelectItem>
+                  <SelectItem value="Svelte">Svelte</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label htmlFor="backend" className="block text-sm font-medium text-foreground mb-1">Backend</label>
+              <Select value={backend} onValueChange={setBackend}>
+                <SelectTrigger className="w-full"><SelectValue placeholder="Select backend" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="FastAPI">FastAPI</SelectItem>
+                  <SelectItem value="Express">Express</SelectItem>
+                  <SelectItem value="Django">Django</SelectItem>
+                  <SelectItem value="Spring">Spring</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label htmlFor="database" className="block text-sm font-medium text-foreground mb-1">Database</label>
+              <Select value={database} onValueChange={setDatabase}>
+                <SelectTrigger className="w-full"><SelectValue placeholder="Select database" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="PostgreSQL">PostgreSQL</SelectItem>
+                  <SelectItem value="MySQL">MySQL</SelectItem>
+                  <SelectItem value="MongoDB">MongoDB</SelectItem>
+                  <SelectItem value="Redis">Redis</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </CardContent>
+        </Card>
 
         <div>
           <label htmlFor="context" className="block text-sm font-medium text-foreground mb-1">Context (optional)</label>
@@ -172,78 +172,77 @@ export default function SystemDesignerApp() {
           </div>
         )}
 
-        {output && (
-          <div className="mt-4 space-y-2">
-            <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
-              <CheckCircle className="h-5 w-5 text-green-500" /> System Design
-            </h3>
-            <Card className="bg-muted/20 p-4">
-              <div className="space-y-4">
-                <div>
-                  <h4 className="font-medium mb-2">Architecture</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                    <div>
-                      <span className="font-medium">Frontend:</span>
-                      <div className="mt-1 space-y-1">
-                        <div>Framework: {output.system_design?.architecture?.frontend?.framework}</div>
-                        <div>State: {output.system_design?.architecture?.frontend?.state_management}</div>
-                        <div>Styling: {output.system_design?.architecture?.frontend?.styling}</div>
-                      </div>
+        <AnimatePresence>
+          {output && (
+            <motion.div
+              className="mt-6 space-y-4"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.5 }}
+            >
+              <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                <CheckCircle className="h-5 w-5 text-green-500" /> System Design Output
+              </h3>
+              <Card className="bg-muted/20 border-dashed">
+                <CardContent className="p-4 md:p-6 space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="space-y-2">
+                      <h4 className="font-semibold flex items-center gap-2"><Cpu className="h-5 w-5 text-primary" /> Frontend</h4>
+                      <p className="text-sm text-muted-foreground">Framework: {output.system_design?.architecture?.frontend?.framework}</p>
+                      <p className="text-sm text-muted-foreground">State: {output.system_design?.architecture?.frontend?.state_management}</p>
+                      <p className="text-sm text-muted-foreground">Styling: {output.system_design?.architecture?.frontend?.styling}</p>
                     </div>
-                    <div>
-                      <span className="font-medium">Backend:</span>
-                      <div className="mt-1 space-y-1">
-                        <div>Framework: {output.system_design?.architecture?.backend?.framework}</div>
-                        <div>Database: {output.system_design?.architecture?.backend?.database}</div>
-                        <div>Cache: {output.system_design?.architecture?.backend?.cache}</div>
-                      </div>
+                    <div className="space-y-2">
+                      <h4 className="font-semibold flex items-center gap-2"><Server className="h-5 w-5 text-primary" /> Backend</h4>
+                      <p className="text-sm text-muted-foreground">Framework: {output.system_design?.architecture?.backend?.framework}</p>
+                      <p className="text-sm text-muted-foreground">Database: {output.system_design?.architecture?.backend?.database}</p>
+                      <p className="text-sm text-muted-foreground">Cache: {output.system_design?.architecture?.backend?.cache}</p>
                     </div>
-                    <div>
-                      <span className="font-medium">Infrastructure:</span>
-                      <div className="mt-1 space-y-1">
-                        <div>Container: {output.system_design?.architecture?.infrastructure?.containerization}</div>
-                        <div>Orchestration: {output.system_design?.architecture?.infrastructure?.orchestration}</div>
-                        <div>Monitoring: {output.system_design?.architecture?.infrastructure?.monitoring}</div>
-                      </div>
+                    <div className="space-y-2">
+                      <h4 className="font-semibold flex items-center gap-2"><Container className="h-5 w-5 text-primary" /> Infrastructure</h4>
+                      <p className="text-sm text-muted-foreground">Container: {output.system_design?.architecture?.infrastructure?.containerization}</p>
+                      <p className="text-sm text-muted-foreground">Orchestration: {output.system_design?.architecture?.infrastructure?.orchestration}</p>
+                      <p className="text-sm text-muted-foreground">Monitoring: {output.system_design?.architecture?.infrastructure?.monitoring}</p>
                     </div>
                   </div>
-                </div>
 
-                <div>
-                  <h4 className="font-medium mb-2">Components</h4>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
-                    {output.system_design?.components?.map((component: string, index: number) => (
-                      <div key={index} className="bg-primary/10 text-primary px-2 py-1 rounded text-xs">
-                        {component}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <h4 className="font-medium mb-2">Recommendations</h4>
-                  <ul className="text-sm space-y-1">
-                    {output.recommendations?.map((rec: string, index: number) => (
-                      <li key={index} className="flex items-start gap-2">
-                        <span className="text-primary">•</span>
-                        <span>{rec}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div className="flex items-center gap-4 text-sm">
                   <div>
-                    <span className="font-medium">Complexity:</span> {output.complexity}
+                    <h4 className="font-semibold flex items-center gap-2 mb-3"><Component className="h-5 w-5 text-primary" /> Components</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {output.system_design?.components?.map((component: string, index: number) => (
+                        <div key={index} className="bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-medium">
+                          {component}
+                        </div>
+                      ))}
+                    </div>
                   </div>
+
                   <div>
-                    <span className="font-medium">Est. Time:</span> {output.estimated_development_time}
+                    <h4 className="font-semibold mb-2">Recommendations</h4>
+                    <ul className="text-sm space-y-2">
+                      {output.recommendations?.map((rec: string, index: number) => (
+                        <li key={index} className="flex items-start gap-2 text-muted-foreground">
+                          <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 shrink-0" />
+                          <span>{rec}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-                </div>
-              </div>
-            </Card>
-          </div>
-        )}
+                </CardContent>
+                <CardFooter className="bg-muted/40 px-4 md:px-6 py-3 flex justify-between text-sm">
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <span className="font-medium text-foreground">Complexity:</span> {output.complexity}
+                  </div>
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Clock className="h-4 w-4" />
+                    <span className="font-medium text-foreground">Est. Time:</span> {output.estimated_development_time}
+                  </div>
+                </CardFooter>
+              </Card>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </CardContent>
     </Card>
   );

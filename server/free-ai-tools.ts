@@ -4,6 +4,9 @@
 import axios from 'axios';
 import { FirestoreService } from '../client/src/lib/firebase';
 
+/**
+ * A collection of free AI tools that use open-source and free APIs.
+ */
 export class FreeAITools {
   private static readonly FREE_APIS = {
     // Free text analysis APIs
@@ -23,7 +26,10 @@ export class FreeAITools {
   };
 
   /**
-   * Free Text Analysis using Hugging Face Inference API
+   * Analyzes text using the Hugging Face Inference API.
+   * @param {string} text The text to analyze.
+   * @param {'sentiment' | 'emotion' | 'keywords' | 'summary'} analysisType The type of analysis to perform.
+   * @returns {Promise<any>} A promise that resolves with the analysis result.
    */
   static async analyzeText(text: string, analysisType: 'sentiment' | 'emotion' | 'keywords' | 'summary'): Promise<any> {
     try {
@@ -144,7 +150,11 @@ export class FreeAITools {
   }
 
   /**
-   * Free Translation using LibreTranslate
+   * Translates text using the LibreTranslate API.
+   * @param {string} text The text to translate.
+   * @param {string} targetLang The target language.
+   * @param {string} [sourceLang='auto'] The source language.
+   * @returns {Promise<any>} A promise that resolves with the translation result.
    */
   static async translateText(text: string, targetLang: string, sourceLang = 'auto'): Promise<any> {
     try {
@@ -218,7 +228,10 @@ export class FreeAITools {
   }
 
   /**
-   * Free Image Processing using free APIs
+   * Processes an image using free APIs.
+   * @param {string} imageUrl The URL of the image to process.
+   * @param {'analyze' | 'resize' | 'filter'} operation The operation to perform.
+   * @returns {Promise<any>} A promise that resolves with the processing result.
    */
   static async processImage(imageUrl: string, operation: 'analyze' | 'resize' | 'filter'): Promise<any> {
     try {
@@ -292,7 +305,10 @@ export class FreeAITools {
   }
 
   /**
-   * Free Web Scraping
+   * Scrapes a website for data.
+   * @param {string} url The URL of the website to scrape.
+   * @param {{ extractText?: boolean; selectors?: string[] }} [options={}] The scraping options.
+   * @returns {Promise<any>} A promise that resolves with the scraped data.
    */
   static async scrapeWebsite(url: string, options: { extractText?: boolean; selectors?: string[] } = {}): Promise<any> {
     try {
@@ -333,7 +349,10 @@ export class FreeAITools {
   }
 
   /**
-   * Free Data Analysis
+   * Analyzes data using various statistical methods.
+   * @param {any[]} data The data to analyze.
+   * @param {'statistics' | 'trends' | 'correlations' | 'outliers'} analysisType The type of analysis to perform.
+   * @returns {Promise<any>} A promise that resolves with the analysis result.
    */
   static async analyzeData(data: any[], analysisType: 'statistics' | 'trends' | 'correlations' | 'outliers'): Promise<any> {
     try {
@@ -492,7 +511,11 @@ export class FreeAITools {
   }
 
   /**
-   * Free Code Generation
+   * Generates code in a specified language.
+   * @param {string} language The language to generate code in.
+   * @param {string} description The description of the code to generate.
+   * @param {string} template The template to use for code generation.
+   * @returns {Promise<any>} A promise that resolves with the generated code.
    */
   static async generateCode(language: string, description: string, template: string): Promise<any> {
     try {
@@ -554,7 +577,11 @@ export class FreeAITools {
   }
 
   /**
-   * Save analysis results to Firestore
+   * Saves an analysis result to Firestore.
+   * @param {string} userId The ID of the user who performed the analysis.
+   * @param {string} analysisType The type of analysis that was performed.
+   * @param {any} results The results of the analysis.
+   * @returns {Promise<string>} A promise that resolves with the ID of the newly created post.
    */
   static async saveAnalysisToFirestore(userId: string, analysisType: string, results: any): Promise<string> {
     try {

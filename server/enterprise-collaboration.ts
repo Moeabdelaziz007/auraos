@@ -109,6 +109,9 @@ interface CollaborationNotification {
   metadata: any;
 }
 
+/**
+ * Manages enterprise collaboration, including real-time editing, comments, and notifications.
+ */
 export class EnterpriseCollaborationSystem {
   private sessions: Map<string, CollaborationSession> = new Map();
   private comments: Map<string, CollaborationComment[]> = new Map();
@@ -118,6 +121,9 @@ export class EnterpriseCollaborationSystem {
   private activeConnections: Map<string, any> = new Map();
   private subscribers: Set<any> = new Set();
 
+  /**
+   * Creates an instance of EnterpriseCollaborationSystem.
+   */
   constructor() {
     this.startCollaborationMonitoring();
   }
@@ -136,7 +142,16 @@ export class EnterpriseCollaborationSystem {
     }, 60000);
   }
 
-  // Session Management
+  /**
+   * Creates a new collaboration session.
+   * @param {CollaborationSession['type']} type The type of the collaboration session.
+   * @param {string} resourceId The ID of the resource being collaborated on.
+   * @param {string} resourceName The name of the resource being collaborated on.
+   * @param {string} teamId The ID of the team the collaboration session belongs to.
+   * @param {string} creatorId The ID of the user creating the collaboration session.
+   * @param {CollaborationPermissions} permissions The permissions for the collaboration session.
+   * @returns {Promise<CollaborationSession>} A promise that resolves with the newly created collaboration session.
+   */
   async createCollaborationSession(
     type: CollaborationSession['type'],
     resourceId: string,
@@ -191,6 +206,13 @@ export class EnterpriseCollaborationSystem {
     return session;
   }
 
+  /**
+   * Joins a collaboration session.
+   * @param {string} sessionId The ID of the collaboration session to join.
+   * @param {string} userId The ID of the user joining the session.
+   * @param {string} teamId The ID of the team the user belongs to.
+   * @returns {Promise<CollaborationParticipant>} A promise that resolves with the participant information.
+   */
   async joinCollaborationSession(
     sessionId: string,
     userId: string,
@@ -233,6 +255,12 @@ export class EnterpriseCollaborationSystem {
     return participant;
   }
 
+  /**
+   * Leaves a collaboration session.
+   * @param {string} sessionId The ID of the collaboration session to leave.
+   * @param {string} userId The ID of the user leaving the session.
+   * @returns {Promise<boolean>} A promise that resolves with true if the user left the session, false otherwise.
+   */
   async leaveCollaborationSession(sessionId: string, userId: string): Promise<boolean> {
     const session = this.sessions.get(sessionId);
     if (!session) {
@@ -283,7 +311,13 @@ export class EnterpriseCollaborationSystem {
     };
   }
 
-  // Real-time Collaboration Features
+  /**
+   * Updates a user's cursor position in a collaboration session.
+   * @param {string} sessionId The ID of the collaboration session.
+   * @param {string} userId The ID of the user.
+   * @param {CursorPosition} position The new cursor position.
+   * @returns {Promise<boolean>} A promise that resolves with true if the cursor position was updated, false otherwise.
+   */
   async updateCursorPosition(
     sessionId: string,
     userId: string,
@@ -307,6 +341,13 @@ export class EnterpriseCollaborationSystem {
     return true;
   }
 
+  /**
+   * Makes a change in a collaboration session.
+   * @param {string} sessionId The ID of the collaboration session.
+   * @param {string} userId The ID of the user making the change.
+   * @param {Omit<CollaborationChange, 'id' | 'userId' | 'userName' | 'timestamp' | 'version'>} change The change to make.
+   * @returns {Promise<CollaborationChange>} A promise that resolves with the new change.
+   */
   async makeChange(
     sessionId: string,
     userId: string,
@@ -352,7 +393,15 @@ export class EnterpriseCollaborationSystem {
     return collaborationChange;
   }
 
-  // Comments and Discussions
+  /**
+   * Adds a comment to a collaboration session.
+   * @param {string} sessionId The ID of the collaboration session.
+   * @param {string} userId The ID of the user adding the comment.
+   * @param {string} content The content of the comment.
+   * @param {CollaborationComment['type']} [type='comment'] The type of the comment.
+   * @param {{ line: number; column: number; }} [position] The position of the comment.
+   * @returns {Promise<CollaborationComment>} A promise that resolves with the newly created comment.
+   */
   async addComment(
     sessionId: string,
     userId: string,
@@ -410,6 +459,13 @@ export class EnterpriseCollaborationSystem {
     return comment;
   }
 
+  /**
+   * Replies to a comment.
+   * @param {string} commentId The ID of the comment to reply to.
+   * @param {string} userId The ID of the user replying.
+   * @param {string} content The content of the reply.
+   * @returns {Promise<CollaborationReply>} A promise that resolves with the newly created reply.
+   */
   async replyToComment(
     commentId: string,
     userId: string,
@@ -447,7 +503,15 @@ export class EnterpriseCollaborationSystem {
     return reply;
   }
 
-  // Invitations
+  /**
+   * Invites a user to a collaboration session.
+   * @param {string} sessionId The ID of the collaboration session.
+   * @param {string} invitedUserEmail The email of the user to invite.
+   * @param {string} invitedBy The ID of the user sending the invitation.
+   * @param {CollaborationPermissions} permissions The permissions for the invited user.
+   * @param {string} [message] An optional message to include with the invitation.
+   * @returns {Promise<CollaborationInvitation>} A promise that resolves with the created invitation.
+   */
   async inviteToSession(
     sessionId: string,
     invitedUserEmail: string,
@@ -559,11 +623,20 @@ export class EnterpriseCollaborationSystem {
     }
   }
 
-  // Public API Methods
+  /**
+   * Gets a collaboration session by its ID.
+   * @param {string} sessionId The ID of the collaboration session to get.
+   * @returns {Promise<CollaborationSession | null>} A promise that resolves with the collaboration session, or null if not found.
+   */
   async getSession(sessionId: string): Promise<CollaborationSession | null> {
     return this.sessions.get(sessionId) || null;
   }
 
+  /**
+   * Gets all collaboration sessions for a user.
+   * @param {string} userId The ID of the user.
+   * @returns {Promise<CollaborationSession[]>} A promise that resolves with a list of collaboration sessions.
+   */
   async getUserSessions(userId: string): Promise<CollaborationSession[]> {
     const userSessions: CollaborationSession[] = [];
     
@@ -577,18 +650,39 @@ export class EnterpriseCollaborationSystem {
     return userSessions;
   }
 
+  /**
+   * Gets all comments for a collaboration session.
+   * @param {string} sessionId The ID of the collaboration session.
+   * @returns {Promise<CollaborationComment[]>} A promise that resolves with a list of comments.
+   */
   async getSessionComments(sessionId: string): Promise<CollaborationComment[]> {
     return this.comments.get(sessionId) || [];
   }
 
+  /**
+   * Gets all changes for a collaboration session.
+   * @param {string} sessionId The ID of the collaboration session.
+   * @returns {Promise<CollaborationChange[]>} A promise that resolves with a list of changes.
+   */
   async getSessionChanges(sessionId: string): Promise<CollaborationChange[]> {
     return this.changes.get(sessionId) || [];
   }
 
+  /**
+   * Gets all notifications for a user.
+   * @param {string} userId The ID of the user.
+   * @returns {Promise<CollaborationNotification[]>} A promise that resolves with a list of notifications.
+   */
   async getUserNotifications(userId: string): Promise<CollaborationNotification[]> {
     return this.notifications.get(userId) || [];
   }
 
+  /**
+   * Marks a notification as read.
+   * @param {string} userId The ID of the user.
+   * @param {string} notificationId The ID of the notification to mark as read.
+   * @returns {Promise<boolean>} A promise that resolves with true if the notification was marked as read, false otherwise.
+   */
   async markNotificationAsRead(userId: string, notificationId: string): Promise<boolean> {
     const notifications = this.notifications.get(userId);
     if (!notifications) {
@@ -604,7 +698,11 @@ export class EnterpriseCollaborationSystem {
     return true;
   }
 
-  // Subscription Methods
+  /**
+   * Subscribes to updates from the collaboration system.
+   * @param {(update: any) => void} callback The callback to call with updates.
+   * @returns {() => void} A function to unsubscribe.
+   */
   subscribeToUpdates(callback: (update: any) => void): () => void {
     this.subscribers.add(callback);
     return () => this.subscribers.delete(callback);
@@ -726,6 +824,10 @@ export class EnterpriseCollaborationSystem {
 // Export singleton instance
 let enterpriseCollaborationSystem: EnterpriseCollaborationSystem | null = null;
 
+/**
+ * Gets the singleton instance of the EnterpriseCollaborationSystem.
+ * @returns {EnterpriseCollaborationSystem} The singleton instance of the EnterpriseCollaborationSystem.
+ */
 export function getEnterpriseCollaborationSystem(): EnterpriseCollaborationSystem {
   if (!enterpriseCollaborationSystem) {
     enterpriseCollaborationSystem = new EnterpriseCollaborationSystem();

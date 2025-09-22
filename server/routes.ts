@@ -26,6 +26,11 @@ import { getN8nNodeSystem } from "./n8n-node-system.js";
 import { getN8nIntegrationManager } from "./n8n-integrations.js";
 import { getAIPromptManager } from "./ai-prompt-manager.js";
 
+/**
+ * Registers all the API routes, initializes services, and sets up WebSocket connections.
+ * @param {Express} app The Express application instance.
+ * @returns {Promise<Server>} A promise that resolves with the HTTP server instance.
+ */
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
 
@@ -103,8 +108,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   }
 
   // WebSocket server for real-time updates
-  const wss = new WebSocketServer({ 
-    server: httpServer, 
+  const wss = new WebSocketServer({
+    server: httpServer,
     path: '/ws',
     perMessageDeflate: true
   });
@@ -378,6 +383,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // AI Content Generation
+  // This endpoint uses AI to generate content for social media posts or other purposes.
   app.post('/api/ai/generate-content', async (req, res) => {
     try {
       const { prompt, type = 'post' } = req.body;
@@ -500,29 +506,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'Message is required' });
       }
 
-      // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
-      const response = await openai.chat.completions.create({
-        model: "gpt-5",
-        messages: [
-          { 
-            role: "system", 
-            content: "You are a helpful AI assistant for AIFlow, a social media automation platform. Help users with content creation, automation setup, and platform features. Respond with JSON in this format: {\"response\": \"your helpful response\"}" 
-          },
-          { role: "user", content: message }
-        ],
-        response_format: { type: "json_object" },
-      });
+      const messages = [
+        { 
+          role: "system", 
+          content: "You are a helpful AI assistant for AuraOS, a social media automation platform. Help users with content creation, automation setup, and platform features." 
+        },
+        { role: "user", content: message }
+      ];
 
-      const aiResponse = JSON.parse(response.choices[0].message.content || '{}');
+      const aiTextResponse = await chatWithAssistant(messages);
       
       // Save chat message
       await storage.createChatMessage({
         userId,
         message,
-        response: aiResponse.response
+        response: aiTextResponse
       });
 
-      res.json(aiResponse);
+      res.json({ response: aiTextResponse });
     } catch (error) {
       console.error('Chat error:', error);
       res.status(500).json({ message: 'Failed to process chat message' });
@@ -639,6 +640,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Smart Learning AI Meta Loop API routes
+  // These endpoints are for the self-improving AI system, allowing it to learn and adapt.
   app.post('/api/ai/smart-learning', async (req, res) => {
     try {
       const { userId, taskType, inputData, expectedOutput, metadata } = req.body;
@@ -2744,6 +2746,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // =============================================================================
   // CLI-SPECIFIC API ENDPOINTS (Inspired by ZentixAI)
+  // These endpoints are designed to be used by a command-line interface for system management and interaction.
   // =============================================================================
 
   /**
@@ -2812,11 +2815,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'Message is required' });
       }
 
-      // Use the existing chat functionality
-      const response = await chatWithAssistant(message, context);
+      const messages = [
+        { role: 'system', content: `You are a helpful assistant responding in a CLI context: ${context}.` },
+        { role: 'user', content: message }
+      ];
+      const response = await chatWithAssistant(messages);
       
       res.json({
-        response: response,
+        response,
         timestamp: new Date().toISOString(),
         context: context
       });

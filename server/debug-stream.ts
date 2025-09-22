@@ -6,10 +6,17 @@ interface Client {
   res: Response;
 }
 
+/**
+ * Manages a stream of debug events to which clients can connect.
+ */
 class DebugStream {
   private clients: Client[] = [];
   private nextClientId = 1;
 
+  /**
+   * Adds a client to the debug stream.
+   * @param {Response} res The Express response object for the client.
+   */
   addClient(res: Response) {
     res.writeHead(200, {
       'Content-Type': 'text/event-stream',
@@ -32,10 +39,18 @@ class DebugStream {
     });
   }
 
+  /**
+   * Removes a client from the debug stream.
+   * @param {string} clientId The ID of the client to remove.
+   */
   removeClient(clientId: string) {
     this.clients = this.clients.filter(client => client.id !== clientId);
   }
 
+  /**
+   * Broadcasts an event to all connected clients.
+   * @param {Record<string, any>} event The event to broadcast.
+   */
   broadcast(event: Record<string, any>) {
     if (this.clients.length === 0) {
       return;
@@ -58,6 +73,10 @@ class DebugStream {
 // Singleton instance
 const debugStream = new DebugStream();
 
+/**
+ * Gets the singleton instance of the DebugStream.
+ * @returns {DebugStream} The singleton instance of the DebugStream.
+ */
 export function getDebugStream() {
   return debugStream;
 }

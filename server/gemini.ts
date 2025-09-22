@@ -3,6 +3,11 @@ import { GoogleGenAI } from "@google/genai";
 // This API key is from Gemini Developer API Key, not vertex AI API Key
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
 
+/**
+ * Generates content using the Gemini AI model.
+ * @param {string} prompt The prompt to generate content from.
+ * @returns {Promise<string>} A promise that resolves with the generated content.
+ */
 export async function generateContent(prompt: string): Promise<string> {
     try {
         const response = await ai.models.generateContent({
@@ -17,6 +22,12 @@ export async function generateContent(prompt: string): Promise<string> {
     }
 }
 
+/**
+ * Generates social media post content, including hashtags, based on a topic and mood.
+ * @param {string} topic The topic of the post.
+ * @param {string} [mood] The desired mood or tone of the post.
+ * @returns {Promise<{ content: string; hashtags: string[] }>} A promise that resolves with the post content and hashtags.
+ */
 export async function generatePostContent(topic: string, mood?: string): Promise<{ content: string; hashtags: string[] }> {
     try {
         const systemPrompt = `You are a social media content creator. Generate engaging social media post content based on the topic "${topic}"${mood ? ` with a ${mood} tone` : ''}. 
@@ -59,6 +70,11 @@ export async function generatePostContent(topic: string, mood?: string): Promise
     }
 }
 
+/**
+ * Chats with the AI assistant.
+ * @param {Array<{ role: string; content: string }>} messages An array of message objects, representing the conversation history.
+ * @returns {Promise<string>} A promise that resolves with the assistant's response.
+ */
 export async function chatWithAssistant(messages: Array<{ role: string; content: string }>): Promise<string> {
     try {
         // Convert messages to Gemini format
@@ -84,6 +100,11 @@ export async function chatWithAssistant(messages: Array<{ role: string; content:
     }
 }
 
+/**
+ * Analyzes a workflow configuration and provides suggestions and optimizations.
+ * @param {any} workflowConfig The workflow configuration to analyze.
+ * @returns {Promise<{ suggestions: string[]; optimizations: string[] }>} A promise that resolves with suggestions and optimizations.
+ */
 export async function analyzeWorkflow(workflowConfig: any): Promise<{ suggestions: string[]; optimizations: string[] }> {
     try {
         const systemPrompt = `You are a workflow automation expert. Analyze this n8n-style workflow configuration and provide suggestions for improvement and optimization.

@@ -3,9 +3,15 @@
 
 import { FirestoreService } from '../client/src/lib/firebase';
 
+/**
+ * A collection of tools for data analysis and visualization.
+ */
 export class DataAnalysisTools {
   /**
-   * Comprehensive data analysis suite
+   * Analyzes a dataset using the specified analysis type.
+   * @param {any[]} data The dataset to analyze.
+   * @param {AnalysisType} analysisType The type of analysis to perform.
+   * @returns {Promise<AnalysisResult>} A promise that resolves with the analysis result.
    */
   static async analyzeDataset(data: any[], analysisType: AnalysisType): Promise<AnalysisResult> {
     try {
@@ -724,7 +730,10 @@ export class DataAnalysisTools {
   }
 
   /**
-   * Save analysis results to Firestore
+   * Saves an analysis result to Firestore.
+   * @param {string} userId The ID of the user who performed the analysis.
+   * @param {AnalysisResult} analysisResult The analysis result to save.
+   * @returns {Promise<string>} A promise that resolves with the ID of the newly created post.
    */
   static async saveAnalysisToFirestore(userId: string, analysisResult: AnalysisResult): Promise<string> {
     try {
@@ -747,7 +756,9 @@ export class DataAnalysisTools {
   }
 }
 
-// Type definitions
+/**
+ * The type of analysis to perform.
+ */
 export type AnalysisType = 
   | 'descriptive' 
   | 'correlation' 
@@ -758,6 +769,9 @@ export type AnalysisType =
   | 'sentiment_analysis' 
   | 'text_analysis';
 
+/**
+ * The result of a data analysis.
+ */
 export interface AnalysisResult {
   success: boolean;
   analysisType: AnalysisType;
@@ -766,27 +780,42 @@ export interface AnalysisResult {
   timestamp: string;
 }
 
+/**
+ * Data for a correlation analysis.
+ */
 export interface CorrelationData {
   x: number;
   y: number;
 }
 
+/**
+ * Data for a point in a 2D space.
+ */
 export interface PointData {
   x: number;
   y: number;
 }
 
+/**
+ * A cluster of points.
+ */
 export interface Cluster {
   id: number;
   centroid: PointData;
   points: PointData[];
 }
 
+/**
+ * Data for a time series analysis.
+ */
 export interface TimeSeriesData {
   timestamp: string;
   value: number;
 }
 
+/**
+ * Data for a text analysis.
+ */
 export interface TextData {
   text: string;
   metadata?: any;
