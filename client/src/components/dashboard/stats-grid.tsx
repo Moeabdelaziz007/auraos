@@ -1,16 +1,34 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
+import { Alert } from "@/components/ui/alert";
+import { ProgressBar } from "@/components/ui/progress-bar"; // Assuming a reusable ProgressBar component exists
+import "@/styles/theme.css"; // Importing the theme CSS file
 
 interface Stats {
   totalPosts: number;
   activeAgents: number;
   engagementRate: number;
   automationsRun: number;
+  totalPostsChange: string; // Added for dynamic change
+  activeAgentsChange: string; // Added for dynamic change
 }
 
 export default function StatsGrid() {
-  const { data: stats, isLoading } = useQuery<Stats>({
+  const { data: stats, isLoading, isError, error } = useQuery<Stats>({
     queryKey: ['/api/users/user-1/stats'],
+    queryFn: async () => {
+      const response = await fetch('/api/users/user-1/stats', {
+        headers: {
+          'Cache-Control': 'max-age=300', // Cache for 5 minutes
+        },
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch stats');
+      }
+      return response.json();
+    },
+    staleTime: 300000, // Cache data for 5 minutes
+    cacheTime: 600000, // Keep unused data in cache for 10 minutes
   });
 
   if (isLoading) {
@@ -29,78 +47,72 @@ export default function StatsGrid() {
     );
   }
 
+  if (isError) {
+    return (
+      <Alert variant="destructive" className="mt-4">
+        <p>Error: {error instanceof Error ? error.message : 'An error occurred'}</p>
+        <button
+          onClick={() => window.location.reload()}
+          className="mt-2 px-4 py-2 bg-neon-green text-white rounded hover:bg-green-600 transition"
+        >
+          Retry
+        </button>
+      </Alert>
+    );
+  }
+
   const statCards = [
     {
       title: "Total Posts",
-      value: stats?.totalPosts?.toLocaleString() || "0",
-      change: "+12%",
-      changeText: "from last month",
-      icon: "fas fa-file-alt",
-      iconBg: "bg-primary/10",
-      iconColor: "text-primary",
-      isPositive: true,
-      testId: "stat-total-posts"
+      value: stats.totalPosts,
+      change: stats.totalPostsChange,
     },
     {
       title: "Active Agents",
-      value: stats?.activeAgents?.toString() || "0",
-      change: "+3",
-      changeText: "new this week",
-      icon: "fas fa-robot",
-      iconBg: "bg-accent/10",
-      iconColor: "text-accent",
-      isPositive: true,
-      testId: "stat-active-agents"
+      value: stats.activeAgents,
+      change: stats.activeAgentsChange,
     },
     {
       title: "Engagement Rate",
-      value: `${stats?.engagementRate?.toFixed(1) || "0.0"}%`,
-      change: "+0.8%",
-      changeText: "from last week",
-      icon: "fas fa-heart",
-      iconBg: "bg-green-500/10",
-      iconColor: "text-green-500",
-      isPositive: true,
-      testId: "stat-engagement-rate"
+      value: `${stats.engagementRate}%`,
+      change: null, // No change data for engagement rate
+      visualization: <ProgressBar value={stats.engagementRate} max={100} />,
     },
     {
       title: "Automations Run",
-      value: stats?.automationsRun?.toLocaleString() || "0",
-      change: "+24%",
-      changeText: "efficiency gain",
-      icon: "fas fa-bolt",
-      iconBg: "bg-blue-500/10",
-      iconColor: "text-blue-500",
-      isPositive: true,
-      testId: "stat-automations-run"
-    }
+      value: stats.automationsRun,
+      change: null, // No change data for automations run
+      visualization: <ProgressBar value={stats.automationsRun} max={1000} />,
+    },
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      {statCards.map((stat) => (
-        <Card key={stat.testId} className="p-6" data-testid={stat.testId}>
-          <CardContent className="p-0">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <p className="text-sm text-muted-foreground">{stat.title}</p>
-                <p className="text-2xl font-bold text-foreground" data-testid={`${stat.testId}-value`}>
-                  {stat.value}
-                </p>
-              </div>
-              <div className={`w-12 h-12 ${stat.iconBg} rounded-lg flex items-center justify-center`}>
-                <i className={`${stat.icon} ${stat.iconColor} text-xl`}></i>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <span className={`text-sm ${stat.isPositive ? 'text-green-600' : 'text-red-600'}`} data-testid={`${stat.testId}-change`}>
-                {stat.change}
-              </span>
-              <span className="text-sm text-muted-foreground" data-testid={`${stat.testId}-change-text`}>
-                {stat.changeText}
-              </span>
-            </div>
+    <div
+      className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+      role="region"
+      aria-label="Statistics Overview"
+    >
+      {statCards.map((stat, index) => (
+        <Card
+          key={index}
+          className="p-6 hover:shadow-lg transition-shadow"
+          role="article"
+          aria-labelledby={`stat-title-${index}`}
+        >
+          <CardContent>
+            <h3
+              id={`stat-title-${index}`}
+              className="text-lg font-semibold text-neon-green"
+            >
+              {stat.title}
+            </h3>
+            <p className="text-2xl font-bold text-medium-gray">{stat.value}</p>
+            {stat.change && (
+              <p className="text-sm text-muted">{stat.change}</p>
+            )}
+            {stat.visualization && (
+              <div className="mt-4">{stat.visualization}</div>
+            )}
           </CardContent>
         </Card>
       ))}

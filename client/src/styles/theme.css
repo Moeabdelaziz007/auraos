@@ -1,0 +1,38 @@
+/* Theme variables for medium gray and neon green */
+:root {
+  --color-medium-gray: #6b7280; /* Tailwind gray-500 */
+  --color-neon-green: #00ff7f; /* neon-ish green */
+  --color-neon-green-600: #00e36a;
+  --bg-muted: #f3f4f6; /* light background for muted elements */
+}
+
+/* Utility text colors */
+.text-medium-gray { color: var(--color-medium-gray); }
+.text-neon-green { color: var(--color-neon-green); }
+
+/* Button/interactive */
+.bg-neon-green { background-color: var(--color-neon-green); }
+
+/* Muted background used by skeletons */
+.bg-muted { background-color: var(--bg-muted); }
+
+/* Progress bar defaults */
+.progress-bar {
+  height: 8px;
+  background-color: rgba(0,0,0,0.06);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+.progress-bar > .fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-neon-green), var(--color-neon-green-600));
+  width: 0%;
+  transition: width 600ms ease;
+}
+
+/* Accessible focus */
+:focus {
+  outline: 2px solid rgba(0,255,127,0.25);
+  outline-offset: 2px;
+}
+
