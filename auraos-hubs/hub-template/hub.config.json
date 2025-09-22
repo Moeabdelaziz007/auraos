@@ -1,0 +1,20 @@
+{
+  "hubName": "Example Hub",
+  "version": "0.1.0",
+  "description": "A description of this specific vertical hub.",
+  "primaryColor": "#007bff",
+  "enabledConnectors": [
+    "flights",
+    "restaurants"
+  ],
+  "apiKeys": {
+    "flightProvider": "YOUR_FLIGHT_API_KEY_HERE",
+    "restaurantProvider": "YOUR_RESTAURANT_API_KEY_HERE",
+    "shoppingProvider": "YOUR_SHOPPING_API_KEY_HERE"
+  },
+  "features": {
+    "enableItineraryGenerator": true,
+    "enablePriceWatcher": false,
+    "enableMealPlanner": true
+  }
+}
