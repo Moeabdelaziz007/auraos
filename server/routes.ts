@@ -1,6 +1,7 @@
-import type { Express } from "express";
+import { Router, type Express } from "express";
 import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
+import { authMiddleware, AuthenticatedRequest } from "./middleware/auth.js";
 import { generateContent, generatePostContent, chatWithAssistant, analyzeWorkflow } from "./gemini.js";
 import { storage } from "./storage";
 import { insertPostSchema, insertWorkflowSchema, insertUserAgentSchema, insertChatMessageSchema } from "../shared/schema.js";
@@ -28,6 +29,8 @@ import { getAIPromptManager } from "./ai-prompt-manager.js";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
+  const protectedRouter = Router();
+  protectedRouter.use(authMiddleware);
 
   // Initialize Smart Learning Telegram Bot
   const telegramToken = process.env.TELEGRAM_BOT_TOKEN;
@@ -344,21 +347,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/posts', async (req, res) => {
+  protectedRouter.post('/posts', async (req: AuthenticatedRequest, res) => {
     try {
-      const validatedData = insertPostSchema.parse(req.body);
+      const userId = req.user?.id;
+      if (!userId) {
+        // This case should ideally not be reached if middleware is effective
+        return res.status(401).json({ message: 'Authentication error' });
+      }
+
+      // Add the authenticated user's ID to the data to be validated
+      const validatedData = insertPostSchema.parse({ ...req.body, userId });
       const post = await storage.createPost(validatedData);
       
+      // Fetch the full post with author info to broadcast
+      const postWithAuthor = await storage.getPostWithAuthor(post.id);
+
       // Broadcast new post to all connected clients
-      broadcast({ type: 'new_post', data: post });
+      broadcast({ type: 'new_post', data: postWithAuthor });
       
-      res.status(201).json(post);
+      res.status(201).json(postWithAuthor);
     } catch (error) {
-      res.status(400).json({ message: 'Invalid post data' });
+      console.error("Failed to create post:", error);
+      res.status(400).json({ message: 'Invalid post data', error: error.message });
     }
   });
 
-  app.post('/api/posts/:id/like', async (req, res) => {
+  protectedRouter.post('/posts/:id/like', async (req: AuthenticatedRequest, res) => {
     try {
       const { id } = req.params;
       const post = await storage.getPost(id);
@@ -450,9 +464,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Workflows routes
-  app.get('/api/workflows', async (req, res) => {
+  protectedRouter.get('/workflows', async (req: AuthenticatedRequest, res) => {
     try {
-      const userId = req.query.userId as string || 'user-1';
+      const userId = req.user?.id;
+      if (!userId) { return res.status(401).json({ message: 'Authentication error' }); }
+
       const workflows = await storage.getWorkflowsByUser(userId);
       res.json(workflows);
     } catch (error) {
@@ -460,9 +476,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/workflows', async (req, res) => {
+  protectedRouter.post('/workflows', async (req: AuthenticatedRequest, res) => {
     try {
-      const validatedData = insertWorkflowSchema.parse(req.body);
+      const userId = req.user?.id;
+      if (!userId) { return res.status(401).json({ message: 'Authentication error' }); }
+
+      const validatedData = insertWorkflowSchema.parse({ ...req.body, userId });
       const workflow = await storage.createWorkflow(validatedData);
       res.status(201).json(workflow);
     } catch (error) {
@@ -470,20 +489,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/workflows/:id', async (req, res) => {
+  protectedRouter.put('/workflows/:id', async (req: AuthenticatedRequest, res) => {
     try {
+      const userId = req.user?.id;
       const { id } = req.params;
-      await storage.updateWorkflow(id, req.body);
+      if (!userId) { return res.status(401).json({ message: 'Authentication error' }); }
+
       const workflow = await storage.getWorkflow(id);
-      res.json(workflow);
+      if (!workflow) { return res.status(404).json({ message: 'Workflow not found' }); }
+      if (workflow.userId !== userId) { return res.status(403).json({ message: 'Forbidden: You do not own this workflow' }); }
+
+      await storage.updateWorkflow(id, req.body);
+      const updatedWorkflow = await storage.getWorkflow(id);
+      res.json(updatedWorkflow);
     } catch (error) {
       res.status(500).json({ message: 'Failed to update workflow' });
     }
   });
 
-  app.delete('/api/workflows/:id', async (req, res) => {
+  protectedRouter.delete('/workflows/:id', async (req: AuthenticatedRequest, res) => {
     try {
+      const userId = req.user?.id;
       const { id } = req.params;
+      if (!userId) { return res.status(401).json({ message: 'Authentication error' }); }
+
+      const workflow = await storage.getWorkflow(id);
+      if (!workflow) { return res.status(404).json({ message: 'Workflow not found' }); }
+      if (workflow.userId !== userId) { return res.status(403).json({ message: 'Forbidden: You do not own this workflow' }); }
+
       await storage.deleteWorkflow(id);
       res.json({ message: 'Workflow deleted' });
     } catch (error) {
@@ -3238,6 +3271,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ success: false, error: (error as Error).message });
     }
   });
+
+  // Mount the protected router under the /api path
+  app.use('/api', protectedRouter);
 
   return httpServer;
 }

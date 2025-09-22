@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, memo, useCallback } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,29 +11,31 @@ interface PostCardProps {
   post: PostWithAuthor;
 }
 
-export default function PostCard({ post }: PostCardProps) {
+const formatTimeAgo = (date: Date | string) => {
+  const now = new Date();
+  const postDate = new Date(date);
+  const diffInHours = Math.floor((now.getTime() - postDate.getTime()) / (1000 * 60 * 60));
+
+  if (diffInHours < 1) return 'Just now';
+  if (diffInHours < 24) return `${diffInHours}h ago`;
+  return `${Math.floor(diffInHours / 24)}d ago`;
+};
+
+function PostCard({ post }: PostCardProps) {
   const [liked, setLiked] = useState(false);
   const queryClient = useQueryClient();
 
+  const handleLike = useCallback(async () => {
+    return apiRequest('POST', `/api/posts/${post.id}/like`);
+  }, [post.id]);
+
   const likeMutation = useMutation({
-    mutationFn: async () => {
-      return apiRequest('POST', `/api/posts/${post.id}/like`);
-    },
+    mutationFn: handleLike,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/posts'] });
       setLiked(true);
     },
   });
-
-  const formatTimeAgo = (date: Date | string) => {
-    const now = new Date();
-    const postDate = new Date(date);
-    const diffInHours = Math.floor((now.getTime() - postDate.getTime()) / (1000 * 60 * 60));
-    
-    if (diffInHours < 1) return 'Just now';
-    if (diffInHours < 24) return `${diffInHours}h ago`;
-    return `${Math.floor(diffInHours / 24)}d ago`;
-  };
 
   return (
     <Card className="overflow-hidden transition-all duration-200 hover:shadow-md" data-testid={`post-card-${post.id}`}>
@@ -131,3 +133,5 @@ export default function PostCard({ post }: PostCardProps) {
     </Card>
   );
 }
+
+export default memo(PostCard);

@@ -1,8 +1,8 @@
-# Amrikyy: Advanced AI-Powered Automation & Workflow Platform
+# AuraOS: Advanced AI-Powered Automation & Workflow Platform
 
 ## Overview
 
-Amrikyy is a next-generation, AI-powered automation platform designed to streamline workflows, automate complex tasks, and supercharge productivity. It leverages a sophisticated tech stack including React, TypeScript, Vite, and Firebase, combined with a powerful backend of custom AI agents, n8n-style workflow automation, and curated AI prompts.
+AuraOS is a next-generation, AI-powered automation platform designed to streamline workflows, automate complex tasks, and supercharge productivity. It leverages a sophisticated tech stack including React, TypeScript, Vite, and Firebase, combined with a powerful backend of custom AI agents, n8n-style workflow automation, and curated AI prompts.
 
 ## Core Features
 
@@ -30,6 +30,18 @@ Amrikyy is a next-generation, AI-powered automation platform designed to streaml
 - **Advanced AI Tools:** A suite of advanced AI tools to boost your productivity.
 - **Text Recognition (OCR):** A new page to extract text from images.
 
+## Project Structure
+
+The project is organized into several key directories:
+
+- **`client/`**: Contains the React/TypeScript frontend application.
+- **`server/`**: Holds the Node.js backend services and API endpoints.
+- **`infra/`**: Infrastructure configurations, such as Firebase rules.
+- **`apps/core/`**: Core functionalities of the application.
+- **`scripts/`**: Helper scripts for automation and maintenance.
+- **`services/`**: Integrated services.
+- **`cypress/e2e/`**: End-to-end tests.
+
 ## Getting Started
 
 To get a local copy up and running, follow these simple steps.
@@ -43,7 +55,7 @@ To get a local copy up and running, follow these simple steps.
 
 1.  **Clone the repo:**
     ```sh
-    git clone https://github.com/your_username/your_repository.git
+    git clone https://github.com/your-username/aura-os.git
     ```
 2.  **Install NPM packages:**
     ```sh
@@ -65,6 +77,15 @@ To get a local copy up and running, follow these simple steps.
     ```sh
     npm run dev
     ```
+
+## Usage
+
+Once the application is running, you can explore its features:
+
+- **Create an account** or log in using Google.
+- **Navigate to the Dashboard** to get an overview of the available tools.
+- **Explore the Workflows** section to build your first automation. For example, you could create a workflow that sends you a summary of your favorite news sources via Telegram every morning.
+- **Manage AI Agents** to perform custom tasks based on your prompts.
 
 ## Deployment
 

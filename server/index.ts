@@ -1,3 +1,6 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import express, { type Request, Response, NextFunction } from "express";
 import { createServer } from "http";
 import { registerRoutes } from "./routes";
@@ -136,8 +139,8 @@ app.use((req, res, next) => {
     host: "0.0.0.0",
     reusePort: true,
   }, async () => {
-    log(`🚀 Amrikyy server running on port ${port}`);
-    enhancedLogger.info(`Amrikyy Server started on port ${port}`, 'server', {
+    log(`🚀 AuraOS server running on port ${port}`);
+    enhancedLogger.info(`AuraOS Server started on port ${port}`, 'server', {
       port,
       host: '0.0.0.0',
       environment: app.get('env')
