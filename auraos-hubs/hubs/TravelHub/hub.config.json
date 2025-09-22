@@ -1,0 +1,19 @@
+{
+  "hubName": "Travel Hub",
+  "version": "0.1.0",
+  "description": "A hub for searching flights, hotels, and planning itineraries.",
+  "primaryColor": "#1D85E3",
+  "enabledConnectors": [
+    "flights",
+    "hotels"
+  ],
+  "apiKeys": {
+    "flightProvider": "YOUR_FLIGHT_API_KEY_HERE",
+    "hotelProvider": "YOUR_HOTEL_API_KEY_HERE"
+  },
+  "features": {
+    "enableItineraryGenerator": true,
+    "enablePriceWatcher": true,
+    "enableMealPlanner": false
+  }
+}
