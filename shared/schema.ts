@@ -153,7 +153,7 @@ export type PostWithAuthor = Post & {
 
 export type WorkflowNode = {
   id: string;
-  type: 'trigger' | 'ai' | 'action';
+  type: 'trigger' | 'ai' | 'action' | 'telegram-message-trigger' | 'telegram-send-message-action';
   position: { x: number; y: number };
   data: Record<string, any>;
 };

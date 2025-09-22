@@ -497,6 +497,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post('/api/workflows/:id/run', async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { triggerContext } = req.body;
+      const workflow = await storage.getWorkflow(id);
+      if (!workflow) {
+        return res.status(404).json({ message: 'Workflow not found' });
+      }
+      // We don't wait for the execution to finish
+      workflowExecutor.execute(id, triggerContext || {});
+      res.json({ message: 'Workflow execution started' });
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to run workflow' });
+    }
+  });
+
   // Chat routes
   app.post('/api/chat', async (req, res) => {
     try {

@@ -1,5 +1,7 @@
 import TelegramBot from 'node-telegram-bot-api';
 import { storage } from './storage.js';
+import { workflowExecutor } from './workflow-executor.js';
+import type { WorkflowNode } from "../shared/schema.js";
 import { getSmartMenuService } from './smart-menu.js';
 import { getEnhancedChatPersona } from './enhanced-persona.js';
 import { chatWithAssistant } from './gemini.js';
@@ -74,6 +76,19 @@ export class TelegramService {
       message: `[Telegram] ${username}: ${text}`,
       response: 'Message received by AuraOS'
     });
+
+    // Trigger workflows based on the new message
+    try {
+      const workflows = await storage.getActiveWorkflowsByTrigger('telegram-message-trigger');
+      console.log(`Found ${workflows.length} active workflows with Telegram triggers.`);
+      for (const workflow of workflows) {
+        console.log(`Triggering workflow ${workflow.id} for new message.`);
+        // We don't wait for the execution to finish
+        workflowExecutor.execute(workflow.id, { message: msg });
+      }
+    } catch (error) {
+      console.error("Error triggering workflows:", error);
+    }
 
     // Handle different types of messages with smart menu integration
     if (text?.startsWith('/start')) {

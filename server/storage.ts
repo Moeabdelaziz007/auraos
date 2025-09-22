@@ -106,6 +106,17 @@ export interface IStorage {
    * @returns {Promise<void>}
    */
   deleteWorkflow(id: string): Promise<void>;
+  /**
+   * Gets all active workflows.
+   * @returns {Promise<Workflow[]>} A list of all active workflows.
+   */
+  getActiveWorkflows(): Promise<Workflow[]>;
+  /**
+   * Gets all active workflows by a specific trigger type.
+   * @param {string} triggerType The type of the trigger node.
+   * @returns {Promise<Workflow[]>} A list of matching active workflows.
+   */
+  getActiveWorkflowsByTrigger(triggerType: string): Promise<Workflow[]>;
 
   // Agent Templates
   /**
@@ -436,6 +447,18 @@ export class MemStorage implements IStorage {
 
   async deleteWorkflow(id: string): Promise<void> {
     this.workflows.delete(id);
+  }
+
+  async getActiveWorkflows(): Promise<Workflow[]> {
+    return Array.from(this.workflows.values()).filter(w => w.isActive);
+  }
+
+  async getActiveWorkflowsByTrigger(triggerType: string): Promise<Workflow[]> {
+    const activeWorkflows = await this.getActiveWorkflows();
+    return activeWorkflows.filter(w => {
+      const nodes = w.nodes as any[];
+      return nodes.some(n => n.type === triggerType);
+    });
   }
 
   async getAgentTemplates(): Promise<AgentTemplate[]> {

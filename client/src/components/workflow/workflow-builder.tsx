@@ -2,49 +2,78 @@ import { useState, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-interface WorkflowNode {
-  id: string;
-  type: 'trigger' | 'ai' | 'action';
-  title: string;
-  subtitle: string;
-  position: { x: number; y: number };
-  color: string;
-  icon: string;
+import type { WorkflowNode } from "@shared/schema";
+
+interface WorkflowBuilderProps {
+  nodes: WorkflowNode[];
+  onNodesChange: (nodes: WorkflowNode[]) => void;
+  onSave: () => void;
+  onRun: () => void;
+  isSaving: boolean;
+  isRunning: boolean;
 }
 
-const defaultNodes: WorkflowNode[] = [
-  {
-    id: 'trigger-1',
-    type: 'trigger',
-    title: 'Trigger',
-    subtitle: 'New Mention',
-    position: { x: 100, y: 150 },
-    color: 'bg-green-500',
-    icon: 'fas fa-play-circle'
-  },
-  {
-    id: 'ai-1',
-    type: 'ai',
-    title: 'AI Analysis',
-    subtitle: 'Sentiment Check',
-    position: { x: 350, y: 150 },
-    color: 'bg-primary',
-    icon: 'fas fa-robot'
-  },
-  {
-    id: 'action-1',
-    type: 'action',
-    title: 'Auto Reply',
-    subtitle: 'Generate Response',
-    position: { x: 600, y: 150 },
-    color: 'bg-accent',
-    icon: 'fas fa-reply'
+// Helper to get presentation properties from a node
+const getNodeAppearance = (node: WorkflowNode) => {
+  switch (node.type) {
+    case 'trigger':
+      return {
+        color: 'bg-green-500',
+        icon: 'fas fa-play-circle',
+        title: node.data.title || 'Trigger',
+        subtitle: node.data.subtitle || 'New Mention'
+      };
+    case 'ai':
+      return {
+        color: 'bg-primary',
+        icon: 'fas fa-robot',
+        title: node.data.title || 'AI Analysis',
+        subtitle: node.data.subtitle || 'Sentiment Check'
+      };
+    case 'action':
+      return {
+        color: 'bg-accent',
+        icon: 'fas fa-reply',
+        title: node.data.title || 'Auto Reply',
+        subtitle: node.data.subtitle || 'Generate Response'
+      };
+    case 'telegram-message-trigger':
+      return {
+        color: 'bg-blue-500',
+        icon: 'fab fa-telegram-plane',
+        title: 'Telegram Trigger',
+        subtitle: 'On New Message'
+      };
+    case 'telegram-send-message-action':
+        return {
+          color: 'bg-blue-600',
+          icon: 'fas fa-paper-plane',
+          title: 'Telegram Action',
+          subtitle: 'Send Message'
+        };
+    default:
+      return {
+        color: 'bg-gray-500',
+        icon: 'fas fa-question-circle',
+        title: 'Unknown Node',
+        subtitle: 'Configure me'
+      };
   }
-];
+};
 
-export default function WorkflowBuilder() {
-  const [nodes, setNodes] = useState<WorkflowNode[]>(defaultNodes);
+
+export default function WorkflowBuilder({
+  nodes,
+  onNodesChange,
+  onSave,
+  onRun,
+  isSaving,
+  isRunning
+}: WorkflowBuilderProps) {
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
   const [draggedNode, setDraggedNode] = useState<string | null>(null);
   const [dragOffset, setDragOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
@@ -70,12 +99,12 @@ export default function WorkflowBuilder() {
     const x = e.clientX - rect.left - dragOffset.x;
     const y = e.clientY - rect.top - dragOffset.y;
     
-    setNodes(prev => prev.map(node => 
+    onNodesChange(nodes.map(node =>
       node.id === draggedNode 
         ? { ...node, position: { x: Math.max(0, Math.min(x, 700)), y: Math.max(0, Math.min(y, 350)) } }
         : node
     ));
-  }, [draggedNode, dragOffset]);
+  }, [draggedNode, dragOffset, nodes, onNodesChange]);
 
   const handleMouseUp = useCallback(() => {
     setDraggedNode(null);
@@ -85,14 +114,75 @@ export default function WorkflowBuilder() {
     const newNode: WorkflowNode = {
       id: `${type}-${Date.now()}`,
       type,
-      title: type === 'trigger' ? 'New Trigger' : type === 'ai' ? 'AI Process' : 'New Action',
-      subtitle: 'Configure me',
       position: { x: 200, y: 200 },
-      color: type === 'trigger' ? 'bg-green-500' : type === 'ai' ? 'bg-primary' : 'bg-accent',
-      icon: type === 'trigger' ? 'fas fa-play' : type === 'ai' ? 'fas fa-brain' : 'fas fa-cog'
+      data: {
+        title: type === 'trigger' ? 'New Trigger' : type === 'ai' ? 'AI Process' : 'New Action',
+        subtitle: 'Configure me',
+      }
     };
     
-    setNodes(prev => [...prev, newNode]);
+    onNodesChange([...nodes, newNode]);
+  };
+
+  const handleNodeDataChange = (nodeId: string, newData: any) => {
+    onNodesChange(
+      nodes.map(n =>
+        n.id === nodeId ? { ...n, data: { ...n.data, ...newData } } : n
+      )
+    );
+  };
+
+  const renderNodeProperties = (nodeId: string) => {
+    const node = nodes.find(n => n.id === nodeId);
+    if (!node) return null;
+
+    const otherNodes = nodes.filter(n => n.id !== nodeId);
+
+    const commonProperties = (
+      <div className="space-y-2 mt-4 pt-4 border-t">
+        <Label>Next Node</Label>
+        <Select
+          value={node.data.next || ''}
+          onValueChange={(value) => handleNodeDataChange(nodeId, { next: value })}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select next node..." />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="">None</SelectItem>
+            {otherNodes.map(n => (
+              <SelectItem key={n.id} value={n.id}>{n.data.title || n.id}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+    );
+
+    switch (node.type) {
+      case 'telegram-send-message-action':
+        return (
+          <>
+            <div className="space-y-2">
+              <Label htmlFor="message">Message Text</Label>
+              <Textarea
+                id="message"
+                placeholder="Enter the message to send..."
+                value={node.data.message || ''}
+                onChange={(e) => handleNodeDataChange(nodeId, { message: e.target.value })}
+                className="bg-background"
+              />
+            </div>
+            {commonProperties}
+          </>
+        );
+      default:
+        return (
+          <>
+            <p className="text-sm text-muted-foreground">No specific properties for this node type.</p>
+            {commonProperties}
+          </>
+        );
+    }
   };
 
   return (
@@ -101,13 +191,13 @@ export default function WorkflowBuilder() {
         <div className="flex items-center justify-between">
           <CardTitle>Workflow Builder</CardTitle>
           <div className="flex gap-2">
-            <Button size="sm" variant="outline" data-testid="button-save-workflow">
-              <i className="fas fa-save mr-2"></i>
-              Save
+            <Button size="sm" variant="outline" data-testid="button-save-workflow" onClick={onSave} disabled={isSaving}>
+              <i className={`fas ${isSaving ? 'fa-spinner fa-spin' : 'fa-save'} mr-2`}></i>
+              {isSaving ? 'Saving...' : 'Save'}
             </Button>
-            <Button size="sm" data-testid="button-run-workflow">
-              <i className="fas fa-play mr-2"></i>
-              Run
+            <Button size="sm" data-testid="button-run-workflow" onClick={onRun} disabled={isRunning}>
+              <i className={`fas ${isRunning ? 'fa-spinner fa-spin' : 'fa-play'} mr-2`}></i>
+              {isRunning ? 'Running...' : 'Run'}
             </Button>
           </div>
         </div>
@@ -153,12 +243,38 @@ export default function WorkflowBuilder() {
               </Button>
             </div>
 
+            <h4 className="font-medium text-foreground mb-3 mt-4 pt-4 border-t">Telegram</h4>
+            <div className="space-y-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full justify-start"
+                onClick={() => addNode('telegram-message-trigger')}
+                data-testid="button-add-telegram-trigger"
+              >
+                <i className="fab fa-telegram-plane text-blue-500 mr-2"></i>
+                TG Trigger
+              </Button>
+
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full justify-start"
+                onClick={() => addNode('telegram-send-message-action')}
+                data-testid="button-add-telegram-action"
+              >
+                <i className="fas fa-paper-plane text-blue-600 mr-2"></i>
+                TG Action
+              </Button>
+            </div>
+
             {selectedNode && (
               <div className="mt-6 p-3 bg-muted/50 rounded-lg">
                 <h5 className="font-medium mb-2">Node Properties</h5>
-                <p className="text-sm text-muted-foreground">
-                  Configure the selected node's settings here.
+                <p className="text-sm text-muted-foreground mb-3">
+                  Editing node: <span className="font-bold">{selectedNode}</span>
                 </p>
+                {renderNodeProperties(selectedNode)}
               </div>
             )}
           </div>
@@ -174,8 +290,10 @@ export default function WorkflowBuilder() {
             >
               {/* Connection Lines */}
               <svg className="absolute inset-0 w-full h-full pointer-events-none">
-                {nodes.map((node, index) => {
-                  const nextNode = nodes[index + 1];
+                {nodes.map((node) => {
+                  const nextNodeId = node.data.next;
+                  if (!nextNodeId) return null;
+                  const nextNode = nodes.find(n => n.id === nextNodeId);
                   if (!nextNode) return null;
                   
                   return (
@@ -195,31 +313,34 @@ export default function WorkflowBuilder() {
               </svg>
 
               {/* Workflow Nodes */}
-              {nodes.map((node) => (
-                <div
-                  key={node.id}
-                  className={`absolute cursor-move select-none transition-all duration-200 hover:scale-105 ${
-                    selectedNode === node.id ? 'ring-2 ring-primary' : ''
-                  }`}
-                  style={{
-                    left: node.position.x,
-                    top: node.position.y,
-                    transform: draggedNode === node.id ? 'scale(1.05)' : 'scale(1)'
-                  }}
-                  onMouseDown={(e) => handleMouseDown(e, node.id)}
-                  data-testid={`workflow-node-${node.id}`}
-                >
-                  <div className={`${node.color} text-white px-4 py-3 rounded-lg shadow-lg min-w-[160px]`}>
-                    <div className="flex items-center gap-2">
-                      <i className={node.icon}></i>
-                      <div>
-                        <div className="text-sm font-medium">{node.title}</div>
-                        <div className="text-xs opacity-80">{node.subtitle}</div>
+              {nodes.map((node) => {
+                const appearance = getNodeAppearance(node);
+                return (
+                  <div
+                    key={node.id}
+                    className={`absolute cursor-move select-none transition-all duration-200 hover:scale-105 ${
+                      selectedNode === node.id ? 'ring-2 ring-primary' : ''
+                    }`}
+                    style={{
+                      left: node.position.x,
+                      top: node.position.y,
+                      transform: draggedNode === node.id ? 'scale(1.05)' : 'scale(1)'
+                    }}
+                    onMouseDown={(e) => handleMouseDown(e, node.id)}
+                    data-testid={`workflow-node-${node.id}`}
+                  >
+                    <div className={`${appearance.color} text-white px-4 py-3 rounded-lg shadow-lg min-w-[160px]`}>
+                      <div className="flex items-center gap-2">
+                        <i className={appearance.icon}></i>
+                        <div>
+                          <div className="text-sm font-medium">{appearance.title}</div>
+                          <div className="text-xs opacity-80">{appearance.subtitle}</div>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
 
               {/* Grid pattern */}
               <div 
