@@ -1,7 +1,8 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
-import { generateContent, generatePostContent, chatWithAssistant, analyzeWorkflow } from "./gemini.js";
+import { generateContent, generatePostContent, analyzeWorkflow } from "./gemini.js";
+import { aiManager } from "./ai/ai-manager.js";
 import { storage } from "./storage";
 import { insertPostSchema, insertWorkflowSchema, insertUserAgentSchema, insertChatMessageSchema } from "../shared/schema.js";
 import { initializeTelegramBot, getTelegramService } from "./telegram.js";
@@ -506,15 +507,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'Message is required' });
       }
 
-      const messages = [
-        { 
-          role: "system", 
-          content: "You are a helpful AI assistant for AuraOS, a social media automation platform. Help users with content creation, automation setup, and platform features." 
-        },
-        { role: "user", content: message }
-      ];
-
-      const aiTextResponse = await chatWithAssistant(messages);
+      const fullPrompt = `System: You are a helpful AI assistant for AuraOS, a social media automation platform. Help users with content creation, automation setup, and platform features.\n\nUser: ${message}`;
+      const aiTextResponse = await aiManager.generateResponse(fullPrompt);
       
       // Save chat message
       await storage.createChatMessage({
